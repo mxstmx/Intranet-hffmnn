@@ -77,6 +77,12 @@ register_deactivation_hook(__FILE__, function() {
 add_shortcode('offene_posten_tabelle', function() {
     ob_start();
     ?>
+    <style>
+        .opv-table-wrapper { overflow-x: auto; }
+        @media (max-width: 600px) {
+            .opv-table-wrapper th, .opv-table-wrapper td { white-space: nowrap; }
+        }
+    </style>
     <div id="offene-posten-filter">
         <label for="op-kunde-select">Kunde:</label>
         <select id="op-kunde-select">
@@ -85,6 +91,7 @@ add_shortcode('offene_posten_tabelle', function() {
         <button id="op-download-btn" style="margin-left: 20px;">PDF herunterladen</button>
     </div>
 
+    <div class="opv-table-wrapper">
     <table id="offene-posten-tabelle" class="wp-list-table widefat striped">
         <thead>
             <tr>
@@ -99,6 +106,7 @@ add_shortcode('offene_posten_tabelle', function() {
         </thead>
         <tbody></tbody>
     </table>
+    </div>
 
     <div id="op-summe">
         <strong>Gesamt offener Betrag:</strong> <span id="op-summe-wert">0,00 €</span>
@@ -189,6 +197,69 @@ add_shortcode('offene_posten_tabelle', function() {
             const date = new Date().toISOString().split('T')[0];
             doc.save(`OPV-Kunden-${date}.pdf`);
         });
+    });
+    </script>
+    <?php
+    return ob_get_clean();
+});
+
+// Shortcode [offene_posten_total]
+add_shortcode('offene_posten_total', function() {
+    ob_start();
+    ?>
+    <style>
+        .opv-table-wrapper { overflow-x: auto; }
+        @media (max-width: 600px) {
+            .opv-table-wrapper th, .opv-table-wrapper td { white-space: nowrap; }
+        }
+    </style>
+    <div class="opv-table-wrapper">
+    <table id="offene-posten-total" class="wp-list-table widefat striped">
+        <thead>
+            <tr>
+                <th>Kunde</th>
+                <th style="text-align:right;">Betrag Gesamt</th>
+                <th style="text-align:right;">Bisher gezahlt</th>
+                <th style="text-align:right;">Noch zu zahlen</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    </div>
+    <div id="op-total-summe">
+        <strong>Gesamt offener Betrag:</strong> <span id="op-total-summe-wert">0,00 €</span>
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const url = "https://dashboard.hoffmann-hd.de/wp-content/uploads/json/offene_posten.json";
+        const tbody = document.querySelector('#offene-posten-total tbody');
+        const sumField = document.getElementById('op-total-summe-wert');
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                let gesamtOffen = 0;
+                Object.keys(data).sort().forEach(name => {
+                    let sumGesamt = 0, sumGezahlt = 0, sumOffen = 0;
+                    data[name].forEach(e => {
+                        sumGesamt += parseFloat(e["Betrag Gesamt"]);
+                        sumGezahlt += parseFloat(e["Bisher gezahlt"]);
+                        sumOffen  += parseFloat(e["Noch zu zahlen"]);
+                    });
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${name}</td>
+                        <td style="text-align:right;">${sumGesamt.toLocaleString('de-DE')} €</td>
+                        <td style="text-align:right;">${sumGezahlt.toLocaleString('de-DE')} €</td>
+                        <td style="text-align:right;">${sumOffen.toLocaleString('de-DE')} €</td>
+                    `;
+                    tbody.appendChild(tr);
+                    gesamtOffen += sumOffen;
+                });
+                sumField.textContent = gesamtOffen.toLocaleString('de-DE', { minimumFractionDigits: 2 }) + ' €';
+            })
+            .catch(() => {
+                tbody.innerHTML = `<tr><td colspan="4">Fehler beim Laden der Daten.</td></tr>`;
+            });
     });
     </script>
     <?php
