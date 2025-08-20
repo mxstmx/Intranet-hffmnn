@@ -27,16 +27,7 @@ function hoffmann_create_customer_role() {
     );
 }
 
-// 2. Umleitung zur Login-Seite für nicht eingeloggte Benutzer auf /login
-add_action('template_redirect', 'hoffmann_redirect_to_custom_login');
-function hoffmann_redirect_to_custom_login() {
-    if (!is_user_logged_in() && !is_page('login')) {
-        wp_redirect(home_url('/login'));
-        exit;
-    }
-}
-
-// 3. Benutzer aus der JSON-Datei hinzufügen oder aktualisieren
+// 2. Benutzer aus der JSON-Datei hinzufügen oder aktualisieren
 function hoffmann_update_customers_from_json() {
     if (!file_exists(KUNDEN_JSON_PATH)) {
         error_log('Kunden JSON-Datei nicht gefunden.');
@@ -87,7 +78,7 @@ function hoffmann_update_customers_from_json() {
     }
 }
 
-// 4. Benutzerdefinierte Felder im Benutzerprofil anzeigen
+// 3. Benutzerdefinierte Felder im Benutzerprofil anzeigen
 add_action('show_user_profile', 'hoffmann_show_custom_user_fields');
 add_action('edit_user_profile', 'hoffmann_show_custom_user_fields');
 function hoffmann_show_custom_user_fields($user) {
@@ -112,7 +103,7 @@ function hoffmann_show_custom_user_fields($user) {
     }
 }
 
-// 5. Cronjob für die Aktualisierung der Kunden aus der JSON-Datei alle 30 Minuten
+// 4. Cronjob für die Aktualisierung der Kunden aus der JSON-Datei alle 30 Minuten
 add_filter('cron_schedules', 'hoffmann_add_cron_interval');
 function hoffmann_add_cron_interval($schedules) {
     $schedules['thirty_minutes'] = [
@@ -130,7 +121,7 @@ function hoffmann_schedule_customer_update() {
 }
 add_action('hoffmann_update_customers_event', 'hoffmann_update_customers_from_json');
 
-// 6. Rolle "Kunde" auf das Frontend beschränken und nach dem Login zur Startseite weiterleiten
+// 5. Rolle "Kunde" auf das Frontend beschränken und nach dem Login zur Startseite weiterleiten
 add_action('init', 'hoffmann_restrict_kunde_backend_access');
 function hoffmann_restrict_kunde_backend_access() {
     if (current_user_can('kunde') && is_admin()) {
@@ -139,7 +130,7 @@ function hoffmann_restrict_kunde_backend_access() {
     }
 }
 
-// 7. Cronjob bei Deaktivierung entfernen
+// 6. Cronjob bei Deaktivierung entfernen
 register_deactivation_hook(__FILE__, 'hoffmann_remove_cron');
 function hoffmann_remove_cron() {
     $timestamp = wp_next_scheduled('hoffmann_update_customers_event');
