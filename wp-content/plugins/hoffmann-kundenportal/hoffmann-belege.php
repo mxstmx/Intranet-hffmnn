@@ -107,20 +107,8 @@ function hoffmann_import_belege_from_json() {
                     }
                 }
                 hoffmann_debug_log("Beleg aktualisiert: ID {$post_id}, Nummer {$belegnummer}");
-                // Produkte in Repeater-Feld aktualisieren (ACF)
-                if (function_exists('update_field')) {
-                    $rows = array();
-                    if (isset($beleg['Produkte']) && is_array($beleg['Produkte'])) {
-                        foreach ($beleg['Produkte'] as $prod) {
-                            $rows[] = array(
-                                'artikelnummer'          => sanitize_text_field($prod['Artikelnummer']),
-                                'artikelbeschreibung'    => sanitize_text_field($prod['Bezeichnung']),
-                                'menge'                  => intval($prod['Menge']),
-                                'preis'                  => sanitize_text_field($prod['Einzelpreis']),
-                            );
-                        }
-                    }
-                    update_field('produkte', $rows, $post_id);
+                if (isset($beleg['Produkte'])) {
+                    update_post_meta($post_id, 'produkte', wp_json_encode($beleg['Produkte']));
                 }
             }
         } else {
@@ -137,6 +125,7 @@ function hoffmann_import_belege_from_json() {
                     'vorbeleg'        => $vorbelegnummer,
                     'air_cargo_kosten'   => $air_cargo,
                     'zoll_abwicklung_kosten' => $zoll_kosten,
+                    'produkte'        => isset($beleg['Produkte']) ? wp_json_encode($beleg['Produkte']) : '',
                 ),
             );
             if (!empty($vorbelegnummer)) {
@@ -154,21 +143,9 @@ function hoffmann_import_belege_from_json() {
                 }
                 wp_set_object_terms($post_id, $belegart_term, 'belegart');
                 hoffmann_debug_log("Neuer Beleg erstellt: ID {$post_id}, Nummer {$belegnummer}");
-            // Produkte in Repeater-Feld speichern (ACF)
-            if (function_exists('update_field')) {
-                $rows = array();
-                if (isset($beleg['Produkte']) && is_array($beleg['Produkte'])) {
-                    foreach ($beleg['Produkte'] as $prod) {
-                        $rows[] = array(
-                            'artikelnummer'          => sanitize_text_field($prod['Artikelnummer']),
-                            'artikelbeschreibung'    => sanitize_text_field($prod['Bezeichnung']),
-                            'menge'                  => intval($prod['Menge']),
-                            'preis'                  => sanitize_text_field($prod['Einzelpreis']),
-                        );
-                    }
+                if (isset($beleg['Produkte'])) {
+                    update_post_meta($post_id, 'produkte', wp_json_encode($beleg['Produkte']));
                 }
-                update_field('produkte', $rows, $post_id);
-            }
             } else {
                 hoffmann_debug_log("Fehler beim Erstellen des Belegs: {$belegnummer}");
             }
