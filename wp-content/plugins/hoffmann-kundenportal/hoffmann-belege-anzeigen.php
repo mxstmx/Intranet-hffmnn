@@ -56,7 +56,7 @@ function hoffmann_belege_anzeigen_shortcode(){
     $q = new WP_Query($args);
 
     // Table and popups
-    $output .= '<table class="hoffmann-belege" style="width:100%;border-collapse:collapse;"><thead><tr>'
+    $output .= '<table class="hoffmann-table hoffmann-belege"><thead><tr>'
              . '<th><a href="'.$link_date.'">Datum</a></th>'
              . '<th><a href="'.$link_nr.'">Nummer</a></th>'
              . '<th>Status</th><th>Preis</th><th>Aktion</th>'
@@ -85,12 +85,9 @@ function hoffmann_belege_anzeigen_shortcode(){
 
             // Overlay + Popup HTML
             $detail_html = do_shortcode('[hoffmann_beleg_details id="'.$pid.'"]');
-            $popups .= '<div id="overlay-'.$pid.'" class="hoffmann-overlay" style="display:none;position:fixed;top:0;left:0;'
-                     . 'width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9998;"></div>';
-            $popups .= '<div id="popup-'.$pid.'" class="hoffmann-popup" style="display:none;position:fixed;top:50%;left:50%;'
-                     . 'transform:translate(-50%, -50%);background:#fff;padding:20px;box-shadow:0 0 10px rgba(0,0,0,0.5);'
-                     . 'z-index:9999;max-width:90%;max-height:80%;overflow:auto;">'
-                     . '<button class="popup-close" style="float:right;">&times;</button>'
+            $popups .= '<div id="overlay-'.$pid.'" class="hoffmann-overlay"></div>';
+            $popups .= '<div id="popup-'.$pid.'" class="hoffmann-popup">'
+                     . '<button class="popup-close">&times;</button>'
                      . $detail_html .'</div>';
         }
         wp_reset_postdata();
@@ -137,8 +134,9 @@ function hoffmann_beleg_details_shortcode($atts){
             $rows = is_array($meta) ? $meta : json_decode($meta, true);
         }
     }
+    // Mengen in Stück, Preise in € pro Stück.
     $html  = "<h3>{$ba} {$nr}</h3><p><strong>Datum:</strong> {$dt}</p>";
-    $html .= "<table style='width:100%;border-collapse:collapse;'><tr><th>Beschreibung</th><th>Menge</th><th>Preis</th></tr>";
+    $html .= "<table class='hoffmann-table'><thead><tr><th>Beschreibung</th><th>Menge</th><th>Preis</th></tr></thead><tbody>";
     $net   = 0;
     foreach($rows ?: [] as $r){
         $beschreibung = $r['Bezeichnung'] ?? $r['artikelbeschreibung'] ?? '';
@@ -152,13 +150,13 @@ function hoffmann_beleg_details_shortcode($atts){
         if ($raw_price !== '' && strpos($raw_price, '.') === false) { $raw_price = $raw_price / 100; }
         $net += (float)$raw_price * (int)$menge;
     }
-    $html .= '</table>';
+    $html .= '</tbody></table>';
     $net_f = hoffmann_format_currency($net);
     $mwst  = $net * 0.19;
     $mwst_f= hoffmann_format_currency($mwst);
     $br_f  = hoffmann_format_currency($net + $mwst);
-    $html .= "<p style='text-align:right;'><strong>Netto:</strong> {$net_f}</p>";
-    $html .= "<p style='text-align:right;'><strong>MwSt (19%):</strong> {$mwst_f}</p>";
-    $html .= "<p style='text-align:right;'><strong>Brutto:</strong> {$br_f}</p>";
+    $html .= "<p class='text-right'><strong>Netto:</strong> {$net_f}</p>";
+    $html .= "<p class='text-right'><strong>MwSt (19%):</strong> {$mwst_f}</p>";
+    $html .= "<p class='text-right'><strong>Brutto:</strong> {$br_f}</p>";
     return $html;
 }

@@ -15,6 +15,17 @@ require_once __DIR__ . '/require-login.php';
 
 define('KUNDEN_JSON_PATH', WP_CONTENT_DIR . '/uploads/json/kunden.json');
 
+// Gemeinsame Styles laden
+add_action('wp_enqueue_scripts', 'hoffmann_kundenportal_enqueue_assets');
+function hoffmann_kundenportal_enqueue_assets() {
+    wp_enqueue_style(
+        'hoffmann-kundenportal',
+        plugins_url('css/hoffmann-kundenportal.css', __FILE__),
+        [],
+        '1.0.0'
+    );
+}
+
 // 1. Rolle "Kunde" erstellen, wenn das Plugin aktiviert wird
 register_activation_hook(__FILE__, 'hoffmann_create_customer_role');
 function hoffmann_create_customer_role() {

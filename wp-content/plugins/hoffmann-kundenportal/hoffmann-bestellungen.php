@@ -385,11 +385,13 @@ if (!function_exists('hoffmann_bestellung_detail_html')) {
         }
         $steuer_f = hoffmann_format_currency($steuer_total);
 
-        $html .= '<table style="width:100%;border-collapse:collapse;margin-top:10px;"><tbody>';
-        $html .= '<tr><th colspan="6" style="text-align:left;">'.esc_html__('Stückpreis je Produkt','hoffmann').'</th><td>'.esc_html(hoffmann_format_currency($total)).'</td></tr>';
-        $html .= '<tr><th colspan="6" style="text-align:left;">'.esc_html__('Stückpreis je AirCargo','hoffmann').'</th><td>'.esc_html($air_f).'</td></tr>';
-        $html .= '<tr><th colspan="6" style="text-align:left;">'.esc_html__('Zoll Abwicklung Stückpreis','hoffmann').'</th><td>'.esc_html($zoll_f).'</td></tr>';
-        $html .= '<tr><th colspan="6" style="text-align:left;">'.esc_html__('Steuermarken-Wert','hoffmann').'</th><td>'.esc_html($steuer_f).'</td></tr>';
+        // Preise in € pro Stück.
+        $html .= '<table class="hoffmann-table hoffmann-table-summary">';
+        $html .= '<thead><tr><th colspan="6">'.esc_html__('Kostenart','hoffmann').'</th><th>'.esc_html__('Preis','hoffmann').'</th></tr></thead><tbody>';
+        $html .= '<tr><th colspan="6">'.esc_html__('Stückpreis je Produkt','hoffmann').'</th><td>'.esc_html(hoffmann_format_currency($total)).'</td></tr>';
+        $html .= '<tr><th colspan="6">'.esc_html__('Stückpreis je AirCargo','hoffmann').'</th><td>'.esc_html($air_f).'</td></tr>';
+        $html .= '<tr><th colspan="6">'.esc_html__('Zoll Abwicklung Stückpreis','hoffmann').'</th><td>'.esc_html($zoll_f).'</td></tr>';
+        $html .= '<tr><th colspan="6">'.esc_html__('Steuermarken-Wert','hoffmann').'</th><td>'.esc_html($steuer_f).'</td></tr>';
         $html .= '</tbody></table>';
 
         $html .= '<form method="post" action="'.esc_url(admin_url('admin-post.php')).'">';
