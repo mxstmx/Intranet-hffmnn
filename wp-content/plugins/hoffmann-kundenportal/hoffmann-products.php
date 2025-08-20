@@ -2,9 +2,14 @@
 /*
 Plugin Name: Hoffmann Produkte
 Description: Erstellt einen benutzerdefinierten Post-Typ für Produkte mit Warengruppen und aktualisiert den Bestand alle 5 Minuten.
-Version: 1.2
+Version: main-v1.0.1
 Author: Max Florian Krauss
 */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 
 define('BESTAND_JSON_URL', WP_CONTENT_DIR . '/uploads/json/bestand.json');
 
