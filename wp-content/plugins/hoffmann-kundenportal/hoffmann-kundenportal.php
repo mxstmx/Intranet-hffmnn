@@ -11,6 +11,8 @@ Version: 1.7
 Author: Max Florian Krauss
 */
 
+require_once __DIR__ . '/require-login.php';
+
 define('KUNDEN_JSON_PATH', WP_CONTENT_DIR . '/uploads/json/kunden.json');
 
 // 1. Rolle "Kunde" erstellen, wenn das Plugin aktiviert wird
