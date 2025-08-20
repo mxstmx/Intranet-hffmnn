@@ -59,7 +59,7 @@ function hoffmann_belege_anzeigen_shortcode(){
     $output .= '<table class="hoffmann-belege" style="width:100%;border-collapse:collapse;"><thead><tr>'
              . '<th><a href="'.$link_date.'">Datum</a></th>'
              . '<th><a href="'.$link_nr.'">Nummer</a></th>'
-             . '<th>Status</th><th>Preis</th><th>Aktion</th>'
+             . '<th>Status</th><th>Aktion</th>'
              . '</tr></thead><tbody>';
     $popups = '';
     if($q->have_posts()){
@@ -68,7 +68,6 @@ function hoffmann_belege_anzeigen_shortcode(){
             $pid   = get_the_ID();
             $date  = date_i18n('d.m.Y', strtotime(get_post_meta($pid,'belegdatum',true)));
             $nr    = get_the_title();
-            $price = hoffmann_format_currency(get_post_meta($pid,'betragnetto',true));
             $st    = get_post_meta($pid,'belegstatus',true);
             switch($st){
                 case '3': $label = 'Offen'; break;
@@ -79,7 +78,6 @@ function hoffmann_belege_anzeigen_shortcode(){
                      . '<td>'.esc_html($date).'</td>'
                      . '<td>'.esc_html($nr).'</td>'
                      . '<td>'.esc_html($label).'</td>'
-                     . '<td>'.esc_html($price).'</td>'
                      . '<td><button class="show-popup" data-popup="popup-'.$pid.'">Beleg anzeigen</button></td>'
                      . '</tr>';
 
@@ -95,7 +93,7 @@ function hoffmann_belege_anzeigen_shortcode(){
         }
         wp_reset_postdata();
     } else {
-        $output .= '<tr><td colspan="5">Keine Belege gefunden.</td></tr>';
+        $output .= '<tr><td colspan="4">Keine Belege gefunden.</td></tr>';
     }
     $output .= '</tbody></table>' . $popups;
 
@@ -138,27 +136,13 @@ function hoffmann_beleg_details_shortcode($atts){
         }
     }
     $html  = "<h3>{$ba} {$nr}</h3><p><strong>Datum:</strong> {$dt}</p>";
-    $html .= "<table style='width:100%;border-collapse:collapse;'><tr><th>Beschreibung</th><th>Menge</th><th>Preis</th></tr>";
-    $net   = 0;
+    $html .= "<table style='width:100%;border-collapse:collapse;'><tr><th>Beschreibung</th><th>Menge</th></tr>";
     foreach($rows ?: [] as $r){
         $beschreibung = $r['Bezeichnung'] ?? $r['artikelbeschreibung'] ?? '';
         $menge = $r['Menge'] ?? $r['menge'] ?? 0;
-        $preis_raw = $r['Einzelpreis'] ?? $r['preis'] ?? '';
-        $preis_formatted = hoffmann_format_currency($preis_raw);
         $html .= '<tr><td>'.esc_html($beschreibung).'</td>';
-        $html .= '<td>'.esc_html(number_format_i18n((int)$menge)).'</td>';
-        $html .= '<td>'.esc_html($preis_formatted).'</td></tr>';
-        $raw_price = str_replace(['.', ','], ['', '.'], $preis_raw);
-        if ($raw_price !== '' && strpos($raw_price, '.') === false) { $raw_price = $raw_price / 100; }
-        $net += (float)$raw_price * (int)$menge;
+        $html .= '<td>'.esc_html(number_format_i18n((int)$menge)).'</td></tr>';
     }
     $html .= '</table>';
-    $net_f = hoffmann_format_currency($net);
-    $mwst  = $net * 0.19;
-    $mwst_f= hoffmann_format_currency($mwst);
-    $br_f  = hoffmann_format_currency($net + $mwst);
-    $html .= "<p style='text-align:right;'><strong>Netto:</strong> {$net_f}</p>";
-    $html .= "<p style='text-align:right;'><strong>MwSt (19%):</strong> {$mwst_f}</p>";
-    $html .= "<p style='text-align:right;'><strong>Brutto:</strong> {$br_f}</p>";
     return $html;
 }
