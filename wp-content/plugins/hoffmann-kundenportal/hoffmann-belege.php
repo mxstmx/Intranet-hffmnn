@@ -12,9 +12,11 @@ if (!defined('ABSPATH')) {
 
 
 // Debugging-Funktion
-function hoffmann_debug_log($message) {
-    if (defined('WP_DEBUG') && WP_DEBUG === true) {
-        error_log($message);
+if (!function_exists('hoffmann_debug_log')) {
+    function hoffmann_debug_log($message) {
+        if (defined('WP_DEBUG') && WP_DEBUG === true) {
+            error_log($message);
+        }
     }
 }
 
