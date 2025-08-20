@@ -292,4 +292,5 @@ function hoffmann_belege_meta_box($post){
             echo '</tbody></table>';
         }
     }
+    echo '</tbody></table>';
 }
