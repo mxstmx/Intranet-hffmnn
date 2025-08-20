@@ -262,10 +262,8 @@ function hoffmann_bestellungen_meta_box($post){
         echo '<tr><th>'.esc_html($label).'</th><td>'.esc_html($val).'</td></tr>';
     }
     echo '</tbody></table>';
-    $air_val  = get_post_meta($post->ID,'air_cargo_kosten',true);
-    $zoll_val = get_post_meta($post->ID,'zoll_abwicklung_kosten',true);
-    $air  = esc_attr(hoffmann_format_currency($air_val));
-    $zoll = esc_attr(hoffmann_format_currency($zoll_val));
+    $air  = esc_attr(get_post_meta($post->ID,'air_cargo_kosten',true));
+    $zoll = esc_attr(get_post_meta($post->ID,'zoll_abwicklung_kosten',true));
     echo '<p><label>'.esc_html__('AirCargo Kosten','hoffmann').'<br><input type="text" name="air_cargo_kosten" value="'.$air.'"></label></p>';
     echo '<p><label>'.esc_html__('Zoll Abwicklung','hoffmann').'<br><input type="text" name="zoll_abwicklung_kosten" value="'.$zoll.'"></label></p>';
 }
@@ -305,6 +303,7 @@ if (!function_exists('hoffmann_sum_produkt_mengen')) {
 
 if (!function_exists('hoffmann_bestellung_detail_html')) {
     function hoffmann_bestellung_detail_html($pid) {
+        $title = esc_html(get_the_title($pid));
         $fields = array(
             'bestellungid'     => __('Bestellung ID', 'hoffmann'),
             'belegdatum'       => __('Belegdatum', 'hoffmann'),
@@ -316,7 +315,8 @@ if (!function_exists('hoffmann_bestellung_detail_html')) {
             'betragnetto'      => __('Betrag Netto', 'hoffmann'),
             'letzte_aenderung' => __('Letzte Änderung', 'hoffmann'),
         );
-        $html = '<table style="width:100%;border-collapse:collapse;"><tbody>';
+        $html = '<h3>'. $title .'</h3>';
+        $html .= '<table style="width:100%;border-collapse:collapse;"><tbody>';
         foreach ($fields as $key => $label) {
             $val = get_post_meta($pid, $key, true);
             if ($key === 'betragnetto') {
@@ -328,24 +328,76 @@ if (!function_exists('hoffmann_bestellung_detail_html')) {
             $html .= '<tr><th style="text-align:left;">' . esc_html($label) . '</th><td>' . esc_html($val) . '</td></tr>';
         }
         $html .= '</tbody></table>';
+
         $prod = get_post_meta($pid, 'produkte', true);
         if (!is_array($prod)) {
             $prod = json_decode($prod, true);
         }
+        $total = 0;
         if ($prod) {
             $html .= '<h4>'.esc_html__('Produkte', 'hoffmann').'</h4>';
-            $html .= '<table style="width:100%;border-collapse:collapse;"><thead><tr><th>'.esc_html__('Artikelnummer', 'hoffmann').'</th><th>'.esc_html__('Beschreibung', 'hoffmann').'</th><th>'.esc_html__('Menge', 'hoffmann').'</th><th>'.esc_html__('Preis', 'hoffmann').'</th></tr></thead><tbody>';
-            $html .= hoffmann_render_produkte_rows($prod);
+            $html .= '<table style="width:100%;border-collapse:collapse;"><thead><tr>'
+                .'<th>'.esc_html__('Artikelnummer', 'hoffmann').'</th>'
+                .'<th>'.esc_html__('Bezeichnung', 'hoffmann').'</th>'
+                .'<th>'.esc_html__('Bestellt', 'hoffmann').'</th>'
+                .'<th>'.esc_html__('Geliefert', 'hoffmann').'</th>'
+                .'<th>'.esc_html__('Rest', 'hoffmann').'</th>'
+                .'<th>'.esc_html__('Status', 'hoffmann').'</th>'
+                .'<th>'.esc_html__('Preis', 'hoffmann').'</th>'
+                .'</tr></thead><tbody>';
+            foreach ($prod as $item) {
+                $artikelnr = $item['Artikelnummer'] ?? '';
+                $bez       = $item['Bezeichnung'] ?? '';
+                $bestellt  = $item['Bestellt'] ?? $item['Menge'] ?? '';
+                $geliefert = $item['Geliefert'] ?? '';
+                $rest      = $item['Rest'] ?? '';
+                $status    = $item['Status'] ?? '';
+                $preis_raw = $item['Preis'] ?? $item['Einzelpreis'] ?? '';
+                $preis     = hoffmann_format_currency($preis_raw);
+                $html .= '<tr><td>'.esc_html($artikelnr).'</td><td>'.esc_html($bez).'</td>'
+                    .'<td>'.esc_html($bestellt).'</td><td>'.esc_html($geliefert).'</td>'
+                    .'<td>'.esc_html($rest).'</td><td>'.esc_html($status).'</td>'
+                    .'<td>'.esc_html($preis).'</td></tr>';
+                $raw = str_replace(['.', ','], ['', '.'], $preis_raw);
+                if ($raw !== '' && strpos($raw, '.') === false) { $raw = $raw / 100; }
+                $total += (float)$raw * (int)$bestellt;
+            }
             $html .= '</tbody></table>';
         }
-        $air  = esc_attr(hoffmann_format_currency(get_post_meta($pid, 'air_cargo_kosten', true)));
-        $zoll = esc_attr(hoffmann_format_currency(get_post_meta($pid, 'zoll_abwicklung_kosten', true)));
+
+        $air_raw  = get_post_meta($pid, 'air_cargo_kosten', true);
+        $zoll_raw = get_post_meta($pid, 'zoll_abwicklung_kosten', true);
+        $air_f  = hoffmann_format_currency($air_raw);
+        $zoll_f = hoffmann_format_currency($zoll_raw);
+
+        $steuermarken_posts = get_posts(array(
+            'post_type'  => 'steuermarken',
+            'numberposts'=> -1,
+            'meta_query' => array(array('key'=>'bestellung_id','value'=>$pid,'compare'=>'='))
+        ));
+        $steuer_total = 0;
+        foreach ($steuermarken_posts as $sm) {
+            $wert = get_post_meta($sm->ID,'wert',true);
+            $anz  = intval(get_post_meta($sm->ID,'stueckzahl',true));
+            $raw  = str_replace(['.', ','], ['', '.'], $wert);
+            if ($raw !== '' && strpos($raw, '.') === false) { $raw = $raw / 100; }
+            $steuer_total += (float)$raw * $anz;
+        }
+        $steuer_f = hoffmann_format_currency($steuer_total);
+
+        $html .= '<table style="width:100%;border-collapse:collapse;margin-top:10px;"><tbody>';
+        $html .= '<tr><th colspan="6" style="text-align:left;">'.esc_html__('Stückpreis je Produkt','hoffmann').'</th><td>'.esc_html(hoffmann_format_currency($total)).'</td></tr>';
+        $html .= '<tr><th colspan="6" style="text-align:left;">'.esc_html__('Stückpreis je AirCargo','hoffmann').'</th><td>'.esc_html($air_f).'</td></tr>';
+        $html .= '<tr><th colspan="6" style="text-align:left;">'.esc_html__('Zoll Abwicklung Stückpreis','hoffmann').'</th><td>'.esc_html($zoll_f).'</td></tr>';
+        $html .= '<tr><th colspan="6" style="text-align:left;">'.esc_html__('Steuermarken-Wert','hoffmann').'</th><td>'.esc_html($steuer_f).'</td></tr>';
+        $html .= '</tbody></table>';
+
         $html .= '<form method="post" action="'.esc_url(admin_url('admin-post.php')).'">';
         $html .= wp_nonce_field('hoffmann_save_order_costs_'.$pid, '_wpnonce', true, false);
         $html .= '<input type="hidden" name="action" value="hoffmann_save_order_costs">';
         $html .= '<input type="hidden" name="post_id" value="'.esc_attr($pid).'">';
-        $html .= '<p><label>Aircargo <input type="text" name="air_cargo_kosten" value="'.$air.'"></label></p>';
-        $html .= '<p><label>Zoll Kosten <input type="text" name="zoll_abwicklung_kosten" value="'.$zoll.'"></label></p>';
+        $html .= '<p><label>Aircargo <input type="text" name="air_cargo_kosten" value="'.esc_attr($air_raw).'"></label></p>';
+        $html .= '<p><label>Zoll Kosten <input type="text" name="zoll_abwicklung_kosten" value="'.esc_attr($zoll_raw).'"></label></p>';
         $html .= '<p><button type="submit">'.esc_html__('Speichern', 'hoffmann').'</button></p>';
         $html .= '</form>';
         return $html;
