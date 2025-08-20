@@ -74,6 +74,7 @@ if (!function_exists('hoffmann_render_produkte_rows')) {
             $html .= '<td>' . $pad . esc_html($beschreibung) . '</td>';
             $html .= '<td>' . esc_html($menge) . '</td>';
             $html .= '<td>' . esc_html(hoffmann_format_currency($preis)) . '</td>';
+            $html .= '<td>' . esc_html($preis) . '</td>';
             $html .= '</tr>';
             foreach ($item as $key => $val) {
                 if (is_array($val)) {

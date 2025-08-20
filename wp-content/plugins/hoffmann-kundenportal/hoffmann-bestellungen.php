@@ -323,6 +323,8 @@ if (!function_exists('hoffmann_bestellung_detail_html')) {
                 $val = hoffmann_format_currency($val);
             }
             $html .= '<tr><th style="text-align:left;">'.esc_html($label).'</th><td>'.esc_html($val).'</td></tr>';
+            $val = esc_html(get_post_meta($pid, $key, true));
+            $html .= '<tr><th style="text-align:left;">'.esc_html($label).'</th><td>'.$val.'</td></tr>';
         }
         $html .= '</tbody></table>';
         $prod = get_post_meta($pid, 'produkte', true);
@@ -337,6 +339,8 @@ if (!function_exists('hoffmann_bestellung_detail_html')) {
         }
         $air  = esc_attr(hoffmann_format_currency(get_post_meta($pid, 'air_cargo_kosten', true)));
         $zoll = esc_attr(hoffmann_format_currency(get_post_meta($pid, 'zoll_abwicklung_kosten', true)));
+        $air  = esc_attr(get_post_meta($pid, 'air_cargo_kosten', true));
+        $zoll = esc_attr(get_post_meta($pid, 'zoll_abwicklung_kosten', true));
         $html .= '<form method="post" action="'.esc_url(admin_url('admin-post.php')).'">';
         $html .= wp_nonce_field('hoffmann_save_order_costs_'.$pid, '_wpnonce', true, false);
         $html .= '<input type="hidden" name="action" value="hoffmann_save_order_costs">';
@@ -425,6 +429,7 @@ function hoffmann_bestellungen_shortcode() {
             <?php $menge = hoffmann_sum_produkt_mengen($pid); ?>
             <tr class="hoffmann-parent" data-id="<?php echo esc_attr($pid); ?>">
                 <td><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></td>
+                <td><?php the_title(); ?></td>
                 <td><?php echo esc_html($datum ? date_i18n('d.m.Y', strtotime($datum)) : ''); ?></td>
                 <td><?php echo esc_html($betreff); ?></td>
                 <td><?php echo esc_html($menge); ?></td>
