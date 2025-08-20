@@ -649,7 +649,6 @@ function hoffmann_bestellung_single_content($content){
     if (has_term('2900','bestellart',$post)) {
         return $content . hoffmann_bestellung_detail_html($pid);
     }
-    $show_price = true;
     $data = get_post_meta($pid, 'produkte', true);
     if (!is_array($data)) {
         $data = json_decode($data, true);
@@ -664,22 +663,22 @@ function hoffmann_bestellung_single_content($content){
         if (!$art) { continue; }
         $products[$art] = array(
             'bezeichnung' => isset($item['Bezeichnung']) ? $item['Bezeichnung'] : '',
-            'ordered' => isset($item['Menge']) ? intval($item['Menge']) : 0,
-            'preis' => isset($item['Einzelpreis']) ? (float) str_replace(',', '.', str_replace('.', '', $item['Einzelpreis'])) : 0,
-            'delivered' => 0,
+            'ordered'     => isset($item['Menge']) ? intval($item['Menge']) : 0,
+            'preis'       => isset($item['Einzelpreis']) ? (float) str_replace(',', '.', str_replace('.', '', $item['Einzelpreis'])) : 0,
+            'delivered'   => 0,
         );
     }
     $children = get_posts(array(
-        'post_type' => 'bestellungen',
-        'post_parent' => $pid,
+        'post_type'      => 'bestellungen',
+        'post_parent'    => $pid,
         'posts_per_page' => -1,
-        'tax_query' => array(array('taxonomy'=>'bestellart','field'=>'name','terms'=>'2900')),
+        'tax_query'      => array(array('taxonomy'=>'bestellart','field'=>'name','terms'=>'2900')),
     ));
-    $total_qty = 0;
+    $total_delivered_qty = 0;
     $total_air = 0;
     $total_zoll = 0;
     foreach ($children as $child) {
-        $cid = $child->ID;
+        $cid  = $child->ID;
         $air  = (float) str_replace(',', '.', str_replace('.', '', get_post_meta($cid,'air_cargo_kosten',true)));
         $zoll = (float) str_replace(',', '.', str_replace('.', '', get_post_meta($cid,'zoll_abwicklung_kosten',true)));
         $total_air  += $air;
@@ -695,62 +694,133 @@ function hoffmann_bestellung_single_content($content){
                 if (!isset($products[$art])) {
                     $products[$art] = array(
                         'bezeichnung' => isset($p['Bezeichnung']) ? $p['Bezeichnung'] : '',
-                        'ordered' => 0,
-                        'preis' => isset($p['Einzelpreis']) ? (float) str_replace(',', '.', str_replace('.', '', $p['Einzelpreis'])) : 0,
-                        'delivered' => 0,
+                        'ordered'     => 0,
+                        'preis'       => isset($p['Einzelpreis']) ? (float) str_replace(',', '.', str_replace('.', '', $p['Einzelpreis'])) : 0,
+                        'delivered'   => 0,
                     );
                 }
                 $products[$art]['delivered'] += $qty;
-                $total_qty += $qty;
+                $total_delivered_qty        += $qty;
             }
         }
     }
-    $air_per_unit  = $total_qty > 0 ? $total_air / $total_qty : 0;
-    $zoll_per_unit = $total_qty > 0 ? $total_zoll / $total_qty : 0;
-    $total_ordered = 0;
+    $total_ordered   = 0;
     $total_delivered = 0;
+    $total_warenwert = 0;
+    foreach ($products as $art => $info) {
+        $total_ordered   += $info['ordered'];
+        $total_delivered += $info['delivered'];
+        $total_warenwert += $info['ordered'] * $info['preis'];
+    }
+    $stm_posts = get_posts(array(
+        'post_type'  => 'steuermarken',
+        'numberposts'=> -1,
+        'meta_key'   => 'bestellung_id',
+        'meta_value' => $pid,
+    ));
+    $total_stm = 0;
+    foreach ($stm_posts as $s) {
+        $w = str_replace('.', '', get_post_meta($s->ID,'wert',true));
+        $w = str_replace(',', '.', $w);
+        if ($w !== '' && strpos($w,'.') === false) { $w /= 100; }
+        $total_stm += (float)$w;
+    }
+    $air_per_unit   = $total_ordered > 0 ? $total_air / $total_ordered : 0;
+    $zoll_per_unit  = $total_ordered > 0 ? $total_zoll / $total_ordered : 0;
+    $stm_per_unit   = $total_ordered > 0 ? $total_stm / $total_ordered : 0;
+    $landed_total   = $total_warenwert + $total_air + $total_zoll + $total_stm;
+    $landed_per_unit= $total_ordered > 0 ? $landed_total / $total_ordered : 0;
+    $supplier = get_post_meta($pid, 'namezeile2', true);
+    $eta      = get_post_meta($pid, 'belegdatum', true);
+    $eta      = $eta ? date_i18n('Y-m-d', strtotime($eta)) : '';
+    $deliv_percent = $total_ordered > 0 ? ($total_delivered / $total_ordered) * 100 : 0;
     ob_start();
     ?>
-    <h2><?php echo esc_html__('Auswertung', 'hoffmann'); ?></h2>
-    <table class="hoffmann-auswertung">
-        <thead>
-            <tr>
-                <th><?php echo esc_html__('Artikelnummer', 'hoffmann'); ?></th>
-                <th><?php echo esc_html__('Bezeichnung', 'hoffmann'); ?></th>
-                <th><?php echo esc_html__('Bestellt', 'hoffmann'); ?></th>
-                <th><?php echo esc_html__('Geliefert', 'hoffmann'); ?></th>
-                <th><?php echo esc_html__('Rest', 'hoffmann'); ?></th>
-                <th><?php echo esc_html__('Status', 'hoffmann'); ?></th>
-                <?php if($show_price): ?><th><?php echo esc_html__('Preis', 'hoffmann'); ?></th><?php endif; ?>
-                <th><?php echo esc_html__('Aircargo/Stk', 'hoffmann'); ?></th>
-                <th><?php echo esc_html__('Zoll/Stk', 'hoffmann'); ?></th>
-                <?php if($show_price): ?><th><?php echo esc_html__('Gesamt/Stk', 'hoffmann'); ?></th><?php endif; ?>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($products as $art => $info):
-                $rest = $info['ordered'] - $info['delivered'];
-                $percent = $info['ordered'] > 0 ? ($info['delivered'] / $info['ordered']) * 100 : 0;
-                $total_unit = $info['preis'] + $air_per_unit + $zoll_per_unit;
-                $total_ordered += $info['ordered'];
-                $total_delivered += $info['delivered'];
-            ?>
-            <tr>
-                <td><?php echo esc_html($art); ?></td>
-                <td><?php echo esc_html($info['bezeichnung']); ?></td>
-                <td><?php echo esc_html(number_format_i18n($info['ordered'])); ?></td>
-                <td><?php echo esc_html(number_format_i18n($info['delivered'])); ?></td>
-                <td><?php echo esc_html(number_format_i18n($rest)); ?></td>
-                <td><div class="hoffmann-bar"><div style="width:<?php echo esc_attr(intval($percent)); ?>%"></div></div> <?php echo esc_html(number_format($percent,2,',','.')); ?>%</td>
-                <?php if($show_price): ?><td><?php echo esc_html(hoffmann_format_currency($info['preis'])); ?></td><?php endif; ?>
-                <td><?php echo esc_html(hoffmann_format_currency($air_per_unit)); ?></td>
-                <td><?php echo esc_html(hoffmann_format_currency($zoll_per_unit)); ?></td>
-                <?php if($show_price): ?><td><?php echo esc_html(hoffmann_format_currency($total_unit)); ?></td><?php endif; ?>
-            </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
-    <div style="width:25%;"><canvas id="hoffmann-bestellung-pie"></canvas></div>
+    <style>
+    body { font-family: Arial, sans-serif; background: #f9fafb; margin: 0; padding: 20px; color: #111827; }
+    h1 { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
+    .subtitle { font-size: 14px; color: #6b7280; margin-bottom: 20px; }
+    .grid { display: grid; gap: 20px; }
+    .grid-4 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+    .card { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .card h2 { font-size: 14px; font-weight: 600; color: #6b7280; margin-bottom: 8px; }
+    .card .value { font-size: 20px; font-weight: bold; }
+    table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+    th, td { padding: 10px; font-size: 14px; text-align: left; }
+    th { background: #f3f4f6; text-transform: uppercase; font-size: 12px; }
+    tr:nth-child(even) { background: #f9fafb; }
+    .status { display: inline-block; padding: 2px 6px; border-radius: 6px; font-size: 12px; }
+    .status.offen { background: #e5e7eb; color: #374151; }
+    .status.teil { background: #fef3c7; color: #92400e; }
+    .status.voll { background: #dcfce7; color: #166534; }
+    .chart-placeholder { height: 200px; display: flex; align-items: center; justify-content: center; color: #6b7280; border: 2px dashed #d1d5db; border-radius: 12px; }
+    </style>
+    <h1>Bestellübersicht</h1>
+    <div class="subtitle">Order <strong><?php echo esc_html($title); ?></strong> · Lieferant <strong><?php echo esc_html($supplier); ?></strong> · ETA <strong><?php echo esc_html($eta); ?></strong></div>
+    <div class="grid grid-4">
+        <div class="card"><h2>Warenwert (bestellt)</h2><div class="value"><?php echo esc_html(hoffmann_format_currency($total_warenwert)); ?></div></div>
+        <div class="card"><h2>Aircargo gesamt</h2><div class="value"><?php echo esc_html(hoffmann_format_currency($total_air)); ?></div></div>
+        <div class="card"><h2>Zollabwicklung gesamt</h2><div class="value"><?php echo esc_html(hoffmann_format_currency($total_zoll)); ?></div></div>
+        <div class="card"><h2>Steuermarken gesamt</h2><div class="value"><?php echo esc_html(hoffmann_format_currency($total_stm)); ?></div></div>
+    </div>
+    <div class="grid" style="grid-template-columns: 1fr 2fr; margin-top:20px;">
+        <div class="card">
+            <h2>Lieferstatus</h2>
+            <div class="chart-placeholder"><canvas id="hoffmann-bestellung-pie"></canvas></div>
+            <p style="font-size:14px; margin-top:10px;">Geliefert: <?php echo esc_html(number_format($deliv_percent,2,',','.')); ?>% (<?php echo esc_html(number_format_i18n($total_delivered)); ?> / <?php echo esc_html(number_format_i18n($total_ordered)); ?> Stk)</p>
+        </div>
+        <div class="card">
+            <h2>Kosten-Zusammenfassung</h2>
+            <p>Landed Cost gesamt: <strong><?php echo esc_html(hoffmann_format_currency($landed_total)); ?></strong></p>
+            <p>Ø Landed Cost / Stk: <strong><?php echo esc_html(hoffmann_format_currency($landed_per_unit)); ?></strong></p>
+            <p>Ø Aircargo / Stk: <strong><?php echo esc_html(hoffmann_format_currency($air_per_unit)); ?></strong></p>
+            <p>Ø Zoll / Stk: <strong><?php echo esc_html(hoffmann_format_currency($zoll_per_unit)); ?></strong></p>
+        </div>
+    </div>
+    <div class="card" style="margin-top:20px;">
+        <h2>Produkte der Bestellung</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Produkt</th>
+                    <th>SKU</th>
+                    <th>Bestellt</th>
+                    <th>Geliefert</th>
+                    <th>EK €/Stk</th>
+                    <th>Aircargo €/Stk</th>
+                    <th>Zoll €/Stk</th>
+                    <th>Steuermarke €/Stk</th>
+                    <th>Warenwert</th>
+                    <th>Nebenkosten</th>
+                    <th>Landed €/Stk</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($products as $art => $info):
+                    $status = 'offen';
+                    if ($info['delivered'] >= $info['ordered'] && $info['ordered'] > 0) { $status = 'voll'; }
+                    elseif ($info['delivered'] > 0) { $status = 'teil'; }
+                    $warenwert   = $info['ordered'] * $info['preis'];
+                    $nebenkosten = ($air_per_unit + $zoll_per_unit + $stm_per_unit) * $info['ordered'];
+                    $landed_stk  = $info['preis'] + $air_per_unit + $zoll_per_unit + $stm_per_unit;
+                ?>
+                <tr>
+                    <td><?php echo esc_html($info['bezeichnung']); ?><br><span class="status <?php echo esc_attr($status); ?>"><?php echo esc_html(ucfirst($status)); ?></span></td>
+                    <td><?php echo esc_html($art); ?></td>
+                    <td><?php echo esc_html(number_format_i18n($info['ordered'])); ?></td>
+                    <td><?php echo esc_html(number_format_i18n($info['delivered'])); ?></td>
+                    <td><?php echo esc_html(hoffmann_format_currency($info['preis'])); ?></td>
+                    <td><?php echo esc_html(hoffmann_format_currency($air_per_unit)); ?></td>
+                    <td><?php echo esc_html(hoffmann_format_currency($zoll_per_unit)); ?></td>
+                    <td><?php echo esc_html(hoffmann_format_currency($stm_per_unit)); ?></td>
+                    <td><?php echo esc_html(hoffmann_format_currency($warenwert)); ?></td>
+                    <td><?php echo esc_html(hoffmann_format_currency($nebenkosten)); ?></td>
+                    <td><?php echo esc_html(hoffmann_format_currency($landed_stk)); ?></td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded',function(){
@@ -758,12 +828,6 @@ function hoffmann_bestellung_single_content($content){
         new Chart(ctx,{type:'pie',data:{labels:['Geliefert','Offen'],datasets:[{data:[<?php echo (int)$total_delivered; ?>,<?php echo (int)max(0,$total_ordered-$total_delivered); ?>],backgroundColor:['#4caf50','#ddd']}]},options:{responsive:true}});
     });
     </script>
-    <style>
-    .hoffmann-auswertung{width:100%;border-collapse:collapse;}
-    .hoffmann-auswertung th,.hoffmann-auswertung td{border:1px solid #ccc;padding:4px;text-align:left;}
-    .hoffmann-bar{width:100px;background:#ddd;height:10px;position:relative;}
-    .hoffmann-bar div{background:#4caf50;height:10px;}
-    </style>
     <?php
     $html = ob_get_clean();
     return $content . $html;
