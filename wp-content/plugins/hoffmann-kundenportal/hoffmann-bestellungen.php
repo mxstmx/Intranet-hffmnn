@@ -418,7 +418,7 @@ if (!function_exists('hoffmann_save_order_costs')) {
         $zoll = isset($_POST['zoll_abwicklung_kosten']) ? sanitize_text_field($_POST['zoll_abwicklung_kosten']) : '';
         update_post_meta($post_id, 'air_cargo_kosten', $air);
         update_post_meta($post_id, 'zoll_abwicklung_kosten', $zoll);
-        wp_redirect(wp_get_referer());
+        wp_redirect('https://dashboard.hoffmann-hd.de/bestellungen/');
         exit;
     }
 }
@@ -444,7 +444,6 @@ if (!function_exists('hoffmann_bestellungen_get_rows')) {
     function hoffmann_bestellungen_get_rows($args) {
         $query  = new WP_Query($args);
         $rows   = '';
-        $popups = '';
         if ($query->have_posts()) {
             while ($query->have_posts()) {
                 $query->the_post();
@@ -472,20 +471,17 @@ if (!function_exists('hoffmann_bestellungen_get_rows')) {
                         $c_betreff= get_post_meta($cid, 'betreff', true);
                         $c_menge  = hoffmann_sum_produkt_mengen($cid);
                         $rows .= '<tr class="hoffmann-child" data-parent="'.esc_attr($pid).'">';
-                        $rows .= '<td><a href="#" class="show-popup" data-popup="popup-'.$cid.'">'.esc_html($child->post_title).'</a></td>';
+                        $rows .= '<td><a href="'.esc_url(get_permalink($cid)).'">'.esc_html($child->post_title).'</a></td>';
                         $rows .= '<td>'.esc_html($c_datum ? date_i18n('d.m.Y', strtotime($c_datum)) : '').'</td>';
                         $rows .= '<td>'.esc_html($c_betreff).'</td>';
                         $rows .= '<td>'.esc_html(number_format_i18n($c_menge)).'</td>';
                         $rows .= '</tr>';
-                        $detail_html = hoffmann_bestellung_detail_html($cid);
-                        $popups .= '<div id="overlay-'.$cid.'" class="hoffmann-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9998;"></div>';
-                        $popups .= '<div id="popup-'.$cid.'" class="hoffmann-popup" style="display:none;position:fixed;top:10%;left:10%;width:80%;height:80%;background:#fff;overflow:auto;padding:20px;z-index:9999;"><a href="#" class="popup-close" style="position:absolute;top:10px;right:10px;">&times;</a>'.$detail_html.'</div>';
                     }
                 }
             }
         }
         wp_reset_postdata();
-        return array('rows' => $rows, 'popups' => $popups);
+        return array('rows' => $rows);
     }
 }
 
@@ -597,7 +593,6 @@ function hoffmann_bestellungen_shortcode() {
         </thead>
         <tbody id="hoffmann-bestellungen-body"><?php echo $result['rows']; ?></tbody>
     </table>
-    <div id="hoffmann-bestellungen-popups"><?php echo $result['popups']; ?></div>
     <style>
     #hoffmann-bestellungen-table {width:100%;border-collapse:collapse;}
     #hoffmann-bestellungen-table th,#hoffmann-bestellungen-table td {border:1px solid #ccc;padding:4px;text-align:left;}
@@ -624,7 +619,6 @@ function hoffmann_bestellungen_shortcode() {
                 .then(function(res){
                     if(res.success){
                         document.getElementById('hoffmann-bestellungen-body').innerHTML=res.data.rows;
-                        document.getElementById('hoffmann-bestellungen-popups').innerHTML=res.data.popups;
                     }
                 });
         }
@@ -633,14 +627,6 @@ function hoffmann_bestellungen_shortcode() {
         endField.addEventListener('change',doSearch);
 
         var table=document.getElementById('hoffmann-bestellungen-table');
-        table.querySelectorAll('tbody tr.hoffmann-parent').forEach(function(row){
-            row.addEventListener('click',function(){
-                var id=this.dataset.id;
-                table.querySelectorAll('tbody tr.hoffmann-child[data-parent="'+id+'"]').forEach(function(ch){
-                    ch.classList.toggle('visible');
-                });
-            });
-        });
         table.querySelectorAll('thead th').forEach(function(th,idx){
             th.addEventListener('click',function(){ sortTable(idx); });
         });
@@ -665,17 +651,12 @@ function hoffmann_bestellungen_shortcode() {
             table.setAttribute('data-sort-dir',dir);
         }
         document.addEventListener('click',function(e){
-            if(e.target.matches('.show-popup')){
-                e.preventDefault();
-                var id = e.target.getAttribute('data-popup').replace('popup-','');
-                document.getElementById('overlay-'+id).style.display='block';
-                document.getElementById('popup-'+id).style.display='block';
-            }
-            if(e.target.matches('.popup-close') || e.target.classList.contains('hoffmann-overlay')){
-                var popup=e.target.closest('.hoffmann-popup');
-                var id=popup?popup.id.replace('popup-',''):e.target.id.replace('overlay-','');
-                document.getElementById('overlay-'+id).style.display='none';
-                document.getElementById('popup-'+id).style.display='none';
+            var row=e.target.closest('tr.hoffmann-parent');
+            if(row && !e.target.closest('a')){
+                var id=row.dataset.id;
+                table.querySelectorAll('tbody tr.hoffmann-child[data-parent="'+id+'"]').forEach(function(ch){
+                    ch.classList.toggle('visible');
+                });
             }
         });
     })();
@@ -694,8 +675,11 @@ function hoffmann_bestellung_single_content($content){
     if (!has_term(array('2200','2900'),'bestellart',$post)) {
         return $content;
     }
-    $show_price = has_term('2900','bestellart',$post);
     $pid = $post->ID;
+    if (has_term('2900','bestellart',$post)) {
+        return $content . hoffmann_bestellung_detail_html($pid);
+    }
+    $show_price = true;
     $data = get_post_meta($pid, 'produkte', true);
     if (!is_array($data)) {
         $data = json_decode($data, true);
@@ -796,7 +780,7 @@ function hoffmann_bestellung_single_content($content){
             <?php endforeach; ?>
         </tbody>
     </table>
-    <canvas id="hoffmann-bestellung-pie" width="300" height="300"></canvas>
+    <div style="width:25%;"><canvas id="hoffmann-bestellung-pie"></canvas></div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded',function(){
