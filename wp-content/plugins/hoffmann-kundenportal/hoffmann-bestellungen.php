@@ -266,4 +266,28 @@ function hoffmann_bestellungen_meta_box($post){
         echo '<tr><th>'.esc_html($label).'</th><td>'.$val.'</td></tr>';
     }
     echo '</tbody></table>';
+
+    // Produkte aus dem ACF-Repeater anzeigen
+    if (function_exists('get_field')) {
+        $produkte = get_field('produkte', $post->ID);
+        if ($produkte) {
+            echo '<h4>'.esc_html__('Produkte').'</h4>';
+            echo '<table class="widefat striped"><thead><tr>';
+            echo '<th>'.esc_html__('Artikelnummer').'</th>';
+            echo '<th>'.esc_html__('Artikelbeschreibung').'</th>';
+            echo '<th>'.esc_html__('Menge').'</th>';
+            echo '<th>'.esc_html__('Preis').'</th>';
+            echo '</tr></thead><tbody>';
+            foreach ($produkte as $prod) {
+                echo '<tr>';
+                echo '<td>'.esc_html($prod['artikelnummer']).'</td>';
+                echo '<td>'.esc_html($prod['artikelbeschreibung']).'</td>';
+                echo '<td>'.esc_html($prod['menge']).'</td>';
+                echo '<td>'.esc_html($prod['preis']).'</td>';
+                echo '</tr>';
+            }
+            echo '</tbody></table>';
+        }
+    }
+    echo '</tbody></table>';
 }
