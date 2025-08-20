@@ -239,8 +239,6 @@ function hoffmann_belege_meta_box($post){
         'belegstatus'           => __('Status'),
         'kundennummer'          => __('Kundennummer'),
         'betragnetto'           => __('Betrag Netto'),
-        'air_cargo_kosten'      => __('Air-Cargo-Kosten'),
-        'zoll_abwicklung_kosten'=> __('Zoll-Abwicklung-Kosten'),
         'vorbeleg'              => __('Vorbelegnummer'),
     );
     echo '<table class="form-table"><tbody>';

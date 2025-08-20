@@ -130,19 +130,27 @@ function hoffmann_beleg_details_shortcode($atts){
     $ba    = (!is_wp_error($terms)&&$terms) ? esc_html($terms[0]->name) : '';
     $nr    = esc_html(get_the_title($pid));
     $dt    = date_i18n('d.m.Y H:i', strtotime(get_post_meta($pid,'belegdatum',true)));
-    $rows  = function_exists('get_field') ? get_field('produkte',$pid) : [];
+    $rows = function_exists('get_field') ? get_field('produkte', $pid) : [];
+    if (empty($rows)) {
+        $meta = get_post_meta($pid, 'produkte', true);
+        if ($meta) {
+            $rows = is_array($meta) ? $meta : json_decode($meta, true);
+        }
+    }
     $html  = "<h3>{$ba} {$nr}</h3><p><strong>Datum:</strong> {$dt}</p>";
     $html .= "<table style='width:100%;border-collapse:collapse;'><tr><th>Beschreibung</th><th>Menge</th><th>Preis</th></tr>";
     $net   = 0;
     foreach($rows ?: [] as $r){
-        $preis_formatted = hoffmann_format_currency($r['preis']);
-        $html .= "<tr><td>".esc_html($r['artikelbeschreibung'])."</td>";
-        $html .= "<td>".esc_html(number_format_i18n((int)$r['menge']))."</td>";
-        $html .= "<td>".esc_html($preis_formatted)."</td></tr>";
-        $raw_price = str_replace('.', '', $r['preis']);
-        $raw_price = str_replace(',', '.', $raw_price);
-        if (strpos($raw_price, '.') === false) { $raw_price = $raw_price / 100; }
-        $net += (float)$raw_price * (int)$r['menge'];
+        $beschreibung = $r['Bezeichnung'] ?? $r['artikelbeschreibung'] ?? '';
+        $menge = $r['Menge'] ?? $r['menge'] ?? 0;
+        $preis_raw = $r['Einzelpreis'] ?? $r['preis'] ?? '';
+        $preis_formatted = hoffmann_format_currency($preis_raw);
+        $html .= '<tr><td>'.esc_html($beschreibung).'</td>';
+        $html .= '<td>'.esc_html(number_format_i18n((int)$menge)).'</td>';
+        $html .= '<td>'.esc_html($preis_formatted).'</td></tr>';
+        $raw_price = str_replace(['.', ','], ['', '.'], $preis_raw);
+        if ($raw_price !== '' && strpos($raw_price, '.') === false) { $raw_price = $raw_price / 100; }
+        $net += (float)$raw_price * (int)$menge;
     }
     $html .= '</table>';
     $net_f = hoffmann_format_currency($net);
