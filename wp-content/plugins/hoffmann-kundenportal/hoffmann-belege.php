@@ -12,11 +12,28 @@ if (!defined('ABSPATH')) {
 
 
 // Debugging-Funktion
-function hoffmann_debug_log($message) {
-    if (defined('WP_DEBUG') && WP_DEBUG === true) {
-        error_log($message);
+if (!function_exists('hoffmann_debug_log')) {
+    function hoffmann_debug_log($message) {
+        if (defined('WP_DEBUG') && WP_DEBUG === true) {
+            error_log($message);
+        }
     }
 }
+
+// Post-Typ 'belege' registrieren
+function hoffmann_register_belege_post_type() {
+    if (post_type_exists('belege')) return;
+    register_post_type('belege', array(
+        'labels' => array(
+            'name'          => __('Belege'),
+            'singular_name' => __('Beleg'),
+        ),
+        'public'       => true,
+        'hierarchical' => true,
+        'supports'     => array('title','custom-fields','page-attributes'),
+    ));
+}
+add_action('init','hoffmann_register_belege_post_type');
 
 // Taxonomie 'Belegart' registrieren
 function hoffmann_register_belegart_taxonomy() {
@@ -51,11 +68,13 @@ function hoffmann_import_belege_from_json() {
     foreach ($belege as $beleg) {
         $beleg_id = $beleg['ID'];
         $belegnummer = $beleg['Belegnummer'];
-        $belegdatum = $beleg['Metadaten']['Belegdatum'];
-        $belegstatus = $beleg['Metadaten']['Belegstatus'];
+        $belegdatum   = $beleg['Metadaten']['Belegdatum'];
+        $belegstatus  = $beleg['Metadaten']['Belegstatus'];
         $kundennummer = $beleg['Metadaten']['Kundennummer'];
-        $betragnetto = $beleg['Metadaten']['BetragNetto'];
+        $betragnetto  = $beleg['Metadaten']['BetragNetto'];
         $vorbelegnummer = $beleg['Metadaten']['Vorbelegnummer'];
+        $air_cargo    = isset($beleg['Metadaten']['AirCargoKosten']) ? $beleg['Metadaten']['AirCargoKosten'] : '';
+        $zoll_kosten  = isset($beleg['Metadaten']['ZollAbwicklungKosten']) ? $beleg['Metadaten']['ZollAbwicklungKosten'] : '';
         $belegart_term = $beleg['Metadaten']['Belegart'];
 
         // Vorhandene Posts prüfen
@@ -77,6 +96,14 @@ function hoffmann_import_belege_from_json() {
                 update_post_meta($post_id,'betragnetto',$betragnetto);
                 update_post_meta($post_id,'belegdatum',$belegdatum);
                 update_post_meta($post_id,'vorbeleg',$vorbelegnummer);
+                update_post_meta($post_id,'air_cargo_kosten',$air_cargo);
+                update_post_meta($post_id,'zoll_abwicklung_kosten',$zoll_kosten);
+                if (!empty($vorbelegnummer)) {
+                    $parent = get_posts(array('post_type'=>'belege','title'=>$vorbelegnummer,'posts_per_page'=>1,'fields'=>'ids'));
+                    if (!is_wp_error($parent) && !empty($parent)) {
+                        wp_update_post(array('ID'=>$post_id,'post_parent'=>$parent[0]));
+                    }
+                }
                 hoffmann_debug_log("Beleg aktualisiert: ID {$post_id}, Nummer {$belegnummer}");
                 // Produkte in Repeater-Feld aktualisieren (ACF)
                 if (function_exists('update_field')) {
@@ -105,7 +132,9 @@ function hoffmann_import_belege_from_json() {
                     'kundennummer'    => $kundennummer,
                     'betragnetto'     => $betragnetto,
                     'belegdatum'      => $belegdatum,
-                    'vorbeleg'  => $vorbelegnummer,
+                    'vorbeleg'        => $vorbelegnummer,
+                    'air_cargo_kosten'   => $air_cargo,
+                    'zoll_abwicklung_kosten' => $zoll_kosten,
                 ),
             );
             if (!empty($vorbelegnummer)) {
@@ -207,6 +236,60 @@ add_action('manage_belege_posts_custom_column','hoffmann_belege_custom_column',1
 function hoffmann_belege_custom_column($column,$post_id) {
     if ($column==='vorbeleg') {
         $val = get_post_meta($post_id,'vorbeleg',true);
-        echo esc_html($val);
+        if ($val) {
+            $parent = get_page_by_title($val, OBJECT, 'belege');
+            if ($parent) {
+                $link = get_edit_post_link($parent->ID);
+                echo '<a href="' . esc_url($link) . '">' . esc_html($val) . '</a>';
+            } else {
+                echo esc_html($val);
+            }
+        }
+    }
+}
+
+// Metabox zur Anzeige der Metadaten
+add_action('add_meta_boxes_belege','hoffmann_belege_meta_box_init');
+function hoffmann_belege_meta_box_init(){
+    add_meta_box('hoffmann_belege_meta',__('Belegdetails'),'hoffmann_belege_meta_box','belege','normal','default');
+}
+function hoffmann_belege_meta_box($post){
+    $fields = array(
+        'belegid'               => __('Beleg ID'),
+        'belegdatum'            => __('Belegdatum'),
+        'belegstatus'           => __('Status'),
+        'kundennummer'          => __('Kundennummer'),
+        'betragnetto'           => __('Betrag Netto'),
+        'air_cargo_kosten'      => __('Air-Cargo-Kosten'),
+        'zoll_abwicklung_kosten'=> __('Zoll-Abwicklung-Kosten'),
+        'vorbeleg'              => __('Vorbelegnummer'),
+    );
+    echo '<table class="form-table"><tbody>';
+    foreach($fields as $key=>$label){
+        $val = esc_html(get_post_meta($post->ID,$key,true));
+        echo '<tr><th>'.esc_html($label).'</th><td>'.$val.'</td></tr>';
+    }
+    echo '</tbody></table>';
+
+    if (function_exists('get_field')) {
+        $produkte = get_field('produkte', $post->ID);
+        if ($produkte) {
+            echo '<h4>'.esc_html__('Produkte').'</h4>';
+            echo '<table class="widefat striped"><thead><tr>';
+            echo '<th>'.esc_html__('Artikelnummer').'</th>';
+            echo '<th>'.esc_html__('Artikelbeschreibung').'</th>';
+            echo '<th>'.esc_html__('Menge').'</th>';
+            echo '<th>'.esc_html__('Preis').'</th>';
+            echo '</tr></thead><tbody>';
+            foreach ($produkte as $prod) {
+                echo '<tr>';
+                echo '<td>'.esc_html($prod['artikelnummer']).'</td>';
+                echo '<td>'.esc_html($prod['artikelbeschreibung']).'</td>';
+                echo '<td>'.esc_html($prod['menge']).'</td>';
+                echo '<td>'.esc_html($prod['preis']).'</td>';
+                echo '</tr>';
+            }
+            echo '</tbody></table>';
+        }
     }
 }
