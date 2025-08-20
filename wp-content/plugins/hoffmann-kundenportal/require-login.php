@@ -36,8 +36,8 @@ function is_login_page() {
  * @return bool True when visiting the custom login page.
  */
 function hffmnn_is_custom_login() {
-    $login_path   = parse_url( home_url( '/login' ), PHP_URL_PATH );
-    $request_path = parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH );
+    $login_path   = untrailingslashit( parse_url( home_url( '/login' ), PHP_URL_PATH ) );
+    $request_path = untrailingslashit( parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH ) );
 
     return $request_path === $login_path;
 }
