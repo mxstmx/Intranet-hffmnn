@@ -26,8 +26,9 @@ function hoffmann_register_bestellungen_post_type() {
             'name' => __('Bestellungen'),
             'singular_name' => __('Bestellung'),
         ),
-        'public' => true,
-        'supports' => array('title','custom-fields'),
+        'public'        => true,
+        'hierarchical'  => true,
+        'supports'      => array('title','custom-fields','page-attributes'),
     ));
 }
 add_action('init', 'hoffmann_register_bestellungen_post_type');
@@ -65,11 +66,13 @@ function hoffmann_import_bestellungen_from_json() {
     foreach ($bestellungen as $bestellung) {
         $bestellung_id = $bestellung['ID'];
         $bestellnummer = $bestellung['Belegnummer'];
-        $bestelldatum = $bestellung['Metadaten']['Belegdatum'];
-        $bestellstatus = $bestellung['Metadaten']['Belegstatus'];
-        $kundennummer = $bestellung['Metadaten']['Kundennummer'];
-        $betragnetto = $bestellung['Metadaten']['BetragNetto'];
+        $bestelldatum   = $bestellung['Metadaten']['Belegdatum'];
+        $bestellstatus  = $bestellung['Metadaten']['Belegstatus'];
+        $kundennummer   = $bestellung['Metadaten']['Kundennummer'];
+        $betragnetto    = $bestellung['Metadaten']['BetragNetto'];
         $vorbelegnummer = $bestellung['Metadaten']['Vorbelegnummer'];
+        $air_cargo      = isset($bestellung['Metadaten']['AirCargoKosten']) ? $bestellung['Metadaten']['AirCargoKosten'] : '';
+        $zoll_kosten    = isset($bestellung['Metadaten']['ZollAbwicklungKosten']) ? $bestellung['Metadaten']['ZollAbwicklungKosten'] : '';
         $bestellart_term = $bestellung['Metadaten']['Belegart'];
 
         // Vorhandene Posts prüfen
@@ -91,6 +94,14 @@ function hoffmann_import_bestellungen_from_json() {
                 update_post_meta($post_id,'betragnetto',$betragnetto);
                 update_post_meta($post_id,'bestelldatum',$bestelldatum);
                 update_post_meta($post_id,'vorbeleg',$vorbelegnummer);
+                update_post_meta($post_id,'air_cargo_kosten',$air_cargo);
+                update_post_meta($post_id,'zoll_abwicklung_kosten',$zoll_kosten);
+                if (!empty($vorbelegnummer)) {
+                    $parent = get_posts(array('post_type'=>'bestellungen','title'=>$vorbelegnummer,'posts_per_page'=>1,'fields'=>'ids'));
+                    if (!is_wp_error($parent) && !empty($parent)) {
+                        wp_update_post(array('ID'=>$post_id,'post_parent'=>$parent[0]));
+                    }
+                }
                 // Produkte in Repeater-Feld aktualisieren (ACF)
                 if (function_exists('update_field')) {
                     $rows = array();
@@ -119,6 +130,8 @@ function hoffmann_import_bestellungen_from_json() {
                     'betragnetto'        => $betragnetto,
                     'bestelldatum'       => $bestelldatum,
                     'vorbeleg'           => $vorbelegnummer,
+                    'air_cargo_kosten'   => $air_cargo,
+                    'zoll_abwicklung_kosten' => $zoll_kosten,
                 ),
             );
             if (!empty($vorbelegnummer)) {
@@ -229,4 +242,28 @@ function hoffmann_bestellungen_custom_column($column,$post_id) {
             }
         }
     }
+}
+
+// Metabox zur Anzeige der Metadaten
+add_action('add_meta_boxes_bestellungen','hoffmann_bestellungen_meta_box_init');
+function hoffmann_bestellungen_meta_box_init(){
+    add_meta_box('hoffmann_bestellungen_meta',__('Bestelldetails'),'hoffmann_bestellungen_meta_box','bestellungen','normal','default');
+}
+function hoffmann_bestellungen_meta_box($post){
+    $fields = array(
+        'bestellungid'           => __('Bestellung ID'),
+        'bestelldatum'           => __('Bestelldatum'),
+        'bestellungstatus'       => __('Status'),
+        'kundennummer'           => __('Kundennummer'),
+        'betragnetto'            => __('Betrag Netto'),
+        'air_cargo_kosten'       => __('Air-Cargo-Kosten'),
+        'zoll_abwicklung_kosten' => __('Zoll-Abwicklung-Kosten'),
+        'vorbeleg'               => __('Vorbelegnummer'),
+    );
+    echo '<table class="form-table"><tbody>';
+    foreach($fields as $key=>$label){
+        $val = esc_html(get_post_meta($post->ID,$key,true));
+        echo '<tr><th>'.esc_html($label).'</th><td>'.$val.'</td></tr>';
+    }
+    echo '</tbody></table>';
 }
