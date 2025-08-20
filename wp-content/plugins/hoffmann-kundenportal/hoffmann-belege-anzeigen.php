@@ -9,8 +9,7 @@
 if (!defined('ABSPATH')) {
     exit;
 }
-
-
+require_once __DIR__ . '/lib/produkte-metabox.php';
 // Übersicht-Shortcode: [hoffmann_belege_anzeigen]
 add_shortcode('hoffmann_belege_anzeigen','hoffmann_belege_anzeigen_shortcode');
 function hoffmann_belege_anzeigen_shortcode(){
@@ -69,7 +68,7 @@ function hoffmann_belege_anzeigen_shortcode(){
             $pid   = get_the_ID();
             $date  = date_i18n('d.m.Y', strtotime(get_post_meta($pid,'belegdatum',true)));
             $nr    = get_the_title();
-            $price = number_format_i18n((float)get_post_meta($pid,'betragnetto',true),2);
+            $price = hoffmann_format_currency(get_post_meta($pid,'betragnetto',true));
             $st    = get_post_meta($pid,'belegstatus',true);
             switch($st){
                 case '3': $label = 'Offen'; break;
@@ -136,16 +135,20 @@ function hoffmann_beleg_details_shortcode($atts){
     $html .= "<table style='width:100%;border-collapse:collapse;'><tr><th>Beschreibung</th><th>Menge</th><th>Preis</th></tr>";
     $net   = 0;
     foreach($rows ?: [] as $r){
+        $preis_formatted = hoffmann_format_currency($r['preis']);
         $html .= "<tr><td>".esc_html($r['artikelbeschreibung'])."</td>";
-        $html .= "<td>".intval($r['menge'])."</td>";
-        $html .= "<td>".esc_html($r['preis'])."</td></tr>";
-        $net += floatval(str_replace(',','.',$r['preis'])) * intval($r['menge']);
+        $html .= "<td>".esc_html(number_format_i18n((int)$r['menge']))."</td>";
+        $html .= "<td>".esc_html($preis_formatted)."</td></tr>";
+        $raw_price = str_replace('.', '', $r['preis']);
+        $raw_price = str_replace(',', '.', $raw_price);
+        if (strpos($raw_price, '.') === false) { $raw_price = $raw_price / 100; }
+        $net += (float)$raw_price * (int)$r['menge'];
     }
     $html .= '</table>';
-    $net_f = number_format_i18n($net,2);
+    $net_f = hoffmann_format_currency($net);
     $mwst  = $net * 0.19;
-    $mwst_f= number_format_i18n($mwst,2);
-    $br_f  = number_format_i18n($net + $mwst,2);
+    $mwst_f= hoffmann_format_currency($mwst);
+    $br_f  = hoffmann_format_currency($net + $mwst);
     $html .= "<p style='text-align:right;'><strong>Netto:</strong> {$net_f}</p>";
     $html .= "<p style='text-align:right;'><strong>MwSt (19%):</strong> {$mwst_f}</p>";
     $html .= "<p style='text-align:right;'><strong>Brutto:</strong> {$br_f}</p>";

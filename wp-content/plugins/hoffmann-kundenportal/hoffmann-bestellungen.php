@@ -322,9 +322,10 @@ if (!function_exists('hoffmann_bestellung_detail_html')) {
             if ($key === 'betragnetto') {
                 $val = hoffmann_format_currency($val);
             }
-            $html .= '<tr><th style="text-align:left;">'.esc_html($label).'</th><td>'.esc_html($val).'</td></tr>';
-            $val = esc_html(get_post_meta($pid, $key, true));
-            $html .= '<tr><th style="text-align:left;">'.esc_html($label).'</th><td>'.$val.'</td></tr>';
+            if (in_array($key, ['belegdatum', 'letzte_aenderung'], true) && $val) {
+                $val = date_i18n('d.m.Y', strtotime($val));
+            }
+            $html .= '<tr><th style="text-align:left;">' . esc_html($label) . '</th><td>' . esc_html($val) . '</td></tr>';
         }
         $html .= '</tbody></table>';
         $prod = get_post_meta($pid, 'produkte', true);
@@ -339,8 +340,6 @@ if (!function_exists('hoffmann_bestellung_detail_html')) {
         }
         $air  = esc_attr(hoffmann_format_currency(get_post_meta($pid, 'air_cargo_kosten', true)));
         $zoll = esc_attr(hoffmann_format_currency(get_post_meta($pid, 'zoll_abwicklung_kosten', true)));
-        $air  = esc_attr(get_post_meta($pid, 'air_cargo_kosten', true));
-        $zoll = esc_attr(get_post_meta($pid, 'zoll_abwicklung_kosten', true));
         $html .= '<form method="post" action="'.esc_url(admin_url('admin-post.php')).'">';
         $html .= wp_nonce_field('hoffmann_save_order_costs_'.$pid, '_wpnonce', true, false);
         $html .= '<input type="hidden" name="action" value="hoffmann_save_order_costs">';
@@ -389,6 +388,10 @@ if (!function_exists('hoffmann_sum_menge_recursive')) {
 
 // Shortcode zur Ausgabe der Hauptbestellungen mit Unterbestellungen
 function hoffmann_bestellungen_shortcode() {
+    $start = isset($_GET['start']) ? sanitize_text_field($_GET['start']) : '';
+    $end   = isset($_GET['end']) ? sanitize_text_field($_GET['end']) : '';
+    $search = isset($_GET['suche']) ? sanitize_text_field($_GET['suche']) : '';
+
     $args = array(
         'post_type'      => 'bestellungen',
         'post_parent'    => 0,
@@ -404,6 +407,28 @@ function hoffmann_bestellungen_shortcode() {
         ),
     );
 
+    $meta_query = array();
+    if ($start || $end) {
+        $date_filter = array('key' => 'belegdatum', 'type' => 'DATE');
+        if ($start && $end) {
+            $date_filter['value'] = array($start, $end);
+            $date_filter['compare'] = 'BETWEEN';
+        } elseif ($start) {
+            $date_filter['value'] = $start;
+            $date_filter['compare'] = '>=';
+        } else {
+            $date_filter['value'] = $end;
+            $date_filter['compare'] = '<=';
+        }
+        $meta_query[] = $date_filter;
+    }
+    if (!empty($meta_query)) {
+        $args['meta_query'] = $meta_query;
+    }
+    if ($search) {
+        $args['s'] = $search;
+    }
+
     $query = new WP_Query($args);
     if (!$query->have_posts()) {
         return '';
@@ -412,6 +437,12 @@ function hoffmann_bestellungen_shortcode() {
     ob_start();
     $popups = '';
     ?>
+    <form method="get" class="hoffmann-bestellungen-filter" style="margin-bottom:10px;">
+        <input type="date" name="start" value="<?php echo esc_attr($start); ?>">
+        <input type="date" name="end" value="<?php echo esc_attr($end); ?>">
+        <input type="text" name="suche" value="<?php echo esc_attr($search); ?>" placeholder="Suche">
+        <button type="submit">Filtern</button>
+    </form>
     <table id="hoffmann-bestellungen-table">
         <thead>
             <tr>
@@ -429,10 +460,9 @@ function hoffmann_bestellungen_shortcode() {
             <?php $menge = hoffmann_sum_produkt_mengen($pid); ?>
             <tr class="hoffmann-parent" data-id="<?php echo esc_attr($pid); ?>">
                 <td><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></td>
-                <td><?php the_title(); ?></td>
                 <td><?php echo esc_html($datum ? date_i18n('d.m.Y', strtotime($datum)) : ''); ?></td>
                 <td><?php echo esc_html($betreff); ?></td>
-                <td><?php echo esc_html($menge); ?></td>
+                <td><?php echo esc_html(number_format_i18n($menge)); ?></td>
             </tr>
             <?php
             $children = get_children(array(
@@ -451,7 +481,7 @@ function hoffmann_bestellungen_shortcode() {
                     echo '<td><a href="#" class="show-popup" data-popup="popup-'.$cid.'">'.esc_html($child->post_title).'</a></td>';
                     echo '<td>'.esc_html($c_datum ? date_i18n('d.m.Y', strtotime($c_datum)) : '').'</td>';
                     echo '<td>'.esc_html($c_betreff).'</td>';
-                    echo '<td>'.esc_html($c_menge).'</td>';
+                    echo '<td>'.esc_html(number_format_i18n($c_menge)).'</td>';
                     echo '</tr>';
                     $detail_html = hoffmann_bestellung_detail_html($cid);
                     $popups .= '<div id="overlay-'.$cid.'" class="hoffmann-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9998;"></div>';
@@ -622,9 +652,9 @@ function hoffmann_bestellung_single_content($content){
             <tr>
                 <td><?php echo esc_html($art); ?></td>
                 <td><?php echo esc_html($info['bezeichnung']); ?></td>
-                <td><?php echo esc_html($info['ordered']); ?></td>
-                <td><?php echo esc_html($info['delivered']); ?></td>
-                <td><?php echo esc_html($rest); ?></td>
+                <td><?php echo esc_html(number_format_i18n($info['ordered'])); ?></td>
+                <td><?php echo esc_html(number_format_i18n($info['delivered'])); ?></td>
+                <td><?php echo esc_html(number_format_i18n($rest)); ?></td>
                 <td><div class="hoffmann-bar"><div style="width:<?php echo esc_attr(intval($percent)); ?>%"></div></div> <?php echo esc_html(number_format($percent,2,',','.')); ?>%</td>
                 <td><?php echo esc_html(hoffmann_format_currency($info['preis'])); ?></td>
                 <td><?php echo esc_html(hoffmann_format_currency($air_per_unit)); ?></td>
@@ -643,4 +673,45 @@ function hoffmann_bestellung_single_content($content){
     <?php
     $html = ob_get_clean();
     return $content . $html;
+}
+
+add_action('admin_menu','hoffmann_bestellungen_dashboard_menu');
+function hoffmann_bestellungen_dashboard_menu(){
+    add_submenu_page('edit.php?post_type=bestellungen','Dashboard','Dashboard','read','bestellungen-dashboard','hoffmann_bestellungen_dashboard_page');
+}
+
+function hoffmann_bestellungen_dashboard_page(){
+    $orders = get_posts(array('post_type'=>'bestellungen','numberposts'=>-1));
+    $total_netto = $total_air = $total_zoll = 0;
+    foreach($orders as $o){
+        $net = str_replace('.', '', get_post_meta($o->ID,'betragnetto',true));
+        $net = str_replace(',', '.', $net);
+        if ($net !== '' && strpos($net,'.') === false) { $net /= 100; }
+        $total_netto += (float)$net;
+        $air = str_replace('.', '', get_post_meta($o->ID,'air_cargo_kosten',true));
+        $air = str_replace(',', '.', $air);
+        if ($air !== '' && strpos($air,'.') === false) { $air /= 100; }
+        $total_air += (float)$air;
+        $zoll = str_replace('.', '', get_post_meta($o->ID,'zoll_abwicklung_kosten',true));
+        $zoll = str_replace(',', '.', $zoll);
+        if ($zoll !== '' && strpos($zoll,'.') === false) { $zoll /= 100; }
+        $total_zoll += (float)$zoll;
+    }
+    $stm_posts = get_posts(array('post_type'=>'steuermarken','numberposts'=>-1));
+    $total_stm = 0;
+    foreach($stm_posts as $s){
+        $w = str_replace('.', '', get_post_meta($s->ID,'wert',true));
+        $w = str_replace(',', '.', $w);
+        if ($w !== '' && strpos($w,'.') === false) { $w /= 100; }
+        $total_stm += (float)$w;
+    }
+    ?>
+    <div class="wrap"><h1>Bestellungen Dashboard</h1>
+    <canvas id="bestellungenChart" width="400" height="200"></canvas></div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+    const ctx = document.getElementById('bestellungenChart').getContext('2d');
+    new Chart(ctx,{type:'bar',data:{labels:['Netto','Aircargo','Zoll','Steuermarken'],datasets:[{label:'Kosten',data:[<?php echo $total_netto; ?>,<?php echo $total_air; ?>,<?php echo $total_zoll; ?>,<?php echo $total_stm; ?>],backgroundColor:['#4e79a7','#f28e2b','#e15759','#76b7b2']}]} });
+    </script>
+    <?php
 }
