@@ -1,12 +1,30 @@
 <?php
 /*
 Plugin Name: Hoffmann Kundenportal
-Description: Kundenportal-Plugin für Hoffmann Handel & Dienstleistungen GmbH & Co. KG, nur Kunden haben Zugriff auf das Frontend, neue Kunden werden aus einer JSON-Datei erstellt.
+Description: Kundenportal-Plugin fÃ¼r Hoffmann Handel & Dienstleistungen GmbH & Co. KG, nur Kunden haben Zugriff auf das Frontend, neue Kunden werden aus einer JSON-Datei erstellt.
 Version: 1.7
 Author: Max Florian Krauss
 */
 
 define('KUNDEN_JSON_PATH', WP_CONTENT_DIR . '/uploads/json/kunden.json');
+
+/**
+ * Helper function to determine if a user has a specific role.
+ *
+ * @param string   $role    The role slug to check for.
+ * @param int|null $user_id Optional user ID. Defaults to current user.
+ *
+ * @return bool True if the user has the role, otherwise false.
+ */
+function hoffmann_user_has_role($role, $user_id = null) {
+    $user = $user_id ? get_userdata($user_id) : wp_get_current_user();
+
+    if (!$user) {
+        return false;
+    }
+
+    return in_array($role, (array) $user->roles, true);
+}
 
 // 1. Rolle "Kunde" erstellen, wenn das Plugin aktiviert wird
 register_activation_hook(__FILE__, 'hoffmann_create_customer_role');
@@ -16,13 +34,13 @@ function hoffmann_create_customer_role() {
         __('Kunde'), 
         [
             'read' => true, // Zugriff auf das Frontend
-            'edit_posts' => false, // Kein Zugriff auf Beiträge
-            'delete_posts' => false, // Keine Beiträge löschen
+            'edit_posts' => false, // Kein Zugriff auf BeitrÃ¤ge
+            'delete_posts' => false, // Keine BeitrÃ¤ge lÃ¶schen
         ]
     );
 }
 
-// 2. Umleitung zur Login-Seite für nicht eingeloggte Benutzer auf /login
+// 2. Umleitung zur Login-Seite fÃ¼r nicht eingeloggte Benutzer auf /login
 add_action('template_redirect', 'hoffmann_redirect_to_custom_login');
 function hoffmann_redirect_to_custom_login() {
     if (!is_user_logged_in() && !is_page('login')) {
@@ -31,7 +49,7 @@ function hoffmann_redirect_to_custom_login() {
     }
 }
 
-// 3. Benutzer aus der JSON-Datei hinzufügen oder aktualisieren
+// 3. Benutzer aus der JSON-Datei hinzufÃ¼gen oder aktualisieren
 function hoffmann_update_customers_from_json() {
     if (!file_exists(KUNDEN_JSON_PATH)) {
         error_log('Kunden JSON-Datei nicht gefunden.');
@@ -55,26 +73,42 @@ function hoffmann_update_customers_from_json() {
         $ort = isset($details['Adresse']['Ort']) ? trim($details['Adresse']['Ort']) : '';
         $plz = isset($details['Adresse']['PLZ']) ? trim($details['Adresse']['PLZ']) : '';
 
-        // Prüfen, ob der Benutzer existiert; nur neue Benutzer erstellen
-        if (!username_exists($username)) {
+        $existing_user = get_user_by('login', $username);
+
+        if ($existing_user) {
+            // Vorhandenen Benutzer aktualisieren
+            $user_id = $existing_user->ID;
+
+            wp_update_user([
+                'ID'         => $user_id,
+                'user_email' => $email,
+                'last_name'  => $lastname,
+            ]);
+
+            update_user_meta($user_id, 'adresse_strasse', $strasse);
+            update_user_meta($user_id, 'adresse_ort', $ort);
+            update_user_meta($user_id, 'adresse_plz', $plz);
+
+            error_log("Benutzer $username aktualisiert");
+        } else {
             // Benutzer erstellen und Passwort explizit setzen
             $user_id = wp_insert_user([
                 'user_login' => $username,
-                'user_pass' => $password, 
+                'user_pass'  => $password,
                 'user_email' => $email,
-                'role' => 'kunde',
-                'last_name' => $lastname
+                'role'       => 'kunde',
+                'last_name'  => $lastname,
             ]);
 
             if (!is_wp_error($user_id)) {
                 wp_set_password($password, $user_id); // Passwort direkt in der Datenbank setzen
 
-                // Zusätzliche Benutzerinformationen (Adresse, PLZ, Ort) speichern und protokollieren
+                // ZusÃ¤tzliche Benutzerinformationen (Adresse, PLZ, Ort) speichern und protokollieren
                 update_user_meta($user_id, 'adresse_strasse', $strasse);
                 update_user_meta($user_id, 'adresse_ort', $ort);
                 update_user_meta($user_id, 'adresse_plz', $plz);
 
-                error_log("Benutzer $username erfolgreich erstellt mit Adresse: Straße = $strasse, Ort = $ort, PLZ = $plz");
+                error_log("Benutzer $username erfolgreich erstellt mit Adresse: StraÃŸe = $strasse, Ort = $ort, PLZ = $plz");
             } else {
                 error_log("Fehler beim Erstellen des Benutzers $username: " . $user_id->get_error_message());
             }
@@ -88,10 +122,10 @@ add_action('edit_user_profile', 'hoffmann_show_custom_user_fields');
 function hoffmann_show_custom_user_fields($user) {
     if (current_user_can('administrator')) {
         ?>
-        <h3>Zusätzliche Benutzerinformationen</h3>
+        <h3>ZusÃ¤tzliche Benutzerinformationen</h3>
         <table class="form-table">
             <tr>
-                <th><label for="adresse_strasse">Straße</label></th>
+                <th><label for="adresse_strasse">StraÃŸe</label></th>
                 <td><input type="text" name="adresse_strasse" id="adresse_strasse" value="<?php echo esc_attr(get_user_meta($user->ID, 'adresse_strasse', true)); ?>" class="regular-text" /></td>
             </tr>
             <tr>
@@ -107,7 +141,19 @@ function hoffmann_show_custom_user_fields($user) {
     }
 }
 
-// 5. Cronjob für die Aktualisierung der Kunden aus der JSON-Datei alle 30 Minuten
+add_action('personal_options_update', 'hoffmann_save_custom_user_fields');
+add_action('edit_user_profile_update', 'hoffmann_save_custom_user_fields');
+function hoffmann_save_custom_user_fields($user_id) {
+    if (!current_user_can('edit_user', $user_id)) {
+        return;
+    }
+
+    update_user_meta($user_id, 'adresse_strasse', sanitize_text_field($_POST['adresse_strasse'] ?? ''));
+    update_user_meta($user_id, 'adresse_ort', sanitize_text_field($_POST['adresse_ort'] ?? ''));
+    update_user_meta($user_id, 'adresse_plz', sanitize_text_field($_POST['adresse_plz'] ?? ''));
+}
+
+// 5. Cronjob fÃ¼r die Aktualisierung der Kunden aus der JSON-Datei alle 30 Minuten
 add_filter('cron_schedules', 'hoffmann_add_cron_interval');
 function hoffmann_add_cron_interval($schedules) {
     $schedules['thirty_minutes'] = [
@@ -125,10 +171,10 @@ function hoffmann_schedule_customer_update() {
 }
 add_action('hoffmann_update_customers_event', 'hoffmann_update_customers_from_json');
 
-// 6. Rolle "Kunde" auf das Frontend beschränken und nach dem Login zur Startseite weiterleiten
+// 6. Rolle "Kunde" auf das Frontend beschrÃ¤nken und nach dem Login zur Startseite weiterleiten
 add_action('init', 'hoffmann_restrict_kunde_backend_access');
 function hoffmann_restrict_kunde_backend_access() {
-    if (current_user_can('kunde') && is_admin()) {
+    if (hoffmann_user_has_role('kunde') && is_admin()) {
         wp_redirect(home_url());
         exit;
     }
@@ -147,29 +193,29 @@ function hoffmann_remove_cron() {
 // Benutzer nach erfolgreichem Login auf die Startseite weiterleiten
 add_filter('login_redirect', 'hoffmann_redirect_to_home_after_login', 10, 3);
 function hoffmann_redirect_to_home_after_login($redirect_to, $request, $user) {
-    // Prüfen, ob der Benutzer eingeloggt ist und die Rolle "Kunde" hat
+    // PrÃ¼fen, ob der Benutzer eingeloggt ist und die Rolle "Kunde" hat
     if (isset($user->roles) && in_array('kunde', $user->roles)) {
         return home_url(); // Weiterleitung zur Startseite
     }
 
-    return $redirect_to; // Standard-Weiterleitung für andere Benutzer
+    return $redirect_to; // Standard-Weiterleitung fÃ¼r andere Benutzer
 }
 
 
 add_filter('show_admin_bar', 'hoffmann_hide_admin_bar_for_kunden');
 function hoffmann_hide_admin_bar_for_kunden($show) {
-    if (current_user_can('kunde')) {
+    if (hoffmann_user_has_role('kunde')) {
         return false;
     }
     return $show;
 }
 
-// Logout-Link Shortcode hinzufügen
+// Logout-Link Shortcode hinzufÃ¼gen
 add_shortcode('hoffmann_logout', 'hoffmann_logout_link');
 function hoffmann_logout_link() {
-    // Generiert eine Logout-URL, die anschließend zurück zur Login-Seite führt
+    // Generiert eine Logout-URL, die anschlieÃŸend zurÃ¼ck zur Login-Seite fÃ¼hrt
     $logout_url = wp_logout_url( home_url('/login') );
-    // Rückgabe als Button (kann natürlich beliebig als Link oder Button gestylt werden)
+    // RÃ¼ckgabe als Button (kann natÃ¼rlich beliebig als Link oder Button gestylt werden)
     return '<a class="button hoffmann-logout" href="' . esc_url( $logout_url ) . '">Logout</a>';
 }
 
