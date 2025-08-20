@@ -2,9 +2,14 @@
 /**
  * Plugin Name: Hoffmann OPV Anbindung
  * Description: Importiert offene Posten aus einer JSON-Datei alle 5 Minuten und zeigt sie per Shortcode im Frontend mit Filterung, Sortierung und Summenbildung an. Die Daten werden auch im CPT 'belege' synchronisiert.
- * Version: 1.4
+ * Version: main-v1.0.1
  * Author: Hoffmann Handel & Dienstleistungen GmbH & Co. KG
  */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 
 // Debug Funktion
 function hoffmann_opv_log($msg) {

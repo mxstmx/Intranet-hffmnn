@@ -2,9 +2,14 @@
 /**
  * Plugin Name: Hoffmann Belege Anzeigen
  * Description: Zeigt eingeloggten Kunden seine Belege filterbar nach Belegart, mit Sortierung nach Datum und Nummer. Erzeugt für jeden Beleg ein eigenes Popup mit halbtransparentem Hintergrund.
- * Version: 2.6
+ * Version: main-v1.0.1
  * Author: Max Florian Krauss
  */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 
 // Übersicht-Shortcode: [hoffmann_belege_anzeigen]
 add_shortcode('hoffmann_belege_anzeigen','hoffmann_belege_anzeigen_shortcode');

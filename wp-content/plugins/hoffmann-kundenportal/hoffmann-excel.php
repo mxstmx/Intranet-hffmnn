@@ -2,9 +2,14 @@
 /*
 Plugin Name: Hoffmann-Excel
 Description: Exportiert die Artikelverfügbarkeit als PDF.
-Version: 1.0
+Version: main-v1.0.1
 Author: Hoffmann Handel & Dienstleistungen GmbH & Co. KG
 */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 
 require_once 'lib/fpdf.php';
 
@@ -115,4 +120,3 @@ function hoffmann_pdf_export_download() {
     }
 }
 add_action('init', 'hoffmann_pdf_export_download');
-?>

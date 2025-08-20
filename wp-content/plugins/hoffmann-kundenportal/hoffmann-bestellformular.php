@@ -2,9 +2,14 @@
 /**
  * Plugin Name: Hoffmann Bestellformular
  * Description: Zeigt Produkte mit Verfügbarkeit und Bestellmenge in 10er-Schritten, filterbar nach Warengruppen, erstellt eine .xls-Datei und versendet per SMTP-Mail.
- * Version: 3.8
+ * Version: main-v1.0.1
  * Author: Max Florian Krauss
  */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;

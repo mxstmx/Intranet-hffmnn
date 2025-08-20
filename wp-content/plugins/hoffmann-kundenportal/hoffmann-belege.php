@@ -2,9 +2,14 @@
 /**
  * Plugin Name: Hoffmann Belege Importer
  * Description: Importiert und aktualisiert Belege aus einer JSON-Datei, erstellt neue Beiträge im Post-Typ 'belege', aktualisiert nur, wenn das Belegdatum neuer ist und erstellt eine hierarchische Struktur anhand der Vorbelegnummer. Die Beiträge werden nach Belegart kategorisiert.
- * Version: 1.5
+ * Version: main-v1.0.1
  * Author: Hoffmann Handel & Dienstleistungen GmbH & Co. KG
  */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 
 // Debugging-Funktion
 function hoffmann_debug_log($message) {

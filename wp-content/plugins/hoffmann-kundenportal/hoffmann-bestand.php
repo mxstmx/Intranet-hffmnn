@@ -2,9 +2,14 @@
 /**
  * Plugin Name: Hoffmann Bestand
  * Description: Zeigt Produkte mit Verfügbarkeit filterbar nach Warengruppen ohne Bestellfunktion.
- * Version: 1.1
+ * Version: main-v1.0.1
  * Author: Max Florian Krauss
  */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 
 // Shortcode für Bestandsanzeige
 add_shortcode('hoffmann_bestand', 'hoffmann_render_bestand');
@@ -12,10 +17,7 @@ function hoffmann_render_bestand() {
     ob_start();
     // Taxonomy-Terms laden
     $terms = get_terms([ 'taxonomy' => 'warengruppe', 'hide_empty' => false ]);
-    // Standardfilter: erste Warengruppe
-    if (!empty($terms)) {
-        $default = '__all';
-    }
+    $default = '__all'; // Standardfilter: Alle Warengruppen
     $filter = isset($_GET['gruppe']) ? sanitize_title($_GET['gruppe']) : $default;
 
     // Buttons für Warengruppen
