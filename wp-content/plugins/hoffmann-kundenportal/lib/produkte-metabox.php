@@ -3,6 +3,17 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+if (!function_exists('hoffmann_format_currency')) {
+    function hoffmann_format_currency($value) {
+        if ($value === '' || $value === null) {
+            return '';
+        }
+        $value = str_replace('.', '', $value);
+        $value = str_replace(',', '.', $value);
+        return number_format((float) $value, 2, ',', '.');
+    }
+}
+
 if (!function_exists('hoffmann_add_produkte_metabox')) {
     function hoffmann_add_produkte_metabox() {
         add_meta_box(
@@ -62,6 +73,7 @@ if (!function_exists('hoffmann_render_produkte_rows')) {
             $html .= '<td>' . esc_html($nummer) . '</td>';
             $html .= '<td>' . $pad . esc_html($beschreibung) . '</td>';
             $html .= '<td>' . esc_html($menge) . '</td>';
+            $html .= '<td>' . esc_html(hoffmann_format_currency($preis)) . '</td>';
             $html .= '<td>' . esc_html($preis) . '</td>';
             $html .= '</tr>';
             foreach ($item as $key => $val) {
