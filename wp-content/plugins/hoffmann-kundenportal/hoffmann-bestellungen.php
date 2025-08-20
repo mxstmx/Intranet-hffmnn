@@ -11,9 +11,54 @@ if (!defined('ABSPATH')) {
 }
 
 // Debugging-Funktion
-function hoffmann_debug_log($message) {
-    if (defined('WP_DEBUG') && WP_DEBUG === true) {
-        error_log($message);
+if (!function_exists('hoffmann_debug_log')) {
+    function hoffmann_debug_log($message) {
+        if (defined('WP_DEBUG') && WP_DEBUG === true) {
+            error_log($message);
+        }
+    }
+}
+
+if (!function_exists('hoffmann_sum_menge')) {
+    function hoffmann_sum_menge($items) {
+        $sum = 0;
+        if (is_array($items)) {
+            foreach ($items as $item) {
+                if (is_array($item)) {
+                    if (isset($item['Menge'])) {
+                        $sum += floatval(str_replace(',', '.', $item['Menge']));
+                    }
+                    foreach ($item as $sub) {
+                        if (is_array($sub)) {
+                            $sum += hoffmann_sum_menge($sub);
+                        }
+                    }
+                }
+            }
+        }
+        return $sum;
+    }
+}
+
+if (!function_exists('hoffmann_render_products')) {
+    function hoffmann_render_products($items) {
+        if (!is_array($items) || empty($items)) return;
+        echo '<ul>';
+        foreach ($items as $item) {
+            if (!is_array($item)) continue;
+            echo '<li>';
+            if (isset($item['Artikelnummer'])) echo esc_html($item['Artikelnummer']).' ';
+            if (isset($item['Bezeichnung'])) echo esc_html($item['Bezeichnung']).' ';
+            if (isset($item['Menge'])) echo '('.esc_html($item['Menge']).') ';
+            if (isset($item['Einzelpreis'])) echo esc_html($item['Einzelpreis']);
+            foreach ($item as $sub) {
+                if (is_array($sub)) {
+                    hoffmann_render_products($sub);
+                }
+            }
+            echo '</li>';
+        }
+        echo '</ul>';
     }
 }
 
@@ -24,8 +69,9 @@ function hoffmann_register_bestellungen_post_type() {
             'name' => __('Bestellungen'),
             'singular_name' => __('Bestellung'),
         ),
-        'public' => true,
-        'supports' => array('title','custom-fields'),
+        'public'        => true,
+        'hierarchical'  => true,
+        'supports'      => array('title','custom-fields','page-attributes'),
     ));
 }
 add_action('init', 'hoffmann_register_bestellungen_post_type');
@@ -63,12 +109,16 @@ function hoffmann_import_bestellungen_from_json() {
     foreach ($bestellungen as $bestellung) {
         $bestellung_id = $bestellung['ID'];
         $bestellnummer = $bestellung['Belegnummer'];
-        $bestelldatum = $bestellung['Metadaten']['Belegdatum'];
-        $bestellstatus = $bestellung['Metadaten']['Belegstatus'];
-        $kundennummer = $bestellung['Metadaten']['Kundennummer'];
-        $betragnetto = $bestellung['Metadaten']['BetragNetto'];
+        $bestelldatum   = $bestellung['Metadaten']['Belegdatum'];
+        $bestellstatus  = $bestellung['Metadaten']['Belegstatus'];
+        $kundennummer   = $bestellung['Metadaten']['Kundennummer'];
+        $betragnetto    = $bestellung['Metadaten']['BetragNetto'];
         $vorbelegnummer = $bestellung['Metadaten']['Vorbelegnummer'];
+        $air_cargo      = isset($bestellung['Metadaten']['AirCargoKosten']) ? $bestellung['Metadaten']['AirCargoKosten'] : '';
+        $zoll_kosten    = isset($bestellung['Metadaten']['ZollAbwicklungKosten']) ? $bestellung['Metadaten']['ZollAbwicklungKosten'] : '';
         $bestellart_term = $bestellung['Metadaten']['Belegart'];
+        $produkte = isset($bestellung['Produkte']) ? $bestellung['Produkte'] : array();
+        $gesamtmenge = hoffmann_sum_menge($produkte);
 
         // Vorhandene Posts prüfen
         $existing = get_posts(array(
@@ -89,20 +139,15 @@ function hoffmann_import_bestellungen_from_json() {
                 update_post_meta($post_id,'betragnetto',$betragnetto);
                 update_post_meta($post_id,'bestelldatum',$bestelldatum);
                 update_post_meta($post_id,'vorbeleg',$vorbelegnummer);
-                // Produkte in Repeater-Feld aktualisieren (ACF)
-                if (function_exists('update_field')) {
-                    $rows = array();
-                    if (isset($bestellung['Produkte']) && is_array($bestellung['Produkte'])) {
-                        foreach ($bestellung['Produkte'] as $prod) {
-                            $rows[] = array(
-                                'artikelnummer'          => sanitize_text_field($prod['Artikelnummer']),
-                                'artikelbeschreibung'    => sanitize_text_field($prod['Bezeichnung']),
-                                'menge'                  => intval($prod['Menge']),
-                                'preis'                  => sanitize_text_field($prod['Einzelpreis']),
-                            );
-                        }
+                update_post_meta($post_id,'air_cargo_kosten',$air_cargo);
+                update_post_meta($post_id,'zoll_abwicklung_kosten',$zoll_kosten);
+                update_post_meta($post_id,'produkte',$produkte);
+                update_post_meta($post_id,'gesamtmenge',$gesamtmenge);
+                if (!empty($vorbelegnummer)) {
+                    $parent = get_posts(array('post_type'=>'bestellungen','title'=>$vorbelegnummer,'posts_per_page'=>1,'fields'=>'ids'));
+                    if (!is_wp_error($parent) && !empty($parent)) {
+                        wp_update_post(array('ID'=>$post_id,'post_parent'=>$parent[0]));
                     }
-                    update_field('produkte', $rows, $post_id);
                 }
             }
         } else {
@@ -117,6 +162,10 @@ function hoffmann_import_bestellungen_from_json() {
                     'betragnetto'        => $betragnetto,
                     'bestelldatum'       => $bestelldatum,
                     'vorbeleg'           => $vorbelegnummer,
+                    'air_cargo_kosten'   => $air_cargo,
+                    'zoll_abwicklung_kosten' => $zoll_kosten,
+                    'produkte'           => $produkte,
+                    'gesamtmenge'        => $gesamtmenge,
                 ),
             );
             if (!empty($vorbelegnummer)) {
@@ -133,21 +182,6 @@ function hoffmann_import_bestellungen_from_json() {
                     wp_insert_term($bestellart_term, 'bestellart');
                 }
                 wp_set_object_terms($post_id, $bestellart_term, 'bestellart');
-                // Produkte in Repeater-Feld speichern (ACF)
-                if (function_exists('update_field')) {
-                    $rows = array();
-                    if (isset($bestellung['Produkte']) && is_array($bestellung['Produkte'])) {
-                        foreach ($bestellung['Produkte'] as $prod) {
-                            $rows[] = array(
-                                'artikelnummer'          => sanitize_text_field($prod['Artikelnummer']),
-                                'artikelbeschreibung'    => sanitize_text_field($prod['Bezeichnung']),
-                                'menge'                  => intval($prod['Menge']),
-                                'preis'                  => sanitize_text_field($prod['Einzelpreis']),
-                            );
-                        }
-                    }
-                    update_field('produkte', $rows, $post_id);
-                }
             } else {
                 hoffmann_debug_log("Fehler beim Erstellen der Bestellung: {$bestellnummer}");
             }
@@ -210,6 +244,8 @@ function hoffmann_handle_delete_bestellungen() {
 // Admin-Spalte 'Vorbelegnummer' hinzufügen
 add_filter('manage_bestellungen_posts_columns','hoffmann_bestellungen_columns');
 function hoffmann_bestellungen_columns($columns) {
+    $columns['bestelldatum'] = __('Belegdatum');
+    $columns['gesamtmenge'] = __('Gesamtmenge');
     $columns['vorbeleg'] = __('Vorbelegnummer');
     return $columns;
 }
@@ -217,6 +253,76 @@ add_action('manage_bestellungen_posts_custom_column','hoffmann_bestellungen_cust
 function hoffmann_bestellungen_custom_column($column,$post_id) {
     if ($column==='vorbeleg') {
         $val = get_post_meta($post_id,'vorbeleg',true);
-        echo esc_html($val);
+        if ($val) {
+            $parent = get_page_by_title($val, OBJECT, 'bestellungen');
+            if ($parent) {
+                $link = get_edit_post_link($parent->ID);
+                echo '<a href="' . esc_url($link) . '">' . esc_html($val) . '</a>';
+            } else {
+                echo esc_html($val);
+            }
+        }
+    } elseif ($column==='bestelldatum') {
+        echo esc_html(get_post_meta($post_id,'bestelldatum',true));
+    } elseif ($column==='gesamtmenge') {
+        echo esc_html(get_post_meta($post_id,'gesamtmenge',true));
+    }
+}
+
+// Metabox zur Anzeige der Metadaten
+add_action('add_meta_boxes_bestellungen','hoffmann_bestellungen_meta_box_init');
+function hoffmann_bestellungen_meta_box_init(){
+    add_meta_box('hoffmann_bestellungen_meta',__('Bestelldetails'),'hoffmann_bestellungen_meta_box','bestellungen','normal','default');
+}
+function hoffmann_bestellungen_meta_box($post){
+    wp_nonce_field('hoffmann_bestellungen_meta_save','hoffmann_bestellungen_meta_nonce');
+    $fields = array(
+        'bestellungid'           => __('Bestellung ID'),
+        'bestelldatum'           => __('Bestelldatum'),
+        'bestellungstatus'       => __('Status'),
+        'kundennummer'           => __('Kundennummer'),
+        'betragnetto'            => __('Betrag Netto'),
+        'gesamtmenge'            => __('Gesamtmenge'),
+        'air_cargo_kosten'       => __('Air-Cargo-Kosten'),
+        'zoll_abwicklung_kosten' => __('Zoll-Abwicklung-Kosten'),
+        'vorbeleg'               => __('Vorbelegnummer'),
+    );
+    echo '<table class="form-table"><tbody>';
+    foreach($fields as $key=>$label){
+        $val = esc_html(get_post_meta($post->ID,$key,true));
+        if (in_array($key,array('air_cargo_kosten','zoll_abwicklung_kosten'))){
+            echo '<tr><th>'.esc_html($label).'</th><td><input type="text" name="'.esc_attr($key).'" value="'.$val.'" /></td></tr>';
+        } else {
+            echo '<tr><th>'.esc_html($label).'</th><td>'.$val.'</td></tr>';
+        }
+    }
+    echo '</tbody></table>';
+
+    $produkte = get_post_meta($post->ID,'produkte',true);
+    if ($produkte) {
+        echo '<h4>'.esc_html__('Produkte').'</h4>';
+        hoffmann_render_products($produkte);
+    }
+
+    $children = get_posts(array('post_type'=>'bestellungen','post_parent'=>$post->ID,'posts_per_page'=>-1));
+    if ($children) {
+        echo '<h4>'.esc_html__('Unterbelege').'</h4><ul>';
+        foreach ($children as $child) {
+            $link = get_edit_post_link($child->ID);
+            echo '<li><a href="'.esc_url($link).'">'.esc_html($child->post_title).'</a></li>';
+        }
+        echo '</ul>';
+    }
+}
+
+add_action('save_post_bestellungen','hoffmann_save_bestellungen_meta');
+function hoffmann_save_bestellungen_meta($post_id){
+    if (!isset($_POST['hoffmann_bestellungen_meta_nonce']) || !wp_verify_nonce($_POST['hoffmann_bestellungen_meta_nonce'],'hoffmann_bestellungen_meta_save')) return;
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+    if (!current_user_can('edit_post',$post_id)) return;
+    foreach (array('air_cargo_kosten','zoll_abwicklung_kosten') as $field) {
+        if (isset($_POST[$field])) {
+            update_post_meta($post_id,$field,sanitize_text_field($_POST[$field]));
+        }
     }
 }
