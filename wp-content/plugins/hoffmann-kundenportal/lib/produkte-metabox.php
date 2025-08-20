@@ -10,9 +10,6 @@ if (!function_exists('hoffmann_format_currency')) {
         }
         $value = str_replace('.', '', $value);
         $value = str_replace(',', '.', $value);
-        if (strpos((string) $value, '.') === false && is_numeric($value)) {
-            $value = $value / 100;
-        }
         return number_format((float) $value, 2, ',', '.');
     }
 }

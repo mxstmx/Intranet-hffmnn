@@ -722,7 +722,6 @@ function hoffmann_bestellung_single_content($content){
     foreach ($stm_posts as $s) {
         $w = str_replace('.', '', get_post_meta($s->ID,'wert',true));
         $w = str_replace(',', '.', $w);
-        if ($w !== '' && strpos($w,'.') === false) { $w /= 100; }
         $total_stm += (float)$w;
     }
     $air_per_unit   = $total_ordered > 0 ? $total_air / $total_ordered : 0;
@@ -835,15 +834,12 @@ function hoffmann_bestellungen_dashboard_page(){
     foreach($orders as $o){
         $net = str_replace('.', '', get_post_meta($o->ID,'betragnetto',true));
         $net = str_replace(',', '.', $net);
-        if ($net !== '' && strpos($net,'.') === false) { $net /= 100; }
         $total_netto += (float)$net;
         $air = str_replace('.', '', get_post_meta($o->ID,'air_cargo_kosten',true));
         $air = str_replace(',', '.', $air);
-        if ($air !== '' && strpos($air,'.') === false) { $air /= 100; }
         $total_air += (float)$air;
         $zoll = str_replace('.', '', get_post_meta($o->ID,'zoll_abwicklung_kosten',true));
         $zoll = str_replace(',', '.', $zoll);
-        if ($zoll !== '' && strpos($zoll,'.') === false) { $zoll /= 100; }
         $total_zoll += (float)$zoll;
     }
     $stm_posts = get_posts(array('post_type'=>'steuermarken','numberposts'=>-1));
@@ -851,7 +847,6 @@ function hoffmann_bestellungen_dashboard_page(){
     foreach($stm_posts as $s){
         $w = str_replace('.', '', get_post_meta($s->ID,'wert',true));
         $w = str_replace(',', '.', $w);
-        if ($w !== '' && strpos($w,'.') === false) { $w /= 100; }
         $total_stm += (float)$w;
     }
     ?>
