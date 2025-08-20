@@ -438,10 +438,104 @@ if (!function_exists('hoffmann_sum_menge_recursive')) {
     }
 }
 
+if (!function_exists('hoffmann_bestellungen_get_rows')) {
+    function hoffmann_bestellungen_get_rows($args) {
+        $query  = new WP_Query($args);
+        $rows   = '';
+        $popups = '';
+        if ($query->have_posts()) {
+            while ($query->have_posts()) {
+                $query->the_post();
+                $pid    = get_the_ID();
+                $datum  = get_post_meta($pid, 'belegdatum', true);
+                $betreff= get_post_meta($pid, 'betreff', true);
+                $menge  = hoffmann_sum_produkt_mengen($pid);
+                $rows  .= '<tr class="hoffmann-parent" data-id="'.esc_attr($pid).'">';
+                $rows  .= '<td><a href="'.get_permalink().'">'.esc_html(get_the_title()).'</a></td>';
+                $rows  .= '<td>'.esc_html($datum ? date_i18n('d.m.Y', strtotime($datum)) : '').'</td>';
+                $rows  .= '<td>'.esc_html($betreff).'</td>';
+                $rows  .= '<td>'.esc_html(number_format_i18n($menge)).'</td>';
+                $rows  .= '</tr>';
+
+                $children = get_children(array(
+                    'post_type'   => 'bestellungen',
+                    'post_parent' => $pid,
+                    'orderby'     => 'title',
+                    'order'       => 'ASC',
+                ));
+                if ($children) {
+                    foreach ($children as $child) {
+                        $cid      = $child->ID;
+                        $c_datum  = get_post_meta($cid, 'belegdatum', true);
+                        $c_betreff= get_post_meta($cid, 'betreff', true);
+                        $c_menge  = hoffmann_sum_produkt_mengen($cid);
+                        $rows .= '<tr class="hoffmann-child" data-parent="'.esc_attr($pid).'">';
+                        $rows .= '<td><a href="#" class="show-popup" data-popup="popup-'.$cid.'">'.esc_html($child->post_title).'</a></td>';
+                        $rows .= '<td>'.esc_html($c_datum ? date_i18n('d.m.Y', strtotime($c_datum)) : '').'</td>';
+                        $rows .= '<td>'.esc_html($c_betreff).'</td>';
+                        $rows .= '<td>'.esc_html(number_format_i18n($c_menge)).'</td>';
+                        $rows .= '</tr>';
+                        $detail_html = hoffmann_bestellung_detail_html($cid);
+                        $popups .= '<div id="overlay-'.$cid.'" class="hoffmann-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9998;"></div>';
+                        $popups .= '<div id="popup-'.$cid.'" class="hoffmann-popup" style="display:none;position:fixed;top:10%;left:10%;width:80%;height:80%;background:#fff;overflow:auto;padding:20px;z-index:9999;"><a href="#" class="popup-close" style="position:absolute;top:10px;right:10px;">&times;</a>'.$detail_html.'</div>';
+                    }
+                }
+            }
+        }
+        wp_reset_postdata();
+        return array('rows' => $rows, 'popups' => $popups);
+    }
+}
+
+function hoffmann_bestellungen_ajax_search() {
+    $search = isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '';
+    $start  = isset($_POST['start']) ? sanitize_text_field($_POST['start']) : '';
+    $end    = isset($_POST['end']) ? sanitize_text_field($_POST['end']) : '';
+    $args = array(
+        'post_type'      => 'bestellungen',
+        'post_parent'    => 0,
+        'posts_per_page' => -1,
+        'orderby'        => 'title',
+        'order'          => 'ASC',
+        'tax_query'      => array(
+            array(
+                'taxonomy' => 'bestellart',
+                'field'    => 'name',
+                'terms'    => '2200',
+            ),
+        ),
+    );
+    $meta_query = array();
+    if ($start || $end) {
+        $date_filter = array('key' => 'belegdatum', 'type' => 'DATE');
+        if ($start && $end) {
+            $date_filter['value'] = array($start, $end);
+            $date_filter['compare'] = 'BETWEEN';
+        } elseif ($start) {
+            $date_filter['value'] = $start;
+            $date_filter['compare'] = '>=';
+        } else {
+            $date_filter['value'] = $end;
+            $date_filter['compare'] = '<=';
+        }
+        $meta_query[] = $date_filter;
+    }
+    if (!empty($meta_query)) {
+        $args['meta_query'] = $meta_query;
+    }
+    if ($search) {
+        $args['s'] = $search;
+    }
+    $result = hoffmann_bestellungen_get_rows($args);
+    wp_send_json_success($result);
+}
+add_action('wp_ajax_hoffmann_bestellungen_search','hoffmann_bestellungen_ajax_search');
+add_action('wp_ajax_nopriv_hoffmann_bestellungen_search','hoffmann_bestellungen_ajax_search');
+
 // Shortcode zur Ausgabe der Hauptbestellungen mit Unterbestellungen
 function hoffmann_bestellungen_shortcode() {
-    $start = isset($_GET['start']) ? sanitize_text_field($_GET['start']) : '';
-    $end   = isset($_GET['end']) ? sanitize_text_field($_GET['end']) : '';
+    $start  = isset($_GET['start']) ? sanitize_text_field($_GET['start']) : '';
+    $end    = isset($_GET['end']) ? sanitize_text_field($_GET['end']) : '';
     $search = isset($_GET['suche']) ? sanitize_text_field($_GET['suche']) : '';
 
     $args = array(
@@ -458,7 +552,6 @@ function hoffmann_bestellungen_shortcode() {
             ),
         ),
     );
-
     $meta_query = array();
     if ($start || $end) {
         $date_filter = array('key' => 'belegdatum', 'type' => 'DATE');
@@ -481,15 +574,11 @@ function hoffmann_bestellungen_shortcode() {
         $args['s'] = $search;
     }
 
-    $query = new WP_Query($args);
-    if (!$query->have_posts()) {
-        return '';
-    }
+    $result = hoffmann_bestellungen_get_rows($args);
 
     ob_start();
-    $popups = '';
     ?>
-    <form method="get" class="hoffmann-bestellungen-filter" style="margin-bottom:10px;">
+    <form id="hoffmann-bestellungen-filter" style="margin-bottom:10px;">
         <input type="date" name="start" value="<?php echo esc_attr($start); ?>">
         <input type="date" name="end" value="<?php echo esc_attr($end); ?>">
         <input type="text" name="suche" value="<?php echo esc_attr($search); ?>" placeholder="Suche">
@@ -504,48 +593,9 @@ function hoffmann_bestellungen_shortcode() {
                 <th><?php echo esc_html__('Gesamtstückzahl', 'hoffmann'); ?></th>
             </tr>
         </thead>
-        <tbody>
-        <?php while ($query->have_posts()) : $query->the_post(); ?>
-            <?php $pid = get_the_ID(); ?>
-            <?php $datum = get_post_meta($pid, 'belegdatum', true); ?>
-            <?php $betreff = get_post_meta($pid, 'betreff', true); ?>
-            <?php $menge = hoffmann_sum_produkt_mengen($pid); ?>
-            <tr class="hoffmann-parent" data-id="<?php echo esc_attr($pid); ?>">
-                <td><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></td>
-                <td><?php echo esc_html($datum ? date_i18n('d.m.Y', strtotime($datum)) : ''); ?></td>
-                <td><?php echo esc_html($betreff); ?></td>
-                <td><?php echo esc_html(number_format_i18n($menge)); ?></td>
-            </tr>
-            <?php
-            $children = get_children(array(
-                'post_type'   => 'bestellungen',
-                'post_parent' => $pid,
-                'orderby'     => 'title',
-                'order'       => 'ASC',
-            ));
-            if ($children) {
-                foreach ($children as $child) {
-                    $cid = $child->ID;
-                    $c_datum = get_post_meta($cid, 'belegdatum', true);
-                    $c_betreff = get_post_meta($cid, 'betreff', true);
-                    $c_menge = hoffmann_sum_produkt_mengen($cid);
-                    echo '<tr class="hoffmann-child" data-parent="'.esc_attr($pid).'">';
-                    echo '<td><a href="#" class="show-popup" data-popup="popup-'.$cid.'">'.esc_html($child->post_title).'</a></td>';
-                    echo '<td>'.esc_html($c_datum ? date_i18n('d.m.Y', strtotime($c_datum)) : '').'</td>';
-                    echo '<td>'.esc_html($c_betreff).'</td>';
-                    echo '<td>'.esc_html(number_format_i18n($c_menge)).'</td>';
-                    echo '</tr>';
-                    $detail_html = hoffmann_bestellung_detail_html($cid);
-                    $popups .= '<div id="overlay-'.$cid.'" class="hoffmann-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9998;"></div>';
-                    $popups .= '<div id="popup-'.$cid.'" class="hoffmann-popup" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%, -50%);background:#fff;padding:20px;box-shadow:0 0 10px rgba(0,0,0,0.5);z-index:9999;max-width:90%;max-height:80%;overflow:auto;">';
-                    $popups .= '<button class="popup-close" style="float:right;">&times;</button>'.$detail_html.'</div>';
-                }
-            }
-            ?>
-        <?php endwhile; ?>
-        </tbody>
+        <tbody id="hoffmann-bestellungen-body"><?php echo $result['rows']; ?></tbody>
     </table>
-    <?php echo $popups; ?>
+    <div id="hoffmann-bestellungen-popups"><?php echo $result['popups']; ?></div>
     <style>
     #hoffmann-bestellungen-table {width:100%;border-collapse:collapse;}
     #hoffmann-bestellungen-table th,#hoffmann-bestellungen-table td {border:1px solid #ccc;padding:4px;text-align:left;}
@@ -555,20 +605,44 @@ function hoffmann_bestellungen_shortcode() {
     #hoffmann-bestellungen-table tr.hoffmann-child td:first-child {padding-left:50px;}
     </style>
     <script>
-    document.addEventListener('DOMContentLoaded',function(){
-        document.querySelectorAll('#hoffmann-bestellungen-table tbody tr.hoffmann-parent').forEach(function(row){
+    (function(){
+        var form=document.getElementById('hoffmann-bestellungen-filter');
+        var search=form.querySelector('input[name="suche"]');
+        var startField=form.querySelector('input[name="start"]');
+        var endField=form.querySelector('input[name="end"]');
+        form.addEventListener('submit',function(e){e.preventDefault();});
+        function doSearch(){
+            var params=new URLSearchParams();
+            params.append('action','hoffmann_bestellungen_search');
+            params.append('search',search.value);
+            params.append('start',startField.value);
+            params.append('end',endField.value);
+            fetch('<?php echo admin_url('admin-ajax.php'); ?>',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:params.toString()})
+                .then(r=>r.json())
+                .then(function(res){
+                    if(res.success){
+                        document.getElementById('hoffmann-bestellungen-body').innerHTML=res.data.rows;
+                        document.getElementById('hoffmann-bestellungen-popups').innerHTML=res.data.popups;
+                    }
+                });
+        }
+        search.addEventListener('input',doSearch);
+        startField.addEventListener('change',doSearch);
+        endField.addEventListener('change',doSearch);
+
+        var table=document.getElementById('hoffmann-bestellungen-table');
+        table.querySelectorAll('tbody tr.hoffmann-parent').forEach(function(row){
             row.addEventListener('click',function(){
                 var id=this.dataset.id;
-                document.querySelectorAll('#hoffmann-bestellungen-table tbody tr.hoffmann-child[data-parent="'+id+'"]').forEach(function(ch){
+                table.querySelectorAll('tbody tr.hoffmann-child[data-parent="'+id+'"]').forEach(function(ch){
                     ch.classList.toggle('visible');
                 });
             });
         });
-        document.querySelectorAll('#hoffmann-bestellungen-table thead th').forEach(function(th,idx){
+        table.querySelectorAll('thead th').forEach(function(th,idx){
             th.addEventListener('click',function(){ sortTable(idx); });
         });
         function sortTable(n){
-            var table=document.getElementById('hoffmann-bestellungen-table');
             var tbody=table.tBodies[0];
             var rows=Array.from(tbody.querySelectorAll('tr.hoffmann-parent'));
             var dir=table.getAttribute('data-sort-dir')==='asc'?'desc':'asc';
@@ -592,20 +666,19 @@ function hoffmann_bestellungen_shortcode() {
             if(e.target.matches('.show-popup')){
                 e.preventDefault();
                 var id = e.target.getAttribute('data-popup').replace('popup-','');
-                document.getElementById('overlay-'+id).style.display = 'block';
-                document.getElementById('popup-'+id).style.display   = 'block';
+                document.getElementById('overlay-'+id).style.display='block';
+                document.getElementById('popup-'+id).style.display='block';
             }
             if(e.target.matches('.popup-close') || e.target.classList.contains('hoffmann-overlay')){
-                var popup = e.target.closest('.hoffmann-popup');
-                var id = popup ? popup.id.replace('popup-','') : e.target.id.replace('overlay-','');
-                document.getElementById('overlay-'+id).style.display = 'none';
-                document.getElementById('popup-'+id).style.display   = 'none';
+                var popup=e.target.closest('.hoffmann-popup');
+                var id=popup?popup.id.replace('popup-',''):e.target.id.replace('overlay-','');
+                document.getElementById('overlay-'+id).style.display='none';
+                document.getElementById('popup-'+id).style.display='none';
             }
         });
-    });
+    })();
     </script>
     <?php
-    wp_reset_postdata();
     return ob_get_clean();
 }
 add_shortcode('bestellungen_uebersicht','hoffmann_bestellungen_shortcode');
@@ -616,9 +689,10 @@ function hoffmann_bestellung_single_content($content){
         return $content;
     }
     global $post;
-    if (!has_term('2200','bestellart',$post)) {
+    if (!has_term(array('2200','2900'),'bestellart',$post)) {
         return $content;
     }
+    $show_price = has_term('2900','bestellart',$post);
     $pid = $post->ID;
     $data = get_post_meta($pid, 'produkte', true);
     if (!is_array($data)) {
@@ -677,6 +751,8 @@ function hoffmann_bestellung_single_content($content){
     }
     $air_per_unit  = $total_qty > 0 ? $total_air / $total_qty : 0;
     $zoll_per_unit = $total_qty > 0 ? $total_zoll / $total_qty : 0;
+    $total_ordered = 0;
+    $total_delivered = 0;
     ob_start();
     ?>
     <h2><?php echo esc_html__('Auswertung', 'hoffmann'); ?></h2>
@@ -689,10 +765,10 @@ function hoffmann_bestellung_single_content($content){
                 <th><?php echo esc_html__('Geliefert', 'hoffmann'); ?></th>
                 <th><?php echo esc_html__('Rest', 'hoffmann'); ?></th>
                 <th><?php echo esc_html__('Status', 'hoffmann'); ?></th>
-                <th><?php echo esc_html__('Preis', 'hoffmann'); ?></th>
+                <?php if($show_price): ?><th><?php echo esc_html__('Preis', 'hoffmann'); ?></th><?php endif; ?>
                 <th><?php echo esc_html__('Aircargo/Stk', 'hoffmann'); ?></th>
                 <th><?php echo esc_html__('Zoll/Stk', 'hoffmann'); ?></th>
-                <th><?php echo esc_html__('Gesamt/Stk', 'hoffmann'); ?></th>
+                <?php if($show_price): ?><th><?php echo esc_html__('Gesamt/Stk', 'hoffmann'); ?></th><?php endif; ?>
             </tr>
         </thead>
         <tbody>
@@ -700,6 +776,8 @@ function hoffmann_bestellung_single_content($content){
                 $rest = $info['ordered'] - $info['delivered'];
                 $percent = $info['ordered'] > 0 ? ($info['delivered'] / $info['ordered']) * 100 : 0;
                 $total_unit = $info['preis'] + $air_per_unit + $zoll_per_unit;
+                $total_ordered += $info['ordered'];
+                $total_delivered += $info['delivered'];
             ?>
             <tr>
                 <td><?php echo esc_html($art); ?></td>
@@ -708,14 +786,22 @@ function hoffmann_bestellung_single_content($content){
                 <td><?php echo esc_html(number_format_i18n($info['delivered'])); ?></td>
                 <td><?php echo esc_html(number_format_i18n($rest)); ?></td>
                 <td><div class="hoffmann-bar"><div style="width:<?php echo esc_attr(intval($percent)); ?>%"></div></div> <?php echo esc_html(number_format($percent,2,',','.')); ?>%</td>
-                <td><?php echo esc_html(hoffmann_format_currency($info['preis'])); ?></td>
+                <?php if($show_price): ?><td><?php echo esc_html(hoffmann_format_currency($info['preis'])); ?></td><?php endif; ?>
                 <td><?php echo esc_html(hoffmann_format_currency($air_per_unit)); ?></td>
                 <td><?php echo esc_html(hoffmann_format_currency($zoll_per_unit)); ?></td>
-                <td><?php echo esc_html(hoffmann_format_currency($total_unit)); ?></td>
+                <?php if($show_price): ?><td><?php echo esc_html(hoffmann_format_currency($total_unit)); ?></td><?php endif; ?>
             </tr>
             <?php endforeach; ?>
         </tbody>
     </table>
+    <canvas id="hoffmann-bestellung-pie" width="300" height="300"></canvas>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded',function(){
+        var ctx=document.getElementById('hoffmann-bestellung-pie').getContext('2d');
+        new Chart(ctx,{type:'pie',data:{labels:['Geliefert','Offen'],datasets:[{data:[<?php echo (int)$total_delivered; ?>,<?php echo (int)max(0,$total_ordered-$total_delivered); ?>],backgroundColor:['#4caf50','#ddd']}]},options:{responsive:true}});
+    });
+    </script>
     <style>
     .hoffmann-auswertung{width:100%;border-collapse:collapse;}
     .hoffmann-auswertung th,.hoffmann-auswertung td{border:1px solid #ccc;padding:4px;text-align:left;}
