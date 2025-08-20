@@ -5,12 +5,7 @@ if (!defined('ABSPATH')) {
 
 if (!function_exists('hoffmann_format_currency')) {
     function hoffmann_format_currency($value) {
-        if ($value === '' || $value === null) {
-            return '';
-        }
-        $value = str_replace('.', '', $value);
-        $value = str_replace(',', '.', $value);
-        return number_format((float) $value, 2, ',', '.');
+        return ($value === '' || $value === null) ? '' : $value;
     }
 }
 
