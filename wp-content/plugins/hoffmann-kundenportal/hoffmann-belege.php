@@ -12,9 +12,11 @@ if (!defined('ABSPATH')) {
 
 
 // Debugging-Funktion
-function hoffmann_debug_log($message) {
-    if (defined('WP_DEBUG') && WP_DEBUG === true) {
-        error_log($message);
+if (!function_exists('hoffmann_debug_log')) {
+    function hoffmann_debug_log($message) {
+        if (defined('WP_DEBUG') && WP_DEBUG === true) {
+            error_log($message);
+        }
     }
 }
 
@@ -207,6 +209,14 @@ add_action('manage_belege_posts_custom_column','hoffmann_belege_custom_column',1
 function hoffmann_belege_custom_column($column,$post_id) {
     if ($column==='vorbeleg') {
         $val = get_post_meta($post_id,'vorbeleg',true);
-        echo esc_html($val);
+        if ($val) {
+            $parent = get_page_by_title($val, OBJECT, 'belege');
+            if ($parent) {
+                $link = get_edit_post_link($parent->ID);
+                echo '<a href="' . esc_url($link) . '">' . esc_html($val) . '</a>';
+            } else {
+                echo esc_html($val);
+            }
+        }
     }
 }

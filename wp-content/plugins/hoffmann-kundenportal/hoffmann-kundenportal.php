@@ -171,3 +171,31 @@ function hoffmann_logout_link() {
     return '<a class="button hoffmann-logout" href="' . esc_url( $logout_url ) . '">Logout</a>';
 }
 
+// Standard-Beiträge und Kommentare entfernen
+add_action('admin_menu','hoffmann_remove_default_content');
+function hoffmann_remove_default_content() {
+    remove_menu_page('edit.php');
+    remove_menu_page('edit-comments.php');
+}
+
+add_action('init','hoffmann_disable_posts_and_comments',100);
+function hoffmann_disable_posts_and_comments() {
+    if (function_exists('unregister_post_type') && post_type_exists('post')) {
+        unregister_post_type('post');
+    }
+    foreach (get_post_types() as $pt) {
+        if (post_type_supports($pt,'comments')) {
+            remove_post_type_support($pt,'comments');
+            remove_post_type_support($pt,'trackbacks');
+        }
+    }
+}
+
+add_filter('comments_open','__return_false',20,2);
+add_filter('pings_open','__return_false',20,2);
+add_filter('comments_array','__return_empty_array',10,2);
+
+add_action('admin_bar_menu',function($bar){
+    $bar->remove_node('comments');
+},999);
+
