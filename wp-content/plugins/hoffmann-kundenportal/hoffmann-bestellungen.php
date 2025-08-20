@@ -664,7 +664,7 @@ function hoffmann_bestellung_single_content($content){
         $products[$art] = array(
             'bezeichnung' => isset($item['Bezeichnung']) ? $item['Bezeichnung'] : '',
             'ordered'     => isset($item['Menge']) ? intval($item['Menge']) : 0,
-            'preis'       => isset($item['Einzelpreis']) ? (float) str_replace(',', '.', str_replace('.', '', $item['Einzelpreis'])) : 0,
+            'preis'       => isset($item['Einzelpreis']) ? (float) $item['Einzelpreis'] : 0,
             'delivered'   => 0,
         );
     }
@@ -680,17 +680,12 @@ function hoffmann_bestellung_single_content($content){
     foreach ($children as $child) {
         $cid       = $child->ID;
         $air_raw   = get_post_meta($cid,'air_cargo_kosten',true);
-        $air       = str_replace('.', '', $air_raw);
-        $air       = str_replace(',', '.', $air);
-        $total_air += (float)$air;
+        $air       = (float)$air_raw;
+        $total_air += $air;
 
         $zoll_raw  = get_post_meta($cid,'zoll_abwicklung_kosten',true);
-        $zoll      = str_replace('.', '', $zoll_raw);
-        $zoll      = str_replace(',', '.', $zoll);
-        if ($zoll_raw !== '' && strpos($zoll_raw, '.') === false && strpos($zoll_raw, ',') === false) {
-            $zoll /= 100;
-        }
-        $total_zoll += (float)$zoll;
+        $zoll      = (float)$zoll_raw;
+        $total_zoll += $zoll;
         $prod = get_post_meta($cid, 'produkte', true);
         if (!is_array($prod)) { $prod = json_decode($prod, true); }
         if (is_array($prod)) {
@@ -703,7 +698,7 @@ function hoffmann_bestellung_single_content($content){
                     $products[$art] = array(
                         'bezeichnung' => isset($p['Bezeichnung']) ? $p['Bezeichnung'] : '',
                         'ordered'     => 0,
-                        'preis'       => isset($p['Einzelpreis']) ? (float) str_replace(',', '.', str_replace('.', '', $p['Einzelpreis'])) : 0,
+                        'preis'       => isset($p['Einzelpreis']) ? (float) $p['Einzelpreis'] : 0,
                         'delivered'   => 0,
                     );
                 }
@@ -728,8 +723,7 @@ function hoffmann_bestellung_single_content($content){
     ));
     $total_stm = 0;
     foreach ($stm_posts as $s) {
-        $w = str_replace('.', '', get_post_meta($s->ID,'wert',true));
-        $w = str_replace(',', '.', $w);
+        $w = get_post_meta($s->ID,'wert',true);
         $total_stm += (float)$w;
     }
     $air_per_unit   = $total_ordered > 0 ? $total_air / $total_ordered : 0;
@@ -765,10 +759,10 @@ function hoffmann_bestellung_single_content($content){
     <h1>Bestellübersicht</h1>
     <div class="subtitle">Order <strong><?php echo esc_html($title); ?></strong> · Lieferant <strong><?php echo esc_html($supplier); ?></strong> · ETA <strong><?php echo esc_html($eta); ?></strong></div>
     <div class="grid grid-4">
-        <div class="card"><h2>Warenwert (bestellt)</h2><div class="value"><?php echo esc_html(hoffmann_format_currency($total_warenwert)); ?></div></div>
-        <div class="card"><h2>Aircargo gesamt</h2><div class="value"><?php echo esc_html(hoffmann_format_currency($total_air)); ?></div></div>
-        <div class="card"><h2>Zollabwicklung gesamt</h2><div class="value"><?php echo esc_html(hoffmann_format_currency($total_zoll)); ?></div></div>
-        <div class="card"><h2>Steuermarken gesamt</h2><div class="value"><?php echo esc_html(hoffmann_format_currency($total_stm)); ?></div></div>
+        <div class="card"><h2>Warenwert (bestellt)</h2><div class="value"><?php echo esc_html($total_warenwert); ?></div></div>
+        <div class="card"><h2>Aircargo gesamt</h2><div class="value"><?php echo esc_html($total_air); ?></div></div>
+        <div class="card"><h2>Zollabwicklung gesamt</h2><div class="value"><?php echo esc_html($total_zoll); ?></div></div>
+        <div class="card"><h2>Steuermarken gesamt</h2><div class="value"><?php echo esc_html($total_stm); ?></div></div>
     </div>
     <div class="grid" style="grid-template-columns: 1fr 2fr; margin-top:20px;">
         <div class="card">
@@ -779,14 +773,14 @@ function hoffmann_bestellung_single_content($content){
         <div class="card">
             <h2>Kosten-Zusammenfassung</h2>
             <p>Bestellung Stückzahl: <strong><?php echo esc_html(number_format_i18n($total_ordered)); ?></strong></p>
-            <p>Warenwert gesamt: <strong><?php echo esc_html(hoffmann_format_currency($total_warenwert)); ?></strong></p>
-            <p>Aircargo gesamt: <strong><?php echo esc_html(hoffmann_format_currency($total_air)); ?></strong></p>
-            <p>Aircargo Stückpreis: <strong><?php echo esc_html(hoffmann_format_currency($air_per_unit)); ?></strong></p>
-            <p>Zollabwicklung gesamt: <strong><?php echo esc_html(hoffmann_format_currency($total_zoll)); ?></strong></p>
-            <p>Zollabwicklung Stückpreis: <strong><?php echo esc_html(hoffmann_format_currency($zoll_per_unit)); ?></strong></p>
-            <p>Steuermarken gesamt: <strong><?php echo esc_html(hoffmann_format_currency($total_stm)); ?></strong></p>
-            <p>Landed Cost gesamt: <strong><?php echo esc_html(hoffmann_format_currency($landed_total)); ?></strong></p>
-            <p>Stückpreis: <strong><?php echo esc_html(hoffmann_format_currency($landed_per_unit)); ?></strong></p>
+            <p>Warenwert gesamt: <strong><?php echo esc_html($total_warenwert); ?></strong></p>
+            <p>Aircargo gesamt: <strong><?php echo esc_html($total_air); ?></strong></p>
+            <p>Aircargo Stückpreis: <strong><?php echo esc_html($air_per_unit); ?></strong></p>
+            <p>Zollabwicklung gesamt: <strong><?php echo esc_html($total_zoll); ?></strong></p>
+            <p>Zollabwicklung Stückpreis: <strong><?php echo esc_html($zoll_per_unit); ?></strong></p>
+            <p>Steuermarken gesamt: <strong><?php echo esc_html($total_stm); ?></strong></p>
+            <p>Landed Cost gesamt: <strong><?php echo esc_html($landed_total); ?></strong></p>
+            <p>Stückpreis: <strong><?php echo esc_html($landed_per_unit); ?></strong></p>
         </div>
     </div>
     <div class="card" style="margin-top:20px;">
@@ -843,22 +837,15 @@ function hoffmann_bestellungen_dashboard_page(){
         $net = str_replace('.', '', get_post_meta($o->ID,'betragnetto',true));
         $net = str_replace(',', '.', $net);
         $total_netto += (float)$net;
-        $air = str_replace('.', '', get_post_meta($o->ID,'air_cargo_kosten',true));
-        $air = str_replace(',', '.', $air);
-        $total_air += (float)$air;
-        $zoll_raw = get_post_meta($o->ID,'zoll_abwicklung_kosten',true);
-        $zoll = str_replace('.', '', $zoll_raw);
-        $zoll = str_replace(',', '.', $zoll);
-        if ($zoll_raw !== '' && strpos($zoll_raw, '.') === false && strpos($zoll_raw, ',') === false) {
-            $zoll /= 100;
-        }
-        $total_zoll += (float)$zoll;
+        $air = (float)get_post_meta($o->ID,'air_cargo_kosten',true);
+        $total_air += $air;
+        $zoll = (float)get_post_meta($o->ID,'zoll_abwicklung_kosten',true);
+        $total_zoll += $zoll;
     }
     $stm_posts = get_posts(array('post_type'=>'steuermarken','numberposts'=>-1));
     $total_stm = 0;
     foreach($stm_posts as $s){
-        $w = str_replace('.', '', get_post_meta($s->ID,'wert',true));
-        $w = str_replace(',', '.', $w);
+        $w = get_post_meta($s->ID,'wert',true);
         $total_stm += (float)$w;
     }
     ?>

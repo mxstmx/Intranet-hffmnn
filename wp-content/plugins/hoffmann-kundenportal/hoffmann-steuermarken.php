@@ -56,12 +56,12 @@ function hoffmann_steuermarken_metabox_render($post) {
         '1.04' => '1,04 €',
         '2.60' => '2,60 €',
     );
-    $stueckzahl_disp = $stueckzahl ? number_format_i18n($stueckzahl) : '';
+    $stueckzahl_disp = $stueckzahl ? $stueckzahl : '';
     $wert_calc = 0;
     if ($kategorie !== '' && $stueckzahl) {
         $wert_calc = (float)$kategorie * $stueckzahl;
     }
-    $wert_disp = number_format($wert_calc, 2, ',', '.');
+    $wert_disp = $wert_calc;
     ?>
     <p><label>Kategorie<br><select name="kategorie">
         <?php foreach($categories as $val => $label){ echo '<option value="'.esc_attr($val).'" '.selected($kategorie,$val,false).'>'.esc_html($label).'</option>'; } ?>
@@ -83,12 +83,11 @@ function hoffmann_steuermarken_save_meta($post_id) {
     if (!current_user_can('edit_post', $post_id)) return;
     $kategorie  = sanitize_text_field($_POST['kategorie'] ?? '');
     $st_raw     = sanitize_text_field($_POST['stueckzahl'] ?? '0');
-    $stueckzahl = (int) str_replace(array('.',','), '', $st_raw);
+    $stueckzahl = (int) $st_raw;
     $wert       = ($kategorie !== '') ? (float)$kategorie * $stueckzahl : 0;
-    $wert_form  = number_format($wert, 2, ',', '.');
     update_post_meta($post_id, 'kategorie', $kategorie);
     update_post_meta($post_id, 'stueckzahl', $stueckzahl);
-    update_post_meta($post_id, 'wert', $wert_form);
+    update_post_meta($post_id, 'wert', $wert);
     update_post_meta($post_id, 'bestelldatum', sanitize_text_field($_POST['bestelldatum'] ?? ''));
     $bestellung = intval($_POST['bestellung_id'] ?? 0);
     if ($bestellung && has_term('2200','bestellart',$bestellung)) {
