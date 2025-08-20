@@ -771,10 +771,15 @@ function hoffmann_bestellung_single_content($content){
         </div>
         <div class="card">
             <h2>Kosten-Zusammenfassung</h2>
+            <p>Bestellung Stückzahl: <strong><?php echo esc_html(number_format_i18n($total_ordered)); ?></strong></p>
+            <p>Warenwert gesamt: <strong><?php echo esc_html(hoffmann_format_currency($total_warenwert)); ?></strong></p>
+            <p>Aircargo gesamt: <strong><?php echo esc_html(hoffmann_format_currency($total_air)); ?></strong></p>
+            <p>Aircargo Stückpreis: <strong><?php echo esc_html(hoffmann_format_currency($air_per_unit)); ?></strong></p>
+            <p>Zollabwicklung gesamt: <strong><?php echo esc_html(hoffmann_format_currency($total_zoll)); ?></strong></p>
+            <p>Zollabwicklung Stückpreis: <strong><?php echo esc_html(hoffmann_format_currency($zoll_per_unit)); ?></strong></p>
+            <p>Steuermarken gesamt: <strong><?php echo esc_html(hoffmann_format_currency($total_stm)); ?></strong></p>
             <p>Landed Cost gesamt: <strong><?php echo esc_html(hoffmann_format_currency($landed_total)); ?></strong></p>
-            <p>Ø Landed Cost / Stk: <strong><?php echo esc_html(hoffmann_format_currency($landed_per_unit)); ?></strong></p>
-            <p>Ø Aircargo / Stk: <strong><?php echo esc_html(hoffmann_format_currency($air_per_unit)); ?></strong></p>
-            <p>Ø Zoll / Stk: <strong><?php echo esc_html(hoffmann_format_currency($zoll_per_unit)); ?></strong></p>
+            <p>Stückpreis: <strong><?php echo esc_html(hoffmann_format_currency($landed_per_unit)); ?></strong></p>
         </div>
     </div>
     <div class="card" style="margin-top:20px;">
@@ -787,12 +792,6 @@ function hoffmann_bestellung_single_content($content){
                     <th>Bestellt</th>
                     <th>Geliefert</th>
                     <th>EK €/Stk</th>
-                    <th>Aircargo €/Stk</th>
-                    <th>Zoll €/Stk</th>
-                    <th>Steuermarke €/Stk</th>
-                    <th>Warenwert</th>
-                    <th>Nebenkosten</th>
-                    <th>Landed €/Stk</th>
                 </tr>
             </thead>
             <tbody>
@@ -800,9 +799,6 @@ function hoffmann_bestellung_single_content($content){
                     $status = 'offen';
                     if ($info['delivered'] >= $info['ordered'] && $info['ordered'] > 0) { $status = 'voll'; }
                     elseif ($info['delivered'] > 0) { $status = 'teil'; }
-                    $warenwert   = $info['ordered'] * $info['preis'];
-                    $nebenkosten = ($air_per_unit + $zoll_per_unit + $stm_per_unit) * $info['ordered'];
-                    $landed_stk  = $info['preis'] + $air_per_unit + $zoll_per_unit + $stm_per_unit;
                 ?>
                 <tr>
                     <td><?php echo esc_html($info['bezeichnung']); ?><br><span class="status <?php echo esc_attr($status); ?>"><?php echo esc_html(ucfirst($status)); ?></span></td>
@@ -810,12 +806,7 @@ function hoffmann_bestellung_single_content($content){
                     <td><?php echo esc_html(number_format_i18n($info['ordered'])); ?></td>
                     <td><?php echo esc_html(number_format_i18n($info['delivered'])); ?></td>
                     <td><?php echo esc_html(hoffmann_format_currency($info['preis'])); ?></td>
-                    <td><?php echo esc_html(hoffmann_format_currency($air_per_unit)); ?></td>
-                    <td><?php echo esc_html(hoffmann_format_currency($zoll_per_unit)); ?></td>
-                    <td><?php echo esc_html(hoffmann_format_currency($stm_per_unit)); ?></td>
-                    <td><?php echo esc_html(hoffmann_format_currency($warenwert)); ?></td>
-                    <td><?php echo esc_html(hoffmann_format_currency($nebenkosten)); ?></td>
-                    <td><?php echo esc_html(hoffmann_format_currency($landed_stk)); ?></td>
+
                 </tr>
                 <?php endforeach; ?>
             </tbody>
