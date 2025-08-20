@@ -806,6 +806,7 @@ function hoffmann_bestellung_single_content($content){
                     <td><?php echo esc_html(number_format_i18n($info['ordered'])); ?></td>
                     <td><?php echo esc_html(number_format_i18n($info['delivered'])); ?></td>
                     <td><?php echo esc_html(hoffmann_format_currency($info['preis'])); ?></td>
+
                 </tr>
                 <?php endforeach; ?>
             </tbody>
