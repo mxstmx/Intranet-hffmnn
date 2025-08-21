@@ -11,4 +11,10 @@ if (!function_exists('hoffmann_to_float')) {
         return floatval($value);
     }
 }
+
+if (!function_exists('hoffmann_to_int')) {
+    function hoffmann_to_int($value) {
+        return (int)hoffmann_to_float($value);
+    }
+}
 ?>
