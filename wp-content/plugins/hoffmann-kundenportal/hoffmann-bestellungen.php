@@ -762,10 +762,10 @@ function hoffmann_bestellung_single_content($content){
     <h1>Bestellübersicht</h1>
     <div class="subtitle">Order <strong><?php echo esc_html($title); ?></strong> · Lieferant <strong><?php echo esc_html($supplier); ?></strong> · ETA <strong><?php echo esc_html($eta); ?></strong></div>
     <div class="grid grid-4">
-        <div class="card"><h2>Warenwert (bestellt)</h2><div class="value"><?php echo esc_html($total_warenwert); ?></div></div>
-        <div class="card"><h2>Aircargo gesamt</h2><div class="value"><?php echo esc_html($total_air); ?></div></div>
-        <div class="card"><h2>Zollabwicklung gesamt</h2><div class="value"><?php echo esc_html($total_zoll); ?></div></div>
-        <div class="card"><h2>Steuermarken gesamt</h2><div class="value"><?php echo esc_html($total_stm); ?></div></div>
+        <div class="card"><h2>Warenwert (bestellt)</h2><div class="value"><?php echo number_format((float) $total_warenwert, 2, ',', ''); ?>€</div></div>
+        <div class="card"><h2>Aircargo gesamt</h2><div class="value"><?php echo number_format((float) $total_air, 2, ',', ''); ?>€</div></div>
+        <div class="card"><h2>Zollabwicklung gesamt</h2><div class="value"><?php echo number_format((float) $total_zoll, 2, ',', ''); ?>€</div></div>
+        <div class="card"><h2>Steuermarken gesamt</h2><div class="value"><?php echo number_format((float) $total_stm, 2, ',', ''); ?>€</div></div>
     </div>
     <div class="grid" style="grid-template-columns: 1fr 2fr; margin-top:20px;">
         <div class="card">
@@ -775,15 +775,16 @@ function hoffmann_bestellung_single_content($content){
         </div>
         <div class="card">
             <h2>Kosten-Zusammenfassung</h2>
-            <p>Bestellung Stückzahl: <strong><?php echo esc_html(number_format_i18n($total_ordered)); ?></strong></p>
-            <p>Warenwert gesamt: <strong><?php echo esc_html($total_warenwert); ?></strong></p>
-            <p>Aircargo gesamt: <strong><?php echo esc_html($total_air); ?></strong></p>
-            <p>Aircargo Stückpreis: <strong><?php echo esc_html($air_per_unit); ?></strong></p>
-            <p>Zollabwicklung gesamt: <strong><?php echo esc_html($total_zoll); ?></strong></p>
-            <p>Zollabwicklung Stückpreis: <strong><?php echo esc_html($zoll_per_unit); ?></strong></p>
-            <p>Steuermarken gesamt: <strong><?php echo esc_html($total_stm); ?></strong></p>
-            <p>Landed Cost gesamt: <strong><?php echo esc_html($landed_total); ?></strong></p>
-            <p>Stückpreis: <strong><?php echo esc_html($landed_per_unit); ?></strong></p>
+<p>Bestellung Stückzahl: <strong><?php echo esc_html(number_format_i18n($total_ordered)); ?> Stück</strong></p>
+<p>Warenwert gesamt: <strong><?php echo esc_html(number_format_i18n($total_warenwert, 2)); ?> €</strong></p>
+<p>Aircargo gesamt: <strong><?php echo esc_html(number_format_i18n($total_air, 2)); ?> €</strong></p>
+<p>Aircargo Stückpreis: <strong><?php echo esc_html(number_format_i18n($air_per_unit, 2)); ?> €</strong></p>
+<p>Zollabwicklung gesamt: <strong><?php echo esc_html(number_format_i18n($total_zoll, 2)); ?> €</strong></p>
+<p>Zollabwicklung Stückpreis: <strong><?php echo esc_html(number_format_i18n($zoll_per_unit, 2)); ?> €</strong></p>
+<p>Steuermarken gesamt: <strong><?php echo esc_html(number_format_i18n($total_stm, 2)); ?> €</strong></p>
+<p>Landed Cost gesamt: <strong><?php echo esc_html(number_format_i18n($landed_total, 2)); ?> €</strong></p>
+<p>Stückpreis: <strong><?php echo esc_html(number_format_i18n($landed_per_unit, 2)); ?> €</strong></p>
+
         </div>
     </div>
     <div class="card" style="margin-top:20px;">
