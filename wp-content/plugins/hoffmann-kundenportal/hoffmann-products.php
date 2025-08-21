@@ -344,7 +344,8 @@ function hoffmann_export_loop_grid_excel() {
     $objPHPExcel = new PHPExcel();
     $sheet = $objPHPExcel->setActiveSheetIndex(0);
     $sheet->setCellValue('A1', 'Produktname');
-    $sheet->setCellValue('B1', 'Verfügbarkeit');
+    $sheet->setCellValue('B1', 'Artikelnummer');
+    $sheet->setCellValue('C1', 'Verfügbarkeit');
 
     // Produkte mit Bestand und Verfügbarkeit abfragen
     $args = [
@@ -365,13 +366,15 @@ function hoffmann_export_loop_grid_excel() {
         while ($query->have_posts()) {
             $query->the_post();
             $produktname = get_the_title();
+            $artikelnummer = get_post_meta(get_the_ID(), 'artikelnummer', true);
             $bestand = (int) get_post_meta(get_the_ID(), 'bestand', true);
             $reserviert = (int) get_post_meta(get_the_ID(), 'reserviert', true);
             $verfuegbarkeit = max(0, $bestand - $reserviert);
 
             // Excel-Arbeitsblatt schreiben
             $sheet->setCellValue("A{$row}", $produktname);
-            $sheet->setCellValue("B{$row}", $verfuegbarkeit);
+            $sheet->setCellValue("B{$row}", $artikelnummer);
+            $sheet->setCellValue("C{$row}", $verfuegbarkeit);
             $row++;
         }
         wp_reset_postdata();
