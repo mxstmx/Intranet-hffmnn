@@ -329,7 +329,8 @@ function hoffmann_export_loop_grid_excel() {
     
     // Debug: Überprüfen, ob die Datei existiert
     if (file_exists($phpexcel_path)) {
-        echo 'PHPExcel gefunden.';
+        // echo 'PHPExcel gefunden.';
+        error_log('PHPExcel gefunden.');
         include_once($phpexcel_path);
     } else {
         wp_die('PHPExcel library not found at: ' . $phpexcel_path);
@@ -362,7 +363,8 @@ function hoffmann_export_loop_grid_excel() {
     $row = 2;
 
     if ($query->have_posts()) {
-        echo 'Produkte gefunden.';
+        // echo 'Produkte gefunden.';
+        error_log('Produkte gefunden.');
         while ($query->have_posts()) {
             $query->the_post();
             $produktname = get_the_title();
