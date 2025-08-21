@@ -338,27 +338,34 @@ function hoffmann_export_loop_grid_excel() {
 
     // Produkte mit Bestand und Verfügbarkeit abfragen
     $args = [
-        'post_type' => 'produkte',
-        'posts_per_page' => -1,
-        'meta_query' => [
+        'post_type'       => 'produkte',
+        'posts_per_page'  => -1,
+        'meta_query'      => [
             [
-                'key' => 'bestand',
+                'key'     => 'bestand',
                 'compare' => 'EXISTS',
             ],
         ],
     ];
     $query = new WP_Query($args);
-    $row = 2;
+
+    // Header für den CSV-Download
+    if (ob_get_length()) { ob_end_clean(); }
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment;filename="produkte_export.csv"');
+    header('Cache-Control: max-age=0');
+
+    $output = fopen('php://output', 'w');
+    fputcsv($output, ['Produktname', 'Artikelnummer', 'Verfügbarkeit']);
 
     if ($query->have_posts()) {
-        // echo 'Produkte gefunden.';
         error_log('Produkte gefunden.');
         while ($query->have_posts()) {
             $query->the_post();
-            $produktname = get_the_title();
-            $artikelnummer = get_post_meta(get_the_ID(), 'artikelnummer', true);
-            $bestand = (int) get_post_meta(get_the_ID(), 'bestand', true);
-            $reserviert = (int) get_post_meta(get_the_ID(), 'reserviert', true);
+            $produktname    = get_the_title();
+            $artikelnummer  = get_post_meta(get_the_ID(), 'artikelnummer', true);
+            $bestand        = (int) get_post_meta(get_the_ID(), 'bestand', true);
+            $reserviert     = (int) get_post_meta(get_the_ID(), 'reserviert', true);
             $verfuegbarkeit = max(0, $bestand - $reserviert);
 
             // Daten in das Arbeitsblatt schreiben
@@ -366,6 +373,7 @@ function hoffmann_export_loop_grid_excel() {
             $sheet->setCellValue("B{$row}", $artikelnummer);
             $sheet->setCellValue("C{$row}", $verfuegbarkeit);
             $row++;
+            fputcsv($output, [$produktname, $artikelnummer, $verfuegbarkeit]);
         }
         wp_reset_postdata();
     } else {
@@ -384,6 +392,7 @@ function hoffmann_export_loop_grid_excel() {
     $writer = new Csv($spreadsheet);
     $writer->setDelimiter(';');
     $writer->save('php://output');
+    fclose($output);
     exit();
 }
 add_action('wp_ajax_export_loop_grid_excel', 'hoffmann_export_loop_grid_excel');
