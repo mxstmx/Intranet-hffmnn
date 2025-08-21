@@ -6,8 +6,6 @@ Version: main-v1.0.1
 Author: Max Florian Krauss
 */
 
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -327,60 +325,46 @@ add_shortcode('hoffmann_export_link', 'hoffmann_export_link_shortcode');
 
 // Funktion für den Excel-Export mit Debugging
 function hoffmann_export_loop_grid_excel() {
-    // PhpSpreadsheet laden
-    require_once plugin_dir_path(__FILE__) . 'lib/PhpSpreadsheet/src/Bootstrap.php';
-
-    $spreadsheet = new Spreadsheet();
-    $sheet = $spreadsheet->getActiveSheet();
-    $sheet->setCellValue('A1', 'Produktname');
-    $sheet->setCellValue('B1', 'Artikelnummer');
-    $sheet->setCellValue('C1', 'Verfügbarkeit');
-
     // Produkte mit Bestand und Verfügbarkeit abfragen
     $args = [
-        'post_type' => 'produkte',
-        'posts_per_page' => -1,
-        'meta_query' => [
+        'post_type'       => 'produkte',
+        'posts_per_page'  => -1,
+        'meta_query'      => [
             [
-                'key' => 'bestand',
+                'key'     => 'bestand',
                 'compare' => 'EXISTS',
             ],
         ],
     ];
     $query = new WP_Query($args);
-    $row = 2;
+
+    // Header für den CSV-Download
+    if (ob_get_length()) { ob_end_clean(); }
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment;filename="produkte_export.csv"');
+    header('Cache-Control: max-age=0');
+
+    $output = fopen('php://output', 'w');
+    fputcsv($output, ['Produktname', 'Artikelnummer', 'Verfügbarkeit']);
 
     if ($query->have_posts()) {
-        // echo 'Produkte gefunden.';
         error_log('Produkte gefunden.');
         while ($query->have_posts()) {
             $query->the_post();
-            $produktname = get_the_title();
-            $artikelnummer = get_post_meta(get_the_ID(), 'artikelnummer', true);
-            $bestand = (int) get_post_meta(get_the_ID(), 'bestand', true);
-            $reserviert = (int) get_post_meta(get_the_ID(), 'reserviert', true);
+            $produktname    = get_the_title();
+            $artikelnummer  = get_post_meta(get_the_ID(), 'artikelnummer', true);
+            $bestand        = (int) get_post_meta(get_the_ID(), 'bestand', true);
+            $reserviert     = (int) get_post_meta(get_the_ID(), 'reserviert', true);
             $verfuegbarkeit = max(0, $bestand - $reserviert);
 
-            // Excel-Arbeitsblatt schreiben
-            $sheet->setCellValue("A{$row}", $produktname);
-            $sheet->setCellValue("B{$row}", $artikelnummer);
-            $sheet->setCellValue("C{$row}", $verfuegbarkeit);
-            $row++;
+            fputcsv($output, [$produktname, $artikelnummer, $verfuegbarkeit]);
         }
         wp_reset_postdata();
     } else {
         wp_die('Keine Produkte gefunden.');
     }
 
-    // Header für den Excel-Download
-    if (ob_get_length()) { ob_end_clean(); }
-    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    header('Content-Disposition: attachment;filename="produkte_export.xlsx"');
-    header('Cache-Control: max-age=0');
-
-    // Excel-Datei schreiben und ausgeben
-    $writer = new Xlsx($spreadsheet);
-    $writer->save('php://output');
+    fclose($output);
     exit();
 }
 add_action('wp_ajax_export_loop_grid_excel', 'hoffmann_export_loop_grid_excel');
