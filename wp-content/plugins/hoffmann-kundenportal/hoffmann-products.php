@@ -373,6 +373,7 @@ function hoffmann_export_loop_grid_excel() {
     }
 
     // Header für den Excel-Download
+    if (ob_get_length()) { ob_end_clean(); }
     header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     header('Content-Disposition: attachment;filename="produkte_export.xlsx"');
     header('Cache-Control: max-age=0');
