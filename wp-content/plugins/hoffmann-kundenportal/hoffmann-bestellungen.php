@@ -12,6 +12,7 @@ if (!defined('ABSPATH')) {
 
 require_once __DIR__ . '/lib/produkte-metabox.php';
 require_once __DIR__ . '/lib/number-utils.php';
+require_once __DIR__ . "/hoffmann-bestellungen-overview.php";
 
 // Debugging-Funktion
 if (!function_exists('hoffmann_debug_log')) {
@@ -518,141 +519,6 @@ function hoffmann_bestellungen_ajax_search() {
 add_action('wp_ajax_hoffmann_bestellungen_search','hoffmann_bestellungen_ajax_search');
 add_action('wp_ajax_nopriv_hoffmann_bestellungen_search','hoffmann_bestellungen_ajax_search');
 
-// Shortcode zur Ausgabe der Hauptbestellungen mit Unterbestellungen
-function hoffmann_bestellungen_shortcode() {
-    $start  = isset($_GET['start']) ? sanitize_text_field($_GET['start']) : '';
-    $end    = isset($_GET['end']) ? sanitize_text_field($_GET['end']) : '';
-    $search = isset($_GET['suche']) ? sanitize_text_field($_GET['suche']) : '';
-
-    $args = array(
-        'post_type'      => 'bestellungen',
-        'post_parent'    => 0,
-        'posts_per_page' => -1,
-        'orderby'        => 'title',
-        'order'          => 'ASC',
-        'tax_query'      => array(
-            array(
-                'taxonomy' => 'bestellart',
-                'field'    => 'name',
-                'terms'    => '2200',
-            ),
-        ),
-    );
-    $meta_query = array();
-    if ($start || $end) {
-        $date_filter = array('key' => 'belegdatum', 'type' => 'DATE');
-        if ($start && $end) {
-            $date_filter['value'] = array($start, $end);
-            $date_filter['compare'] = 'BETWEEN';
-        } elseif ($start) {
-            $date_filter['value'] = $start;
-            $date_filter['compare'] = '>=';
-        } else {
-            $date_filter['value'] = $end;
-            $date_filter['compare'] = '<=';
-        }
-        $meta_query[] = $date_filter;
-    }
-    if (!empty($meta_query)) {
-        $args['meta_query'] = $meta_query;
-    }
-    if ($search) {
-        $args['s'] = $search;
-    }
-
-    $result = hoffmann_bestellungen_get_rows($args);
-
-    ob_start();
-    ?>
-    <form id="hoffmann-bestellungen-filter" style="margin-bottom:10px;">
-        <input type="date" name="start" value="<?php echo esc_attr($start); ?>">
-        <input type="date" name="end" value="<?php echo esc_attr($end); ?>">
-        <input type="text" name="suche" value="<?php echo esc_attr($search); ?>" placeholder="Suche">
-        <button type="submit">Filtern</button>
-    </form>
-    <table id="hoffmann-bestellungen-table">
-        <thead>
-            <tr>
-                <th><?php echo esc_html__('Bestellnummer', 'hoffmann'); ?></th>
-                <th><?php echo esc_html__('Belegdatum', 'hoffmann'); ?></th>
-                <th><?php echo esc_html__('Betreff', 'hoffmann'); ?></th>
-                <th><?php echo esc_html__('Gesamtstückzahl', 'hoffmann'); ?></th>
-            </tr>
-        </thead>
-        <tbody id="hoffmann-bestellungen-body"><?php echo $result['rows']; ?></tbody>
-    </table>
-    <style>
-    #hoffmann-bestellungen-table {width:100%;border-collapse:collapse;}
-    #hoffmann-bestellungen-table th,#hoffmann-bestellungen-table td {border:1px solid #ccc;padding:4px;text-align:left;}
-    #hoffmann-bestellungen-table thead th {cursor:pointer;background:#f0f0f0;}
-    #hoffmann-bestellungen-table tr.hoffmann-child {display:none;background:#f9f9f9;}
-    #hoffmann-bestellungen-table tr.hoffmann-child.visible {display:table-row;}
-    #hoffmann-bestellungen-table tr.hoffmann-child td:first-child {padding-left:50px;}
-    </style>
-    <script>
-    (function(){
-        var form=document.getElementById('hoffmann-bestellungen-filter');
-        var search=form.querySelector('input[name="suche"]');
-        var startField=form.querySelector('input[name="start"]');
-        var endField=form.querySelector('input[name="end"]');
-        form.addEventListener('submit',function(e){e.preventDefault();});
-        function doSearch(){
-            var params=new URLSearchParams();
-            params.append('action','hoffmann_bestellungen_search');
-            params.append('search',search.value);
-            params.append('start',startField.value);
-            params.append('end',endField.value);
-            fetch('<?php echo admin_url('admin-ajax.php'); ?>',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:params.toString()})
-                .then(r=>r.json())
-                .then(function(res){
-                    if(res.success){
-                        document.getElementById('hoffmann-bestellungen-body').innerHTML=res.data.rows;
-                    }
-                });
-        }
-        search.addEventListener('input',doSearch);
-        startField.addEventListener('change',doSearch);
-        endField.addEventListener('change',doSearch);
-
-        var table=document.getElementById('hoffmann-bestellungen-table');
-        table.querySelectorAll('thead th').forEach(function(th,idx){
-            th.addEventListener('click',function(){ sortTable(idx); });
-        });
-        function sortTable(n){
-            var tbody=table.tBodies[0];
-            var rows=Array.from(tbody.querySelectorAll('tr.hoffmann-parent'));
-            var dir=table.getAttribute('data-sort-dir')==='asc'?'desc':'asc';
-            rows.sort(function(a,b){
-                var valA=a.children[n].innerText.toLowerCase();
-                var valB=b.children[n].innerText.toLowerCase();
-                if(!isNaN(valA) && !isNaN(valB)){ valA=parseFloat(valA); valB=parseFloat(valB); }
-                if(valA<valB) return dir==='asc'?-1:1;
-                if(valA>valB) return dir==='asc'?1:-1;
-                return 0;
-            });
-            rows.forEach(function(row){
-                var id=row.dataset.id;
-                var children=Array.from(tbody.querySelectorAll('tr.hoffmann-child[data-parent="'+id+'"]'));
-                tbody.appendChild(row);
-                children.forEach(function(c){tbody.appendChild(c);});
-            });
-            table.setAttribute('data-sort-dir',dir);
-        }
-        document.addEventListener('click',function(e){
-            var row=e.target.closest('tr.hoffmann-parent');
-            if(row && !e.target.closest('a')){
-                var id=row.dataset.id;
-                table.querySelectorAll('tbody tr.hoffmann-child[data-parent="'+id+'"]').forEach(function(ch){
-                    ch.classList.toggle('visible');
-                });
-            }
-        });
-    })();
-    </script>
-    <?php
-    return ob_get_clean();
-}
-add_shortcode('bestellungen_uebersicht','hoffmann_bestellungen_shortcode');
 
 add_filter('the_content','hoffmann_bestellung_single_content');
 function hoffmann_bestellung_single_content($content){
