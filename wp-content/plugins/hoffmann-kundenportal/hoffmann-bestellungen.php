@@ -11,6 +11,7 @@ if (!defined('ABSPATH')) {
 }
 
 require_once __DIR__ . '/lib/produkte-metabox.php';
+require_once __DIR__ . '/lib/number-utils.php';
 
 // Debugging-Funktion
 if (!function_exists('hoffmann_debug_log')) {
@@ -280,10 +281,12 @@ function hoffmann_bestellungen_save_admin_meta($post_id){
         return;
     }
     if (isset($_POST['air_cargo_kosten'])) {
-        update_post_meta($post_id, 'air_cargo_kosten', sanitize_text_field($_POST['air_cargo_kosten']));
+        $air = hoffmann_to_float(sanitize_text_field($_POST['air_cargo_kosten']));
+        update_post_meta($post_id, 'air_cargo_kosten', $air);
     }
     if (isset($_POST['zoll_abwicklung_kosten'])) {
-        update_post_meta($post_id, 'zoll_abwicklung_kosten', sanitize_text_field($_POST['zoll_abwicklung_kosten']));
+        $zoll = hoffmann_to_float(sanitize_text_field($_POST['zoll_abwicklung_kosten']));
+        update_post_meta($post_id, 'zoll_abwicklung_kosten', $zoll);
     }
 }
 
@@ -384,8 +387,8 @@ if (!function_exists('hoffmann_save_order_costs')) {
             wp_die('Keine Berechtigung');
         }
         check_admin_referer('hoffmann_save_order_costs_'.$post_id);
-        $air  = isset($_POST['air_cargo_kosten']) ? sanitize_text_field($_POST['air_cargo_kosten']) : '';
-        $zoll = isset($_POST['zoll_abwicklung_kosten']) ? sanitize_text_field($_POST['zoll_abwicklung_kosten']) : '';
+        $air  = isset($_POST['air_cargo_kosten']) ? hoffmann_to_float(sanitize_text_field($_POST['air_cargo_kosten'])) : 0.0;
+        $zoll = isset($_POST['zoll_abwicklung_kosten']) ? hoffmann_to_float(sanitize_text_field($_POST['zoll_abwicklung_kosten'])) : 0.0;
         update_post_meta($post_id, 'air_cargo_kosten', $air);
         update_post_meta($post_id, 'zoll_abwicklung_kosten', $zoll);
         wp_redirect('https://dashboard.hoffmann-hd.de/bestellungen/');
@@ -680,11 +683,11 @@ function hoffmann_bestellung_single_content($content){
     foreach ($children as $child) {
         $cid       = $child->ID;
         $air_raw   = get_post_meta($cid,'air_cargo_kosten',true);
-        $air       = (float)$air_raw;
+        $air       = hoffmann_to_float($air_raw);
         $total_air += $air;
 
         $zoll_raw  = get_post_meta($cid,'zoll_abwicklung_kosten',true);
-        $zoll      = (float)$zoll_raw;
+        $zoll      = hoffmann_to_float($zoll_raw);
         $total_zoll += $zoll;
         $prod = get_post_meta($cid, 'produkte', true);
         if (!is_array($prod)) { $prod = json_decode($prod, true); }
@@ -834,12 +837,11 @@ function hoffmann_bestellungen_dashboard_page(){
     $orders = get_posts(array('post_type'=>'bestellungen','numberposts'=>-1));
     $total_netto = $total_air = $total_zoll = 0;
     foreach($orders as $o){
-        $net = str_replace('.', '', get_post_meta($o->ID,'betragnetto',true));
-        $net = str_replace(',', '.', $net);
-        $total_netto += (float)$net;
-        $air = (float)get_post_meta($o->ID,'air_cargo_kosten',true);
+        $net = hoffmann_to_float(get_post_meta($o->ID,'betragnetto',true));
+        $total_netto += $net;
+        $air = hoffmann_to_float(get_post_meta($o->ID,'air_cargo_kosten',true));
         $total_air += $air;
-        $zoll = (float)get_post_meta($o->ID,'zoll_abwicklung_kosten',true);
+        $zoll = hoffmann_to_float(get_post_meta($o->ID,'zoll_abwicklung_kosten',true));
         $total_zoll += $zoll;
     }
     $stm_posts = get_posts(array('post_type'=>'steuermarken','numberposts'=>-1));
