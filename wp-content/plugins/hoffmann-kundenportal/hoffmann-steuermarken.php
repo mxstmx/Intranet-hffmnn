@@ -39,7 +39,7 @@ add_action('add_meta_boxes', 'hoffmann_steuermarken_add_meta_box');
 function hoffmann_steuermarken_metabox_render($post) {
     wp_nonce_field('hoffmann_steuermarken_meta', 'hoffmann_steuermarken_meta_nonce');
     $kategorie   = hoffmann_to_float(get_post_meta($post->ID, 'kategorie', true));
-    $stueckzahl  = (int)get_post_meta($post->ID, 'stueckzahl', true);
+    $stueckzahl  = hoffmann_to_int(get_post_meta($post->ID, 'stueckzahl', true));
     $bestelldatum= get_post_meta($post->ID, 'bestelldatum', true);
     $order_id    = get_post_meta($post->ID, 'bestellung_id', true);
     $orders      = get_posts(array(
@@ -63,7 +63,7 @@ function hoffmann_steuermarken_metabox_render($post) {
     if ($kategorie !== 0 && $stueckzahl) {
         $wert_calc = $kategorie * $stueckzahl;
     }
-    $wert_disp = $wert_calc;
+    $wert_disp = number_format($wert_calc, 2, ',', '.');
     ?>
     <p><label>Kategorie<br><select name="kategorie">
         <?php foreach($categories as $val => $label){ echo '<option value="'.esc_attr($val).'" '.selected($kategorie,$val,false).'>'.esc_html($label).'</option>'; } ?>
@@ -85,7 +85,7 @@ function hoffmann_steuermarken_save_meta($post_id) {
     if (!current_user_can('edit_post', $post_id)) return;
     $kategorie  = hoffmann_to_float($_POST['kategorie'] ?? '');
     $st_raw     = sanitize_text_field($_POST['stueckzahl'] ?? '0');
-    $stueckzahl = (int) $st_raw;
+    $stueckzahl = hoffmann_to_int($st_raw);
     $wert       = ($kategorie !== '') ? $kategorie * $stueckzahl : 0;
     update_post_meta($post_id, 'kategorie', $kategorie);
     update_post_meta($post_id, 'stueckzahl', $stueckzahl);
