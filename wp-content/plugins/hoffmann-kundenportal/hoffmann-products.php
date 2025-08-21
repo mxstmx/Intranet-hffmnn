@@ -6,6 +6,8 @@ Version: main-v1.0.1
 Author: Max Florian Krauss
 */
 
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Csv;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -325,6 +327,15 @@ add_shortcode('hoffmann_export_link', 'hoffmann_export_link_shortcode');
 
 // Funktion für den Excel-Export mit Debugging
 function hoffmann_export_loop_grid_excel() {
+    // PhpSpreadsheet laden
+    require_once plugin_dir_path(__FILE__) . 'lib/PhpSpreadsheet/src/Bootstrap.php';
+
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+    $sheet->setCellValue('A1', 'Produktname');
+    $sheet->setCellValue('B1', 'Artikelnummer');
+    $sheet->setCellValue('C1', 'Verfügbarkeit');
+
     // Produkte mit Bestand und Verfügbarkeit abfragen
     $args = [
         'post_type'       => 'produkte',
@@ -357,6 +368,11 @@ function hoffmann_export_loop_grid_excel() {
             $reserviert     = (int) get_post_meta(get_the_ID(), 'reserviert', true);
             $verfuegbarkeit = max(0, $bestand - $reserviert);
 
+            // Daten in das Arbeitsblatt schreiben
+            $sheet->setCellValue("A{$row}", $produktname);
+            $sheet->setCellValue("B{$row}", $artikelnummer);
+            $sheet->setCellValue("C{$row}", $verfuegbarkeit);
+            $row++;
             fputcsv($output, [$produktname, $artikelnummer, $verfuegbarkeit]);
         }
         wp_reset_postdata();
@@ -364,6 +380,18 @@ function hoffmann_export_loop_grid_excel() {
         wp_die('Keine Produkte gefunden.');
     }
 
+    // Header für den CSV-Download
+    if (ob_get_length()) {
+        ob_end_clean();
+    }
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment;filename="produkte_export.csv"');
+    header('Cache-Control: max-age=0');
+
+    // CSV-Datei schreiben und ausgeben
+    $writer = new Csv($spreadsheet);
+    $writer->setDelimiter(';');
+    $writer->save('php://output');
     fclose($output);
     exit();
 }
