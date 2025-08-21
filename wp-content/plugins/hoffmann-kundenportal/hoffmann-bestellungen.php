@@ -649,6 +649,7 @@ function hoffmann_bestellung_single_content($content){
         return $content;
     }
     $pid = $post->ID;
+    $title = get_the_title($pid);
     if (has_term('2900','bestellart',$post)) {
         return $content . hoffmann_bestellung_detail_html($pid);
     }
@@ -729,6 +730,13 @@ function hoffmann_bestellung_single_content($content){
         $w = get_post_meta($s->ID,'wert',true);
         $total_stm += (float)$w;
     }
+    $lieferscheine = get_posts(array(
+        'post_type'  => 'belege',
+        'numberposts'=> -1,
+        'meta_key'   => 'vorbeleg',
+        'meta_value' => $title,
+        'tax_query'  => array(array('taxonomy'=>'belegart','field'=>'name','terms'=>'Lieferschein')),
+    ));
     $air_per_unit   = $total_ordered > 0 ? $total_air / $total_ordered : 0;
     $zoll_per_unit  = $total_ordered > 0 ? $total_zoll / $total_ordered : 0;
     $stm_per_unit   = $total_ordered > 0 ? $total_stm / $total_ordered : 0;
@@ -785,6 +793,45 @@ function hoffmann_bestellung_single_content($content){
 <p>Landed Cost gesamt: <strong><?php echo esc_html(number_format_i18n($landed_total, 2)); ?> €</strong></p>
 <p>Stückpreis: <strong><?php echo esc_html(number_format_i18n($landed_per_unit, 2)); ?> €</strong></p>
 
+        </div>
+    </div>
+    <div class="grid" style="grid-template-columns: 1fr 1fr; margin-top:20px;">
+        <div class="card">
+            <h2>Lieferscheine</h2>
+            <?php if ($lieferscheine): ?>
+                <ul>
+                <?php foreach ($lieferscheine as $ls): ?>
+                    <li><a href="<?php echo esc_url(get_permalink($ls)); ?>"><?php echo esc_html(get_the_title($ls)); ?></a> (<?php echo esc_html(date_i18n('Y-m-d', strtotime(get_post_meta($ls->ID,'belegdatum', true)))); ?>)</li>
+                <?php endforeach; ?>
+                </ul>
+            <?php else: ?>
+                <p>Keine Lieferscheine vorhanden.</p>
+            <?php endif; ?>
+        </div>
+        <div class="card">
+            <h2>Steuermarken</h2>
+            <?php if ($stm_posts): ?>
+                <table>
+                    <thead><tr><th>Titel</th><th>Datum</th><th>Wert</th><th>Stückzahl</th></tr></thead>
+                    <tbody>
+                    <?php foreach ($stm_posts as $stm):
+                        $stm_title = get_the_title($stm);
+                        $stm_date  = get_post_meta($stm->ID,'bestelldatum', true);
+                        $stm_wert  = hoffmann_format_currency(get_post_meta($stm->ID,'wert', true));
+                        $stm_qty   = number_format_i18n(get_post_meta($stm->ID,'stueckzahl', true));
+                    ?>
+                        <tr>
+                            <td><?php echo esc_html($stm_title); ?></td>
+                            <td><?php echo esc_html($stm_date); ?></td>
+                            <td><?php echo esc_html($stm_wert); ?> €</td>
+                            <td><?php echo esc_html($stm_qty); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php else: ?>
+                <p>Keine Steuermarken vorhanden.</p>
+            <?php endif; ?>
         </div>
     </div>
     <div class="card" style="margin-top:20px;">
