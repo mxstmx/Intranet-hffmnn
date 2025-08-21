@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Hoffmann Bestellformular
- * Description: Zeigt Produkte mit Verfügbarkeit und Bestellmenge in 10er-Schritten, filterbar nach Warengruppen, erstellt eine .xls-Datei und versendet per SMTP-Mail.
+ * Description: Zeigt Produkte mit Verfügbarkeit und Bestellmenge in 10er-Schritten, filterbar nach Warengruppen, erstellt eine .csv-Datei und versendet per SMTP-Mail.
  * Version: main-v1.0.1
  * Author: Max Florian Krauss
  */
@@ -172,9 +172,9 @@ add_action('template_redirect', function() {
         $data    = $_POST['menge'];
         $has     = false;
         
-        // Verbesserte Excel-Datei-Erstellung mit UTF-8 BOM
-        $content = "\xEF\xBB\xBF"; // UTF-8 BOM für Excel
-        $content .= "Menge\tArtikelnr\tEinzelpreis\tProduktname\n";
+        // CSV-Datei-Erstellung mit UTF-8 BOM
+        $content = "\xEF\xBB\xBF"; // UTF-8 BOM für CSV
+        $content .= "Menge;Artikelnr;Einzelpreis;Produktname\n";
 
         foreach ( $data as $artnr => $qty ) {
             $qty = (int) $qty;
@@ -196,15 +196,15 @@ add_action('template_redirect', function() {
             $m     = min( floor( $qty / 10 ) * 10, $avail );
             if ( $m <= 0 ) continue;
             
-            // Produktname in Excel-Datei aufnehmen
-            $content .= "{$m}\t{$artnr}\t5,00\t{$p->post_title}\n";
+            // Produktname in CSV-Datei aufnehmen
+            $content .= "{$m};{$artnr};5,00;{$p->post_title}\n";
             $has = true;
         }
 
         if ( $has ) {
             $user = wp_get_current_user()->user_login;
             $time = date( 'Y-m-d_H-i-s' );
-            $file = "{$user}_bestellung_{$time}.xlsx"; // .xlsx statt .xls verwenden
+            $file = "{$user}_bestellung_{$time}.csv";
             $path = sys_get_temp_dir() . '/' . $file;
             file_put_contents( $path, $content );
 
@@ -227,8 +227,7 @@ add_action('template_redirect', function() {
                 $mail->Body    = 'Bestellung im Anhang.';
                 
                 // Korrekten MIME-Type setzen
-                $mail->addAttachment( $path, $file, 'base64', 
-                  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' );
+                $mail->addAttachment( $path, $file, 'base64', 'text/csv' );
 
                 if ( $mail->send() ) {
                     $sent = true;

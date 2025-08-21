@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Hoffmann Textbestellung
-Description: Erstellt aus einem Text eine Excel-Bestellliste.
+Description: Erstellt aus einem Text eine CSV-Bestellliste.
 Version: main-v1.0.1
 Author: Hoffmann Handel & Dienstleistungen GmbH & Co. KG
 */
@@ -24,13 +24,13 @@ function hoffmann_render_textbestellung_form() {
         <textarea name="bestelltext" rows="15" cols="60"></textarea><br>
         <label><input type="checkbox" name="vorbestellung" value="1"> Vorbestellung</label><br>
         <input type="hidden" name="hoffmann_textbestellung" value="1">
-        <button type="submit">Excel erstellen</button>
+        <button type="submit">CSV erstellen</button>
     </form>
     <?php
     return ob_get_clean();
 }
 
-// Verarbeitung des Formulars und Generierung der Excel-Datei
+// Verarbeitung des Formulars und Generierung der CSV-Datei
 function hoffmann_process_textbestellung() {
     if (!isset($_POST['hoffmann_textbestellung_nonce']) || !wp_verify_nonce($_POST['hoffmann_textbestellung_nonce'], 'hoffmann_textbestellung_action')) {
         return;
@@ -108,13 +108,13 @@ function hoffmann_process_textbestellung() {
     }
 
     $content = "\xEF\xBB\xBF"; // UTF-8 BOM
-    $content .= "Menge\tArtikelnr\tEinzelpreis\n";
+    $content .= "Menge;Artikelnr;Einzelpreis\n";
     foreach ($items as $item) {
-        $content .= $item['menge'] . "\t" . $item['artnr'] . "\t" . $item['preis'] . "\n";
+        $content .= $item['menge'] . ';' . $item['artnr'] . ';' . $item['preis'] . "\n";
     }
 
-    $filename = 'bestellung_' . date('Y-m-d_H-i-s') . '.xlsx';
-    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    $filename = 'bestellung_' . date('Y-m-d_H-i-s') . '.csv';
+    header('Content-Type: text/csv');
     header('Content-Disposition: attachment; filename="' . $filename . '"');
     header('Content-Length: ' . strlen($content));
     echo $content;
