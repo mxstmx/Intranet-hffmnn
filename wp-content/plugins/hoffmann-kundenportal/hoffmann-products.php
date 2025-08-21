@@ -6,6 +6,9 @@ Version: main-v1.0.1
 Author: Max Florian Krauss
 */
 
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -324,26 +327,11 @@ add_shortcode('hoffmann_export_link', 'hoffmann_export_link_shortcode');
 
 // Funktion für den Excel-Export mit Debugging
 function hoffmann_export_loop_grid_excel() {
-    // Setze den Pfad zur PHPExcel-Bibliothek
-    $phpexcel_path = plugin_dir_path(__FILE__) . 'PHPExcel.php';
-    
-    // Debug: Überprüfen, ob die Datei existiert
-    if (file_exists($phpexcel_path)) {
-        // echo 'PHPExcel gefunden.';
-        error_log('PHPExcel gefunden.');
-        include_once($phpexcel_path);
-    } else {
-        wp_die('PHPExcel library not found at: ' . $phpexcel_path);
-    }
+    // PhpSpreadsheet laden
+    require_once plugin_dir_path(__FILE__) . 'lib/PhpSpreadsheet/src/Bootstrap.php';
 
-    // Überprüfen, ob die PHPExcel-Klasse verfügbar ist
-    if (!class_exists('PHPExcel')) {
-        wp_die('PHPExcel class not loaded.');
-    }
-
-    // PHPExcel instanziieren
-    $objPHPExcel = new PHPExcel();
-    $sheet = $objPHPExcel->setActiveSheetIndex(0);
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
     $sheet->setCellValue('A1', 'Produktname');
     $sheet->setCellValue('B1', 'Artikelnummer');
     $sheet->setCellValue('C1', 'Verfügbarkeit');
@@ -390,7 +378,7 @@ function hoffmann_export_loop_grid_excel() {
     header('Cache-Control: max-age=0');
 
     // Excel-Datei schreiben und ausgeben
-    $writer = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+    $writer = new Xlsx($spreadsheet);
     $writer->save('php://output');
     exit();
 }
