@@ -396,6 +396,21 @@ if (!function_exists('hoffmann_save_order_costs')) {
     }
 }
 
+add_action('wp_ajax_hoffmann_save_lieferschein_costs','hoffmann_save_lieferschein_costs');
+add_action('wp_ajax_nopriv_hoffmann_save_lieferschein_costs','hoffmann_save_lieferschein_costs');
+function hoffmann_save_lieferschein_costs(){
+    $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
+    if(!$post_id || !current_user_can('edit_post',$post_id)){
+        wp_send_json_error();
+    }
+    check_ajax_referer('hoffmann_lieferschein_costs','nonce');
+    $air  = isset($_POST['air_cargo_kosten']) ? hoffmann_to_float(sanitize_text_field($_POST['air_cargo_kosten'])) : 0.0;
+    $zoll = isset($_POST['zoll_abwicklung_kosten']) ? hoffmann_to_float(sanitize_text_field($_POST['zoll_abwicklung_kosten'])) : 0.0;
+    update_post_meta($post_id,'air_cargo_kosten',$air);
+    update_post_meta($post_id,'zoll_abwicklung_kosten',$zoll);
+    wp_send_json_success();
+}
+
 if (!function_exists('hoffmann_sum_menge_recursive')) {
     function hoffmann_sum_menge_recursive($items) {
         $sum = 0;
@@ -731,12 +746,12 @@ function hoffmann_bestellung_single_content($content){
         $total_stm += (float)$w;
     }
     $lieferscheine = get_posts(array(
-        'post_type'  => 'belege',
-        'numberposts'=> -1,
-        'meta_key'   => 'vorbeleg',
-        'meta_value' => $title,
-        'tax_query'  => array(array('taxonomy'=>'belegart','field'=>'name','terms'=>'Lieferschein')),
+        'post_type'   => 'bestellungen',
+        'post_parent' => $pid,
+        'numberposts' => -1,
+        'tax_query'   => array(array('taxonomy'=>'bestellart','field'=>'name','terms'=>'2900')),
     ));
+    $popup_html = '';
     $air_per_unit   = $total_ordered > 0 ? $total_air / $total_ordered : 0;
     $zoll_per_unit  = $total_ordered > 0 ? $total_zoll / $total_ordered : 0;
     $stm_per_unit   = $total_ordered > 0 ? $total_stm / $total_ordered : 0;
@@ -766,6 +781,9 @@ function hoffmann_bestellung_single_content($content){
     .status.teil { background: #fef3c7; color: #92400e; }
     .status.voll { background: #dcfce7; color: #166534; }
     .chart-placeholder { height: 200px; display: flex; align-items: center; justify-content: center; color: #6b7280; border: 2px dashed #d1d5db; border-radius: 12px; }
+    .hoffmann-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); display:none; z-index:1000; }
+    .hoffmann-popup { position: fixed; top:50%; left:50%; transform: translate(-50%,-50%); background:#fff; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.2); display:none; z-index:1001; max-width:90%; width:400px; }
+    .hoffmann-popup .popup-close { position:absolute; top:5px; right:10px; background:none; border:none; font-size:20px; cursor:pointer; }
     </style>
     <h1>Bestellübersicht</h1>
     <div class="subtitle">Order <strong><?php echo esc_html($title); ?></strong> · Lieferant <strong><?php echo esc_html($supplier); ?></strong> · ETA <strong><?php echo esc_html($eta); ?></strong></div>
@@ -800,10 +818,28 @@ function hoffmann_bestellung_single_content($content){
             <h2>Lieferscheine</h2>
             <?php if ($lieferscheine): ?>
                 <ul>
-                <?php foreach ($lieferscheine as $ls): ?>
-                    <li><a href="<?php echo esc_url(get_permalink($ls)); ?>"><?php echo esc_html(get_the_title($ls)); ?></a> (<?php echo esc_html(date_i18n('Y-m-d', strtotime(get_post_meta($ls->ID,'belegdatum', true)))); ?>)</li>
+                <?php foreach ($lieferscheine as $ls):
+                    $ls_id   = $ls->ID;
+                    $ls_date = get_post_meta($ls_id,'belegdatum', true);
+                    $air_v   = get_post_meta($ls_id,'air_cargo_kosten',true);
+                    $zoll_v  = get_post_meta($ls_id,'zoll_abwicklung_kosten',true);
+                    $popup_html .= '<div id="overlay-'.$ls_id.'" class="hoffmann-overlay"></div>';
+                    $popup_html .= '<div id="popup-'.$ls_id.'" class="hoffmann-popup">';
+                    $popup_html .= '<button class="popup-close">&times;</button>';
+                    $popup_html .= '<form class="lieferschein-form">'.
+                        wp_nonce_field('hoffmann_lieferschein_costs','nonce',true,false).
+                        '<input type="hidden" name="action" value="hoffmann_save_lieferschein_costs">'.
+                        '<input type="hidden" name="post_id" value="'.esc_attr($ls_id).'">'.
+                        '<p><label>Aircargo <input type="text" name="air_cargo_kosten" value="'.esc_attr($air_v).'"></label></p>'.
+                        '<p><label>Zollabwicklung <input type="text" name="zoll_abwicklung_kosten" value="'.esc_attr($zoll_v).'"></label></p>'.
+                        '<p><button type="submit">Speichern</button></p>'.
+                        '</form>';
+                    $popup_html .= '</div>';
+                ?>
+                    <li><a href="#" class="show-popup" data-popup="popup-<?php echo esc_attr($ls_id); ?>"><?php echo esc_html(get_the_title($ls)); ?></a> (<?php echo esc_html(date_i18n('Y-m-d', strtotime($ls_date))); ?>)</li>
                 <?php endforeach; ?>
                 </ul>
+                <?php echo $popup_html; ?>
             <?php else: ?>
                 <p>Keine Lieferscheine vorhanden.</p>
             <?php endif; ?>
@@ -869,6 +905,29 @@ function hoffmann_bestellung_single_content($content){
     document.addEventListener('DOMContentLoaded',function(){
         var ctx=document.getElementById('hoffmann-bestellung-pie').getContext('2d');
         new Chart(ctx,{type:'pie',data:{labels:['Geliefert','Offen'],datasets:[{data:[<?php echo (int)$total_delivered; ?>,<?php echo (int)max(0,$total_ordered-$total_delivered); ?>],backgroundColor:['#4caf50','#ddd']}]},options:{responsive:true}});
+    });
+    document.addEventListener('click',function(e){
+        if(e.target.matches('.show-popup')){
+            e.preventDefault();
+            var id=e.target.getAttribute('data-popup');
+            var num=id.replace('popup-','');
+            document.getElementById('overlay-'+num).style.display='block';
+            document.getElementById(id).style.display='block';
+        }
+        if(e.target.matches('.popup-close')||e.target.classList.contains('hoffmann-overlay')){
+            var popup=e.target.classList.contains('hoffmann-overlay')?document.getElementById('popup-'+e.target.id.replace('overlay-','')):e.target.closest('.hoffmann-popup');
+            var num=popup.id.replace('popup-','');
+            document.getElementById('overlay-'+num).style.display='none';
+            popup.style.display='none';
+        }
+    });
+    document.addEventListener('submit',function(e){
+        if(e.target.matches('.lieferschein-form')){
+            e.preventDefault();
+            var form=e.target;
+            var data=new FormData(form);
+            fetch('<?php echo admin_url('admin-ajax.php'); ?>',{method:'POST',body:data}).then(r=>r.json()).then(function(resp){if(resp.success){location.reload();}});
+        }
     });
     </script>
     <?php
