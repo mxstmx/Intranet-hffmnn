@@ -10,6 +10,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+require_once __DIR__ . '/lib/number-utils.php';
+
 function hoffmann_register_steuermarken_post_type() {
     register_post_type('steuermarken', array(
         'labels' => array(
@@ -36,7 +38,7 @@ add_action('add_meta_boxes', 'hoffmann_steuermarken_add_meta_box');
 
 function hoffmann_steuermarken_metabox_render($post) {
     wp_nonce_field('hoffmann_steuermarken_meta', 'hoffmann_steuermarken_meta_nonce');
-    $kategorie   = get_post_meta($post->ID, 'kategorie', true);
+    $kategorie   = hoffmann_to_float(get_post_meta($post->ID, 'kategorie', true));
     $stueckzahl  = (int)get_post_meta($post->ID, 'stueckzahl', true);
     $bestelldatum= get_post_meta($post->ID, 'bestelldatum', true);
     $order_id    = get_post_meta($post->ID, 'bestellung_id', true);
@@ -58,8 +60,8 @@ function hoffmann_steuermarken_metabox_render($post) {
     );
     $stueckzahl_disp = $stueckzahl ? $stueckzahl : '';
     $wert_calc = 0;
-    if ($kategorie !== '' && $stueckzahl) {
-        $wert_calc = (float)$kategorie * $stueckzahl;
+    if ($kategorie !== 0 && $stueckzahl) {
+        $wert_calc = $kategorie * $stueckzahl;
     }
     $wert_disp = $wert_calc;
     ?>
@@ -81,10 +83,10 @@ function hoffmann_steuermarken_save_meta($post_id) {
     }
     if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
     if (!current_user_can('edit_post', $post_id)) return;
-    $kategorie  = sanitize_text_field($_POST['kategorie'] ?? '');
+    $kategorie  = hoffmann_to_float($_POST['kategorie'] ?? '');
     $st_raw     = sanitize_text_field($_POST['stueckzahl'] ?? '0');
     $stueckzahl = (int) $st_raw;
-    $wert       = ($kategorie !== '') ? (float)$kategorie * $stueckzahl : 0;
+    $wert       = ($kategorie !== '') ? $kategorie * $stueckzahl : 0;
     update_post_meta($post_id, 'kategorie', $kategorie);
     update_post_meta($post_id, 'stueckzahl', $stueckzahl);
     update_post_meta($post_id, 'wert', $wert);

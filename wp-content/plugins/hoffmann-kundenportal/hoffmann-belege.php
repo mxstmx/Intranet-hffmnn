@@ -11,6 +11,7 @@ if (!defined('ABSPATH')) {
 }
 
 require_once __DIR__ . '/lib/produkte-metabox.php';
+require_once __DIR__ . '/lib/number-utils.php';
 
 
 // Debugging-Funktion
@@ -73,10 +74,10 @@ function hoffmann_import_belege_from_json() {
         $belegdatum   = $beleg['Metadaten']['Belegdatum'];
         $belegstatus  = $beleg['Metadaten']['Belegstatus'];
         $kundennummer = $beleg['Metadaten']['Kundennummer'];
-        $betragnetto  = $beleg['Metadaten']['BetragNetto'];
+        $betragnetto  = hoffmann_to_float($beleg['Metadaten']['BetragNetto']);
         $vorbelegnummer = $beleg['Metadaten']['Vorbelegnummer'];
-        $air_cargo    = isset($beleg['Metadaten']['AirCargoKosten']) ? $beleg['Metadaten']['AirCargoKosten'] : '';
-        $zoll_kosten  = isset($beleg['Metadaten']['ZollAbwicklungKosten']) ? $beleg['Metadaten']['ZollAbwicklungKosten'] : '';
+        $air_cargo    = isset($beleg['Metadaten']['AirCargoKosten']) ? hoffmann_to_float($beleg['Metadaten']['AirCargoKosten']) : 0.0;
+        $zoll_kosten  = isset($beleg['Metadaten']['ZollAbwicklungKosten']) ? hoffmann_to_float($beleg['Metadaten']['ZollAbwicklungKosten']) : 0.0;
         $belegart_term = $beleg['Metadaten']['Belegart'];
 
         // Vorhandene Posts prüfen
