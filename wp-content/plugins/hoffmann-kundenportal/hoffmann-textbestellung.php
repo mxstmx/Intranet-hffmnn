@@ -12,11 +12,8 @@ if (!defined('ABSPATH')) {
 
 // Shortcode zum Anzeigen des Formulars
 add_shortcode('hoffmann_textbestellung', 'hoffmann_render_textbestellung_form');
+add_action('template_redirect', 'hoffmann_handle_textbestellung_submission');
 function hoffmann_render_textbestellung_form() {
-    if (isset($_POST['hoffmann_textbestellung']) && isset($_POST['bestelltext'])) {
-        hoffmann_process_textbestellung();
-    }
-
     ob_start();
     ?>
     <form method="post">
@@ -30,8 +27,11 @@ function hoffmann_render_textbestellung_form() {
     return ob_get_clean();
 }
 
-// Verarbeitung des Formulars und Generierung der CSV-Datei
-function hoffmann_process_textbestellung() {
+// Verarbeitung des Formulars und Generierung der CSV-Datei vor dem Senden von HTML
+function hoffmann_handle_textbestellung_submission() {
+    if (!isset($_POST['hoffmann_textbestellung']) || !isset($_POST['bestelltext'])) {
+        return;
+    }
     if (!isset($_POST['hoffmann_textbestellung_nonce']) || !wp_verify_nonce($_POST['hoffmann_textbestellung_nonce'], 'hoffmann_textbestellung_action')) {
         return;
     }
