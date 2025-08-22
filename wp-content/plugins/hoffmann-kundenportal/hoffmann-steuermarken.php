@@ -281,10 +281,7 @@ function hoffmann_steuermarken_shortcode() {
     .hoffmann-steuermarken h1{margin:0 0 6px;font-size:28px;font-weight:700}
     .hoffmann-steuermarken .sub{color:var(--muted);font-size:14px}
     .hoffmann-steuermarken .toolbar{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0}
-    .hoffmann-steuermarken .input,.hoffmann-steuermarken select,.hoffmann-steuermarken .btn{border:1px solid var(--line);background:#fff;border-radius:10px;height:40px;padding:8px 12px;font-size:14px}
-    .hoffmann-steuermarken .btn{cursor:pointer}
-    .hoffmann-steuermarken .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
-    .hoffmann-steuermarken .btn.danger{background:#e11d48;border-color:#e11d48;color:#fff}
+    .hoffmann-steuermarken .input,.hoffmann-steuermarken select,{border:1px solid var(--line);background:#fff;border-radius:10px;height:40px;padding:8px 12px;font-size:14px}
     .hoffmann-steuermarken .grid{display:grid;gap:16px}
     .hoffmann-steuermarken .grid-4{grid-template-columns:repeat(4,1fr)}
     @media (max-width:990px){.hoffmann-steuermarken .grid-4{grid-template-columns:repeat(2,1fr)}}
