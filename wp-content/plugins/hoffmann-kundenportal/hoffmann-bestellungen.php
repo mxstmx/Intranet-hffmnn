@@ -630,6 +630,7 @@ function hoffmann_bestellung_single_content($content){
     $supplier = get_post_meta($pid, 'namezeile2', true);
     $eta      = get_post_meta($pid, 'belegdatum', true);
     $eta      = $eta ? date_i18n('Y-m-d', strtotime($eta)) : '';
+    $betreff  = get_post_meta($pid, 'betreff', true);
     $deliv_percent = $total_ordered > 0 ? ($total_delivered / $total_ordered) * 100 : 0;
     ob_start();
     ?>
@@ -656,7 +657,7 @@ function hoffmann_bestellung_single_content($content){
     .hoffmann-popup .popup-close { position:absolute; top:5px; right:10px; background:none; border:none; font-size:20px; cursor:pointer; }
     </style>
     <h1>Bestellübersicht</h1>
-    <div class="subtitle">Order <strong><?php echo esc_html($title); ?></strong> · Lieferant <strong><?php echo esc_html($supplier); ?></strong> · ETA <strong><?php echo esc_html($eta); ?></strong></div>
+    <div class="subtitle">Order <strong><?php echo esc_html($title); ?></strong> · Betreff <strong><?php echo esc_html($betreff); ?></strong> · Lieferant <strong><?php echo esc_html($supplier); ?></strong> · ETA <strong><?php echo esc_html($eta); ?></strong></div>
     <div class="grid grid-4">
         <div class="card"><h2>Warenwert (bestellt)</h2><div class="value"><?php echo number_format((float) $total_warenwert, 2, ',', ''); ?> €</div></div>
         <div class="card"><h2>Aircargo gesamt</h2><div class="value"><?php echo number_format((float) $total_air, 2, ',', ''); ?> €</div></div>
