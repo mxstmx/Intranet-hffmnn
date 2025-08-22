@@ -86,8 +86,20 @@ function hoffmann_handle_textbestellung_submission() {
     }
 
     $items = [];
+    $current_warengruppe_id = null; // Merkt die zuletzt erkannte Warengruppe
     foreach ($lines as $line) {
-        if (!preg_match('/(.+?)\s*(\d+)/', $line, $m)) {
+        $line_trimmed = trim($line);
+        $line_lower   = strtolower($line_trimmed);
+
+        // Zeile kann ausschließlich eine Warengruppe enthalten
+        foreach ($warengruppe_info as $wg) {
+            if ($line_lower === $wg['name']) {
+                $current_warengruppe_id = $wg['term_id'];
+                continue 2; // nächste Zeile verarbeiten
+            }
+        }
+
+        if (!preg_match('/(.+?)\s*(\d+)/', $line_trimmed, $m)) {
             continue;
         }
         $name = strtolower(trim($m[1]));
@@ -101,6 +113,11 @@ function hoffmann_handle_textbestellung_submission() {
                 $warengruppe_id = $wg['term_id'];
                 break;
             }
+        }
+
+        // Wenn kein Präfix vorhanden ist, aktuelle Warengruppe verwenden
+        if ($warengruppe_id === null && $current_warengruppe_id !== null) {
+            $warengruppe_id = $current_warengruppe_id;
         }
         if ($name === '') {
             continue;
