@@ -265,3 +265,70 @@ add_shortcode('offene_posten_total', function() {
     <?php
     return ob_get_clean();
 });
+
+// Shortcode [opv] - interaktive Offene-Posten-Übersicht
+add_shortcode('opv', function() {
+    wp_enqueue_style('hoffmann-opv', plugins_url('css/opv.css', __FILE__));
+    wp_enqueue_script('jspdf', 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js', [], null, true);
+    wp_enqueue_script('hoffmann-opv', plugins_url('js/opv.js', __FILE__), ['jspdf'], null, true);
+    ob_start();
+    ?>
+    <div id="opv-root">
+      <header>
+        <h1>Offene Posten</h1>
+        <div class="sub">Kunde · Rechnungsnr · Datum · Produkttyp · Betrag · Bisher gezahlt · Noch zu zahlen</div>
+      </header>
+      <section class="toolbar">
+        <input id="opv-q" class="input" placeholder="Suche: Kunde, Rechnungsnr, Produkttyp…" />
+        <label class="muted" style="display:flex;align-items:center;gap:8px">Von <input id="opv-from" type="date" class="input" /></label>
+        <label class="muted" style="display:flex;align-items:center;gap:8px">Bis <input id="opv-to" type="date" class="input" /></label>
+        <select id="opv-customer" title="Kunde"><option value="">Alle Kunden</option></select>
+        <select id="opv-ptype" title="Produkttyp"><option value="">Alle Produkttypen</option></select>
+        <select id="opv-status" title="Status"><option value="">Alle</option><option value="overdue">Überfällig</option><option value="due7">Fällig ≤ 7 Tage</option></select>
+        <button id="opv-reset" class="btn">Zurücksetzen</button>
+        <button id="opv-exportCsv" class="btn">CSV Export</button>
+        <button id="opv-exportPdf" class="btn primary">PDF Export</button>
+      </section>
+      <section class="grid grid-4" id="opv-kpis">
+        <div class="kpi"><div class="label">Gesamtbetrag</div><div class="val" id="opv-kpi-gross">€ 0,00</div></div>
+        <div class="kpi"><div class="label">Bisher gezahlt</div><div class="val" id="opv-kpi-paid">€ 0,00</div></div>
+        <div class="kpi"><div class="label">Noch zu zahlen</div><div class="val" id="opv-kpi-open">€ 0,00</div></div>
+        <div class="kpi"><div class="label">Überfällig</div><div class="val" id="opv-kpi-overdue">€ 0,00</div></div>
+      </section>
+      <section class="layout" style="margin-top:16px">
+        <div class="card">
+          <h2>Rechnungen</h2>
+          <div class="body table">
+            <table id="opv-tbl">
+              <thead>
+                <tr>
+                  <th>Kunde</th>
+                  <th>Rechnungsnr</th>
+                  <th>Datum</th>
+                  <th>Produkttyp</th>
+                  <th class="right">Betrag Gesamt</th>
+                  <th class="right">Bisher gezahlt</th>
+                  <th class="right">Noch zu zahlen</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="body muted" id="opv-rowsum"></div>
+        </div>
+        <div class="card">
+          <h2>Totals je Kunde</h2>
+          <div class="body">
+            <div class="totals" id="opv-totalsByCustomer"></div>
+            <div class="footer-actions">
+              <span class="pill warn">Überfällig</span>
+              <span class="pill">Fällig ≤ 7 Tage</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+    <?php
+    return ob_get_clean();
+});
