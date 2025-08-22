@@ -369,14 +369,22 @@ if (!function_exists('hoffmann_bestellung_detail_html')) {
             $html .= '</tbody></table>';
         }
 
-        $air_raw  = get_post_meta($pid, 'air_cargo_kosten', true);
-        $zoll_raw = get_post_meta($pid, 'zoll_abwicklung_kosten', true);
+        $air_raw    = get_post_meta($pid, 'air_cargo_kosten', true);
+        $air_usd    = get_post_meta($pid, 'air_cargo_kosten_usd', true);
+        $zoll_raw   = get_post_meta($pid, 'zoll_abwicklung_kosten', true);
+        $parent_id  = wp_get_post_parent_id($pid);
+        $rate       = $parent_id ? hoffmann_to_float(get_post_meta($parent_id, 'wechselkurs', true)) : 1.0;
+        if (!$rate) { $rate = 1.0; }
+        if (!$air_raw && $air_usd) {
+            $air_raw = $air_usd / $rate;
+        }
 
         $html .= '<form method="post" action="'.esc_url(admin_url('admin-post.php')).'">';
         $html .= wp_nonce_field('hoffmann_save_order_costs_'.$pid, '_wpnonce', true, false);
         $html .= '<input type="hidden" name="action" value="hoffmann_save_order_costs">';
         $html .= '<input type="hidden" name="post_id" value="'.esc_attr($pid).'">';
-        $html .= '<p><label>Aircargo <input type="text" name="air_cargo_kosten" value="'.esc_attr($air_raw).'"></label></p>';
+        $html .= '<p><label>Aircargo USD <input type="text" name="air_cargo_kosten_usd" value="'.esc_attr($air_usd).'"></label></p>';
+        $html .= '<p><label>Aircargo EUR <input type="text" name="air_cargo_kosten" value="'.esc_attr($air_raw).'" readonly></label></p>';
         $html .= '<p><label>Zoll Kosten <input type="text" name="zoll_abwicklung_kosten" value="'.esc_attr($zoll_raw).'"></label></p>';
         $html .= '<p><button type="submit">'.esc_html__('Speichern', 'hoffmann').'</button></p>';
         $html .= '</form>';
@@ -392,8 +400,13 @@ if (!function_exists('hoffmann_save_order_costs')) {
             wp_die('Keine Berechtigung');
         }
         check_admin_referer('hoffmann_save_order_costs_'.$post_id);
-        $air  = isset($_POST['air_cargo_kosten']) ? hoffmann_to_float(sanitize_text_field($_POST['air_cargo_kosten'])) : 0.0;
+        $air_usd = isset($_POST['air_cargo_kosten_usd']) ? hoffmann_to_float(sanitize_text_field($_POST['air_cargo_kosten_usd'])) : 0.0;
+        $parent_id = wp_get_post_parent_id($post_id);
+        $rate = $parent_id ? hoffmann_to_float(get_post_meta($parent_id,'wechselkurs',true)) : 1.0;
+        if (!$rate) { $rate = 1.0; }
+        $air = $air_usd / $rate;
         $zoll = isset($_POST['zoll_abwicklung_kosten']) ? hoffmann_to_float(sanitize_text_field($_POST['zoll_abwicklung_kosten'])) : 0.0;
+        update_post_meta($post_id, 'air_cargo_kosten_usd', $air_usd);
         update_post_meta($post_id, 'air_cargo_kosten', $air);
         update_post_meta($post_id, 'zoll_abwicklung_kosten', $zoll);
         wp_redirect('https://dashboard.hoffmann-hd.de/bestellungen/');
@@ -409,8 +422,13 @@ function hoffmann_save_lieferschein_costs(){
         wp_send_json_error();
     }
     check_ajax_referer('hoffmann_lieferschein_costs','nonce');
-    $air  = isset($_POST['air_cargo_kosten']) ? hoffmann_to_float(sanitize_text_field($_POST['air_cargo_kosten'])) : 0.0;
+    $air_usd = isset($_POST['air_cargo_kosten_usd']) ? hoffmann_to_float(sanitize_text_field($_POST['air_cargo_kosten_usd'])) : 0.0;
+    $parent_id = wp_get_post_parent_id($post_id);
+    $rate = $parent_id ? hoffmann_to_float(get_post_meta($parent_id,'wechselkurs',true)) : 1.0;
+    if (!$rate) { $rate = 1.0; }
+    $air = $air_usd / $rate;
     $zoll = isset($_POST['zoll_abwicklung_kosten']) ? hoffmann_to_float(sanitize_text_field($_POST['zoll_abwicklung_kosten'])) : 0.0;
+    update_post_meta($post_id,'air_cargo_kosten_usd',$air_usd);
     update_post_meta($post_id,'air_cargo_kosten',$air);
     update_post_meta($post_id,'zoll_abwicklung_kosten',$zoll);
     wp_send_json_success();
@@ -580,12 +598,16 @@ function hoffmann_bestellung_single_content($content){
     ));
     $total_delivered_qty = 0;
     $total_air = 0;
+    $total_air_usd = 0;
     $total_zoll = 0;
     foreach ($children as $child) {
         $cid       = $child->ID;
         $air_raw   = get_post_meta($cid,'air_cargo_kosten',true);
         $air       = hoffmann_to_float($air_raw);
-        $total_air += $air;
+        $air_usd_raw = get_post_meta($cid,'air_cargo_kosten_usd',true);
+        $air_usd     = hoffmann_to_float($air_usd_raw);
+        $total_air   += $air;
+        $total_air_usd += $air_usd;
 
         $zoll_raw  = get_post_meta($cid,'zoll_abwicklung_kosten',true);
         $zoll      = hoffmann_to_float($zoll_raw);
@@ -651,11 +673,12 @@ function hoffmann_bestellung_single_content($content){
         '<p><button type="submit">Speichern</button></p>'.
         '</form>';
     $exchange_popup .= '</div>';
-    $air_per_unit   = $total_ordered > 0 ? $total_air / $total_ordered : 0;
-    $zoll_per_unit  = $total_ordered > 0 ? $total_zoll / $total_ordered : 0;
-    $stm_per_unit   = $total_ordered > 0 ? $total_stm / $total_ordered : 0;
-    $landed_total   = $total_warenwert + $total_air + $total_zoll + $total_stm;
-    $landed_per_unit= $total_ordered > 0 ? $landed_total / $total_ordered : 0;
+    $air_per_unit      = $total_ordered > 0 ? $total_air / $total_ordered : 0;
+    $air_per_unit_usd  = $total_ordered > 0 ? $total_air_usd / $total_ordered : 0;
+    $zoll_per_unit     = $total_ordered > 0 ? $total_zoll / $total_ordered : 0;
+    $stm_per_unit      = $total_ordered > 0 ? $total_stm / $total_ordered : 0;
+    $landed_total      = $total_warenwert + $total_air + $total_zoll + $total_stm;
+    $landed_per_unit   = $total_ordered > 0 ? $landed_total / $total_ordered : 0;
     $supplier = get_post_meta($pid, 'namezeile2', true);
     $eta      = get_post_meta($pid, 'belegdatum', true);
     $eta      = $eta ? date_i18n('Y-m-d', strtotime($eta)) : '';
@@ -689,7 +712,7 @@ function hoffmann_bestellung_single_content($content){
     <div class="subtitle">Order <strong><?php echo esc_html($title); ?></strong> · Betreff <strong><?php echo esc_html($betreff); ?></strong> · Lieferant <strong><?php echo esc_html($supplier); ?></strong> · ETA <strong><?php echo esc_html($eta); ?></strong></div>
     <div class="grid grid-4">
         <div class="card"><h2>Warenwert (bestellt)</h2><div class="value"><?php echo esc_html(number_format_i18n($total_warenwert, 2)); ?> €<br><span class="muted">$<?php echo esc_html(number_format_i18n($total_warenwert_usd, 2)); ?></span></div></div>
-        <div class="card"><h2>Aircargo gesamt</h2><div class="value"><?php echo esc_html(number_format_i18n($total_air, 2)); ?> €</div></div>
+        <div class="card"><h2>Aircargo gesamt</h2><div class="value"><?php echo esc_html(number_format_i18n($total_air, 2)); ?> €<br><span class="muted">$<?php echo esc_html(number_format_i18n($total_air_usd, 2)); ?></span></div></div>
         <div class="card"><h2>Zollabwicklung gesamt</h2><div class="value"><?php echo esc_html(number_format_i18n($total_zoll, 2)); ?> €</div></div>
         <div class="card"><h2>Steuermarken gesamt</h2><div class="value"><?php echo esc_html(number_format_i18n($total_stm, 2)); ?>  €</div></div>
     </div>
@@ -703,8 +726,8 @@ function hoffmann_bestellung_single_content($content){
             <h2>Kosten-Zusammenfassung</h2>
 <p>Bestellung Stückzahl: <strong><?php echo esc_html(number_format_i18n($total_ordered)); ?> Stück</strong></p>
 <p>Warenwert gesamt: <strong><?php echo esc_html(number_format_i18n($total_warenwert, 2)); ?> €</strong> (<span>$<?php echo esc_html(number_format_i18n($total_warenwert_usd, 2)); ?></span>)</p>
-<p>Aircargo gesamt: <strong><?php echo esc_html(number_format_i18n($total_air, 2)); ?> €</strong></p>
-<p>Aircargo Stückpreis: <strong><?php echo esc_html(number_format_i18n($air_per_unit, 2)); ?> €</strong></p>
+<p>Aircargo gesamt: <strong><?php echo esc_html(number_format_i18n($total_air, 2)); ?> €</strong> (<span>$<?php echo esc_html(number_format_i18n($total_air_usd, 2)); ?></span>)</p>
+<p>Aircargo Stückpreis: <strong><?php echo esc_html(number_format_i18n($air_per_unit, 2)); ?> €</strong> (<span>$<?php echo esc_html(number_format_i18n($air_per_unit_usd, 2)); ?></span>)</p>
 <p>Zollabwicklung gesamt: <strong><?php echo esc_html(number_format_i18n($total_zoll, 2)); ?> €</strong></p>
 <p>Zollabwicklung Stückpreis: <strong><?php echo esc_html(number_format_i18n($zoll_per_unit, 2)); ?> €</strong></p>
 <p>Steuermarken gesamt: <strong><?php echo esc_html(number_format_i18n($total_stm, 2)); ?> €</strong></p>
@@ -726,6 +749,13 @@ function hoffmann_bestellung_single_content($content){
                         $ls_date = get_post_meta($ls_id,'belegdatum', true);
                         $lf_no   = get_post_meta($ls_id,'lfbelegnummer', true);
                         $air_v   = get_post_meta($ls_id,'air_cargo_kosten',true);
+                        $air_v_usd = get_post_meta($ls_id,'air_cargo_kosten_usd',true);
+                        if (!$air_v && $air_v_usd) {
+                            $parent_id_l = wp_get_post_parent_id($ls_id);
+                            $rate_l = $parent_id_l ? hoffmann_to_float(get_post_meta($parent_id_l,'wechselkurs',true)) : 1.0;
+                            if (!$rate_l) { $rate_l = 1.0; }
+                            $air_v = $air_v_usd / $rate_l;
+                        }
                         $zoll_v  = get_post_meta($ls_id,'zoll_abwicklung_kosten',true);
                         $popup_html .= '<div id="overlay-'.$ls_id.'" class="hoffmann-overlay"></div>';
                         $popup_html .= '<div id="popup-'.$ls_id.'" class="hoffmann-popup">';
@@ -733,9 +763,10 @@ function hoffmann_bestellung_single_content($content){
                         $popup_html .= '<form class="lieferschein-form">'.
                             wp_nonce_field('hoffmann_lieferschein_costs','nonce',true,false).
                             '<input type="hidden" name="action" value="hoffmann_save_lieferschein_costs">'.
-                            '<input type="hidden" name="post_id" value="'.esc_attr($ls_id).'">'.
-                            '<p><label>Aircargo <input type="text" name="air_cargo_kosten" value="'.esc_attr($air_v).'"></label></p>'.
-                            '<p><label>Zollabwicklung <input type="text" name="zoll_abwicklung_kosten" value="'.esc_attr($zoll_v).'"></label></p>'.
+            '<input type="hidden" name="post_id" value="'.esc_attr($ls_id).'">'.
+            '<p><label>Aircargo USD <input type="text" name="air_cargo_kosten_usd" value="'.esc_attr($air_v_usd).'"></label></p>'.
+            '<p><label>Aircargo EUR <input type="text" name="air_cargo_kosten" value="'.esc_attr($air_v).'" readonly></label></p>'.
+            '<p><label>Zollabwicklung <input type="text" name="zoll_abwicklung_kosten" value="'.esc_attr($zoll_v).'"></label></p>'.
                             '<p><button type="submit">Speichern</button></p>'.
                             '</form>';
                         $popup_html .= '</div>';
@@ -744,7 +775,7 @@ function hoffmann_bestellung_single_content($content){
                             <td><a href="#" class="show-popup" data-popup="popup-<?php echo esc_attr($ls_id); ?>"><?php echo esc_html(get_the_title($ls)); ?></a><?php if($lf_no) echo '<br>'.esc_html($lf_no); ?></td>
                             <td><?php echo esc_html(date_i18n('Y-m-d', strtotime($ls_date))); ?></td>
                             <td><?php echo esc_html(hoffmann_format_currency($zoll_v)); ?> €</td>
-                            <td><?php echo esc_html(hoffmann_format_currency($air_v)); ?> €</td>
+                            <td><?php echo esc_html(hoffmann_format_currency($air_v)); ?> €<br><span class="muted">$<?php echo esc_html(hoffmann_format_currency($air_v_usd)); ?></span></td>
                         </tr>
                     <?php endforeach; ?>
                     </tbody>

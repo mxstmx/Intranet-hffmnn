@@ -42,11 +42,12 @@ function hoffmann_bestellungen_overview_shortcode() {
                 'post_type'=>'bestellungen','post_parent'=>$pid,'posts_per_page'=>-1,
                 'tax_query'=>array(array('taxonomy'=>'bestellart','field'=>'name','terms'=>'2900')),
             ));
-            $total_delivered_qty = 0; $total_air = 0; $total_zoll = 0;
+            $total_delivered_qty = 0; $total_air = 0; $total_air_usd = 0; $total_zoll = 0;
             foreach ($children as $child) {
                 $cid = $child->ID;
-                $total_air  += hoffmann_to_float(get_post_meta($cid,'air_cargo_kosten',true));
-                $total_zoll += hoffmann_to_float(get_post_meta($cid,'zoll_abwicklung_kosten',true));
+                $total_air     += hoffmann_to_float(get_post_meta($cid,'air_cargo_kosten',true));
+                $total_air_usd += hoffmann_to_float(get_post_meta($cid,'air_cargo_kosten_usd',true));
+                $total_zoll    += hoffmann_to_float(get_post_meta($cid,'zoll_abwicklung_kosten',true));
                 $c_prod = get_post_meta($cid,'produkte',true);
                 if (!is_array($c_prod)) $c_prod = json_decode($c_prod,true);
                 if (is_array($c_prod)) {
@@ -70,16 +71,18 @@ function hoffmann_bestellungen_overview_shortcode() {
             $exchange_rate = hoffmann_to_float(get_post_meta($pid,'wechselkurs',true));
             if(!$exchange_rate){ $exchange_rate = 1.0; }
             $total_warenwert_eur = $total_warenwert_usd / $exchange_rate;
-            $air_per_unit  = $total_ordered>0 ? $total_air/$total_ordered : 0;
-            $zoll_per_unit = $total_ordered>0 ? $total_zoll/$total_ordered : 0;
-            $stm_per_unit  = $total_ordered>0 ? $total_stm/$total_ordered : 0;
-            $delivered_pct = $total_ordered>0 ? round($total_delivered_qty/$total_ordered*100) : 0;
+            $air_per_unit    = $total_ordered>0 ? $total_air/$total_ordered : 0;
+            $air_per_unit_usd= $total_ordered>0 ? $total_air_usd/$total_ordered : 0;
+            $zoll_per_unit   = $total_ordered>0 ? $total_zoll/$total_ordered : 0;
+            $stm_per_unit    = $total_ordered>0 ? $total_stm/$total_ordered : 0;
+            $delivered_pct   = $total_ordered>0 ? round($total_delivered_qty/$total_ordered*100) : 0;
             $data[] = array(
                 'title'     => $title,
                 'orderNo'   => get_the_title(),
                 'orderedAt' => $datum,
                 'link'      => get_permalink($pid),
                 'air'       => round($air_per_unit,2),
+                'airUsd'    => round($air_per_unit_usd,2),
                 'custom'    => round($zoll_per_unit,2),
                 'stamps'    => round($stm_per_unit,2),
                 'totalUsd'  => round($total_warenwert_usd,2),
@@ -104,7 +107,7 @@ function hoffmann_bestellungen_overview_shortcode() {
       </section>
       <section class="grid grid-4" id="hoff-kpis">
         <div class="kpi"><div class="label">Summe Warenwert</div><div class="val" id="hoff-kpi-total">€ 0,00 / $0.00</div></div>
-        <div class="kpi"><div class="label">Ø Stückpreis Aircargo</div><div class="val" id="hoff-kpi-air">€ 0,00</div></div>
+        <div class="kpi"><div class="label">Ø Stückpreis Aircargo</div><div class="val" id="hoff-kpi-air">€ 0,00 / $0.00</div></div>
         <div class="kpi"><div class="label">Ø Stückpreis Zollabwicklung</div><div class="val" id="hoff-kpi-custom">€ 0,00</div></div>
         <div class="kpi"><div class="label">Anzahl Bestellungen</div><div class="val" id="hoff-kpi-count">0</div></div>
       </section>
@@ -117,7 +120,7 @@ function hoffmann_bestellungen_overview_shortcode() {
       </section>
       <section class="footer">
         <div class="card"><h2>Hinweis</h2><div class="body muted">Die Kosten setzen sich aus Aircargo, Zollabwicklung und Steuermarken zusammen. Gesamtwert = Summe aller Positionen × Stückzahl.</div></div>
-        <div class="card"><h2>Datenquellen</h2><div class="body muted">ERP / JSON – mappen auf: <code>{ title, orderNo, orderedAt, air, custom, stamps, total, delivered }</code>.</div></div>
+        <div class="card"><h2>Datenquellen</h2><div class="body muted">ERP / JSON – mappen auf: <code>{ title, orderNo, orderedAt, air, airUsd, custom, stamps, total, delivered }</code>.</div></div>
         <div class="card"><h2>Quick-Stats</h2><div class="body"><span id="hoff-qsTop"></span> <span id="hoff-qsAvg"></span></div></div>
       </section>
     </div>
@@ -154,17 +157,17 @@ function hoffmann_bestellungen_overview_shortcode() {
         const rows=getFiltered();
         const tbody=document.querySelector('#hoff-tbl tbody');
         tbody.innerHTML='';
-        let sumTotalEur=0,sumTotalUsd=0,airSum=0,customSum=0;
+        let sumTotalEur=0,sumTotalUsd=0,airSum=0,airUsdSum=0,customSum=0;
         rows.forEach(r=>{
             sumTotalEur+=r.totalEur; sumTotalUsd+=r.totalUsd;
-            airSum+=r.air; customSum+=r.custom;
+            airSum+=r.air; airUsdSum+=r.airUsd; customSum+=r.custom;
             const tr=document.createElement('tr');
-            tr.innerHTML=`<td><strong>${r.title}</strong></td><td><a href="${r.link}" class="orderNo" target="_blank">${r.orderNo}</a></td><td>${fmtDate(r.orderedAt)}</td><td class="right">${moneyEur(r.air)}</td><td class="right">${moneyEur(r.custom)}</td><td class="right">${moneyEur(r.stamps)}</td><td class="right">${moneyEur(r.totalEur)}<br><span class="muted">${moneyUsd(r.totalUsd)}</span></td><td class="right">${r.delivered}%</td>`;
+            tr.innerHTML=`<td><strong>${r.title}</strong></td><td><a href="${r.link}" class="orderNo" target="_blank">${r.orderNo}</a></td><td>${fmtDate(r.orderedAt)}</td><td class="right">${moneyEur(r.air)}<br><span class="muted">${moneyUsd(r.airUsd)}</span></td><td class="right">${moneyEur(r.custom)}</td><td class="right">${moneyEur(r.stamps)}</td><td class="right">${moneyEur(r.totalEur)}<br><span class="muted">${moneyUsd(r.totalUsd)}</span></td><td class="right">${r.delivered}%</td>`;
             tbody.appendChild(tr);
         });
         document.getElementById('hoff-rowsum').textContent=`${rows.length} Bestellungen angezeigt`;
         document.getElementById('hoff-kpi-total').textContent=`${moneyEur(sumTotalEur)} / ${moneyUsd(sumTotalUsd)}`;
-        document.getElementById('hoff-kpi-air').textContent=moneyEur(rows.length?airSum/rows.length:0);
+        document.getElementById('hoff-kpi-air').textContent=`${moneyEur(rows.length?airSum/rows.length:0)} / ${moneyUsd(rows.length?airUsdSum/rows.length:0)}`;
         document.getElementById('hoff-kpi-custom').textContent=moneyEur(rows.length?customSum/rows.length:0);
         document.getElementById('hoff-kpi-count').textContent=rows.length.toString();
         const top=rows.reduce((m,r)=>r.totalEur>m.totalEur?r:m,rows[0]||{title:'—',totalEur:0});
@@ -173,8 +176,8 @@ function hoffmann_bestellungen_overview_shortcode() {
     }
     function exportCSV(){
         const rows=getFiltered();
-        const header=['Titel','Bestellnr','Bestelldatum','Stückpreis Aircargo','Stückpreis Zoll','Steuermarken','Warenwert USD','Warenwert EUR','Geliefert %'];
-        const out=[header.join(';')].concat(rows.map(r=>[r.title,r.orderNo,r.orderedAt,r.air.toFixed(2).replace('.',','),r.custom.toFixed(2).replace('.',','),r.stamps.toFixed(2).replace('.',','),r.totalUsd.toFixed(2).replace('.',','),r.totalEur.toFixed(2).replace('.',','),r.delivered].join(';'))).join('\n');
+        const header=['Titel','Bestellnr','Bestelldatum','Stückpreis Aircargo EUR','Stückpreis Aircargo USD','Stückpreis Zoll','Steuermarken','Warenwert USD','Warenwert EUR','Geliefert %'];
+        const out=[header.join(';')].concat(rows.map(r=>[r.title,r.orderNo,r.orderedAt,r.air.toFixed(2).replace('.',','),r.airUsd.toFixed(2).replace('.',','),r.custom.toFixed(2).replace('.',','),r.stamps.toFixed(2).replace('.',','),r.totalUsd.toFixed(2).replace('.',','),r.totalEur.toFixed(2).replace('.',','),r.delivered].join(';'))).join('\n');
         const blob=new Blob([out],{type:'text/csv;charset=utf-8;'});
         const url=URL.createObjectURL(blob);
         const a=document.createElement('a');a.href=url;a.download='bestellungen_export.csv';a.click();URL.revokeObjectURL(url);
