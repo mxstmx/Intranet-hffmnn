@@ -55,6 +55,13 @@ function hoffmann_update_customers_from_json() {
         return;
     }
 
+    // Vorab alle bestehenden Kunden sammeln, um unnötige Datenbank-Abfragen zu vermeiden
+    $existing_users = [];
+    $users = get_users(['role' => 'kunde']);
+    foreach ($users as $user) {
+        $existing_users[$user->user_login] = $user->ID;
+    }
+
     foreach ($kundenData as $kundennr => $details) {
         $username = $kundennr;
         $email = $username . '@hoffmann-hd.de';
@@ -64,12 +71,12 @@ function hoffmann_update_customers_from_json() {
         $ort = isset($details['Adresse']['Ort']) ? trim($details['Adresse']['Ort']) : '';
         $plz = isset($details['Adresse']['PLZ']) ? trim($details['Adresse']['PLZ']) : '';
 
-        // Prüfen, ob der Benutzer existiert; nur neue Benutzer erstellen
-        if (!username_exists($username)) {
+        // Prüfen, ob der Benutzer bereits im Mapping existiert; nur neue Benutzer erstellen
+        if (!isset($existing_users[$username])) {
             // Benutzer erstellen und Passwort explizit setzen
             $user_id = wp_insert_user([
                 'user_login' => $username,
-                'user_pass' => $password, 
+                'user_pass' => $password,
                 'user_email' => $email,
                 'role' => 'kunde',
                 'last_name' => $lastname
@@ -84,6 +91,8 @@ function hoffmann_update_customers_from_json() {
                 update_user_meta($user_id, 'adresse_plz', $plz);
 
                 error_log("Benutzer $username erfolgreich erstellt mit Adresse: Straße = $strasse, Ort = $ort, PLZ = $plz");
+                // Neu erstellten Benutzer zum Mapping hinzufügen
+                $existing_users[$username] = $user_id;
             } else {
                 error_log("Fehler beim Erstellen des Benutzers $username: " . $user_id->get_error_message());
             }
