@@ -116,6 +116,37 @@ function hoffmann_steuermarken_columns($columns){
 }
 add_filter('manage_steuermarken_posts_columns','hoffmann_steuermarken_columns');
 
+add_action('wp_ajax_hoffmann_save_steuermarke','hoffmann_save_steuermarke');
+function hoffmann_save_steuermarke(){
+    if(!current_user_can('edit_posts')){ wp_send_json_error(); }
+    check_ajax_referer('hoffmann_steuermarken_save','nonce');
+    $id    = intval($_POST['id'] ?? 0);
+    $title = sanitize_text_field($_POST['title'] ?? '');
+    if(!$title){ wp_send_json_error(); }
+    $bestelldatum = sanitize_text_field($_POST['bestelldatum'] ?? '');
+    $order_id     = intval($_POST['bestellung_id'] ?? 0);
+    $qty          = hoffmann_to_int($_POST['stueckzahl'] ?? 0);
+    $kat          = hoffmann_to_float($_POST['kategorie'] ?? 0);
+    $post_data = array(
+        'post_type'   => 'steuermarken',
+        'post_title'  => $title,
+        'post_status' => 'publish',
+    );
+    if($id){
+        $post_data['ID'] = $id;
+        wp_update_post($post_data);
+    } else {
+        $id = wp_insert_post($post_data);
+    }
+    update_post_meta($id,'bestelldatum',$bestelldatum);
+    update_post_meta($id,'bestellung_id',$order_id);
+    update_post_meta($id,'stueckzahl',$qty);
+    update_post_meta($id,'kategorie',$kat);
+    $wert = ($kat!==0 && $qty) ? $kat*$qty : 0;
+    update_post_meta($id,'wert',$wert);
+    wp_send_json_success(array('id'=>$id));
+}
+
 function hoffmann_steuermarken_shortcode() {
     if (!current_user_can('read')) {
         return '';
@@ -136,11 +167,11 @@ function hoffmann_steuermarken_shortcode() {
             'id'           => $p->ID,
             'title'        => get_the_title($p),
             'orderNo'      => $order_id ? get_the_title($order_id) : '',
+            'orderId'      => $order_id,
             'orderUrl'     => $order_id ? get_permalink($order_id) : '',
             'orderedAt'    => get_post_meta($p->ID, 'bestelldatum', true),
             'qty'          => intval(get_post_meta($p->ID, 'stueckzahl', true)),
             'unitValueEUR' => floatval(get_post_meta($p->ID, 'kategorie', true)),
-            'editUrl'      => get_edit_post_link($p->ID, 'raw'),
         );
     }
 
@@ -205,7 +236,15 @@ function hoffmann_steuermarken_shortcode() {
     <div id="stm-overlay" class="hoffmann-overlay"></div>
     <div id="stm-popup" class="hoffmann-popup">
       <button class="popup-close">&times;</button>
-      <iframe id="stm-frame" style="width:100%;height:80vh;border:0;"></iframe>
+      <form id="stm-form">
+        <input type="hidden" name="id" />
+        <p><label>Belegnummer<br><input type="text" name="title" required></label></p>
+        <p><label>Bestelldatum<br><input type="date" name="bestelldatum"></label></p>
+        <p><label>Bestellung ID<br><input type="text" name="bestellung_id"></label></p>
+        <p><label>Stückzahl<br><input type="number" name="stueckzahl"></label></p>
+        <p><label>Wert je Marke (EUR)<br><input type="number" step="0.01" name="kategorie"></label></p>
+        <p><button type="submit" class="btn primary">Speichern</button></p>
+      </form>
     </div>
 
     <style>
@@ -289,7 +328,7 @@ function hoffmann_steuermarken_shortcode() {
           <td class="right">${r.qty.toLocaleString('de-DE')}</td>
           <td class="right">${money(r.unitValueEUR)}</td>
           <td class="right">${money(total)}</td>
-          <td><button class="btn edit-stm" data-url="${r.editUrl}">Bearbeiten</button></td>`;
+          <td><button class="btn edit-stm" data-id="${r.id}">Bearbeiten</button></td>`;
         tbody.appendChild(tr);
       });
 
@@ -325,16 +364,43 @@ function hoffmann_steuermarken_shortcode() {
 
     const OVERLAY=document.getElementById('stm-overlay');
     const POPUP=document.getElementById('stm-popup');
-    const FRAME=document.getElementById('stm-frame');
-    const ADD_URL='<?php echo esc_js(admin_url('post-new.php?post_type=steuermarken')); ?>';
+    const FORM=document.getElementById('stm-form');
+    const AJAX_URL='<?php echo admin_url('admin-ajax.php'); ?>';
+    const NONCE='<?php echo wp_create_nonce('hoffmann_steuermarken_save'); ?>';
 
-    function openPopup(url){ FRAME.src=url; OVERLAY.style.display='block'; POPUP.style.display='block'; }
-    function closePopup(){ FRAME.src=''; OVERLAY.style.display='none'; POPUP.style.display='none'; }
+    function openPopup(data={}){
+      OVERLAY.style.display='block';
+      POPUP.style.display='block';
+      FORM.reset();
+      FORM.elements.id.value=data.id||'';
+      FORM.elements.title.value=data.title||'';
+      FORM.elements.bestelldatum.value=data.orderedAt||'';
+      FORM.elements.bestellung_id.value=data.orderId||'';
+      FORM.elements.stueckzahl.value=data.qty||'';
+      FORM.elements.kategorie.value=data.unitValueEUR||'';
+    }
+    function closePopup(){ OVERLAY.style.display='none'; POPUP.style.display='none'; }
 
     document.addEventListener('click',e=>{
-      if(e.target.matches('.edit-stm')){ e.preventDefault(); openPopup(e.target.getAttribute('data-url')); }
-      else if(e.target.matches('#stm-add')){ e.preventDefault(); openPopup(ADD_URL); }
-      else if(e.target.matches('.popup-close')||e.target.classList.contains('hoffmann-overlay')){ closePopup(); }
+      if(e.target.matches('.edit-stm')){
+        e.preventDefault();
+        const id=e.target.getAttribute('data-id');
+        const row=DATA.find(r=>r.id==id);
+        openPopup(row||{});
+      }else if(e.target.matches('#stm-add')){
+        e.preventDefault();
+        openPopup();
+      }else if(e.target.matches('.popup-close')||e.target.classList.contains('hoffmann-overlay')){
+        closePopup();
+      }
+    });
+
+    FORM.addEventListener('submit',e=>{
+      e.preventDefault();
+      const fd=new FormData(FORM);
+      fd.append('action','hoffmann_save_steuermarke');
+      fd.append('nonce',NONCE);
+      fetch(AJAX_URL,{method:'POST',body:fd}).then(r=>r.json()).then(res=>{if(res.success){location.reload();}});
     });
 
     render();
