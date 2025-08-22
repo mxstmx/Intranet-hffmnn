@@ -73,6 +73,11 @@ function hoffmann_render_textbestellung_form() {
                             <div class="sub" id="charCount">0 Zeichen</div>
                         </div>
 
+                        <div style="margin-top:10px">
+                            <label>Einzelpreis (optional)</label>
+                            <input id="price" type="text" name="preis" placeholder="z.B. 1,99" />
+                        </div>
+
                         <button class="btn primary" type="submit">CSV erstellen</button>
                     </div>
                 </section>
@@ -107,6 +112,11 @@ function hoffmann_handle_textbestellung_submission() {
     $vorbestellung = !empty($_POST['vorbestellung']);
     $preorder_date = isset($_POST['pre_date']) ? sanitize_text_field($_POST['pre_date']) : '';
     $preorder_time = isset($_POST['pre_time']) ? sanitize_text_field($_POST['pre_time']) : '';
+    $global_price  = isset($_POST['preis']) ? sanitize_text_field($_POST['preis']) : '';
+
+    if ($global_price !== '') {
+        $global_price = str_replace(',', '.', $global_price);
+    }
 
     $lines = array_filter(array_map('trim', preg_split("/\r\n|\r|\n/", $text)));
     if (empty($lines)) {
@@ -209,9 +219,15 @@ function hoffmann_handle_textbestellung_submission() {
         }
 
         $artikelnummer = get_post_meta($best_id, 'artikelnummer', true);
-        $preis = get_post_meta($best_id, 'einzelpreis', true);
-        if ($preis === '') {
-            $preis = get_post_meta($best_id, 'preis', true);
+
+        if ($global_price !== '') {
+            $preis_formatiert = number_format((float) $global_price, 2, ',', '');
+        } else {
+            $preis = get_post_meta($best_id, 'einzelpreis', true);
+            if ($preis === '') {
+                $preis = get_post_meta($best_id, 'preis', true);
+            }
+            $preis_formatiert = $preis !== '' ? str_replace('.', ',', $preis) : '0,00';
         }
         $bestand = (int) get_post_meta($best_id, 'bestand', true);
         $reserviert = (int) get_post_meta($best_id, 'reserviert', true);
@@ -221,7 +237,6 @@ function hoffmann_handle_textbestellung_submission() {
             continue;
         }
 
-        $preis_formatiert = $preis !== '' ? str_replace('.', ',', $preis) : '0,00';
         $items[] = [
             'menge' => $menge,
             'artnr' => $artikelnummer,
