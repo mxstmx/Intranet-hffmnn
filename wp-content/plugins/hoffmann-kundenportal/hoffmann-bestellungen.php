@@ -656,7 +656,7 @@ function hoffmann_bestellung_single_content($content){
     .hoffmann-popup { position: fixed; top:50%; left:50%; transform: translate(-50%,-50%); background:#fff; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.2); display:none; z-index:1001; max-width:90%; width:400px; }
     .hoffmann-popup .popup-close { position:absolute; top:5px; right:10px; background:none; border:none; font-size:20px; cursor:pointer; }
     </style>
-    <h1>Bestellübersicht</h1>
+    <h1 style="font-size: 28px;">Bestellübersicht</h1>
     <div class="subtitle">Order <strong><?php echo esc_html($title); ?></strong> · Betreff <strong><?php echo esc_html($betreff); ?></strong> · Lieferant <strong><?php echo esc_html($supplier); ?></strong> · ETA <strong><?php echo esc_html($eta); ?></strong></div>
     <div class="grid grid-4">
         <div class="card"><h2>Warenwert (bestellt)</h2><div class="value"><?php echo number_format((float) $total_warenwert, 2, ',', ''); ?> €</div></div>
