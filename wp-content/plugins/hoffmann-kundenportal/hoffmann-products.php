@@ -155,12 +155,37 @@ function hoffmann_update_inventory() {
                 if ($info_changed) {
                     update_post_meta($post_id, 'information', $information);
                 }
+            $meta_input = [
+                'artikelnummer' => $artikelnummer,
+                'bestand'       => $bestand,
+                'reserviert'    => $reserviert,
+                'bestellt'      => $bestellt,
+                'information'   => $information,
+            ];
+
+            // Prüfen, ob das Produkt existiert (nach Artikelnummer als Primärschlüssel)
+            $existing_product = get_posts([
+                'post_type' => 'produkte',
+                'meta_key' => 'artikelnummer',
+                'meta_value' => $artikelnummer,
+                'numberposts' => 1
+            ]);
+
+            if ($existing_product) {
+                // Produkt aktualisieren
+                $post_id = $existing_product[0]->ID;
+                wp_update_post([
+                    'ID'         => $post_id,
+                    'post_title' => $artikelbezeichnung,
+                    'meta_input' => $meta_input,
+                ]);
             } else {
                 // Neues Produkt erstellen
                 $post_id = wp_insert_post([
                     'post_title'  => $artikelbezeichnung,
                     'post_type'   => 'produkte',
                     'post_status' => 'publish',
+                    'meta_input'  => $meta_input,
                 ]);
 
                 if ($post_id) {
@@ -177,6 +202,8 @@ function hoffmann_update_inventory() {
                 // Warengruppe (Kategorie) dem Produkt zuweisen
                 wp_set_object_terms($post_id, intval($term_id), 'warengruppe');
             }
+            // Warengruppe (Kategorie) dem Produkt zuweisen
+            wp_set_object_terms($post_id, intval($term_id), 'warengruppe');
         }
     }
 }
