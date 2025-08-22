@@ -14,7 +14,7 @@
 #opv-root .kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}
 #opv-root .kpi .label{font-size:12px;color:var(--muted)}
 #opv-root .kpi .val{font-size:22px;font-weight:700;margin-top:6px}
-#opv-root .layout{display:grid;grid-template-columns:2fr 1fr;gap:16px}
+#opv-root .layout{display:grid;grid-template-columns:1fr;gap:16px}
 @media (max-width:1024px){#opv-root .layout{grid-template-columns:1fr}}
 #opv-root .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
 #opv-root .card h2{margin:0;padding:14px 16px;border-bottom:1px solid var(--line);font-size:15px;color:#374151}

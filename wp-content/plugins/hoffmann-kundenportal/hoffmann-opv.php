@@ -296,7 +296,18 @@ add_shortcode('opv', function() {
         <div class="kpi"><div class="label">Überfällig</div><div class="val" id="opv-kpi-overdue">€ 0,00</div></div>
       </section>
       <section class="layout" style="margin-top:16px">
+ 
         <div class="card">
+          <h2>Totals je Kunde</h2>
+          <div class="body">
+            <div class="totals" id="opv-totalsByCustomer"></div>
+            <div class="footer-actions">
+              <span class="pill warn">Überfällig</span>
+              <span class="pill">Fällig ≤ 7 Tage</span>
+            </div>
+          </div>
+        </div>
+		         <div class="card">
           <h2>Rechnungen</h2>
           <div class="body table">
             <table id="opv-tbl">
@@ -316,16 +327,6 @@ add_shortcode('opv', function() {
             </table>
           </div>
           <div class="body muted" id="opv-rowsum"></div>
-        </div>
-        <div class="card">
-          <h2>Totals je Kunde</h2>
-          <div class="body">
-            <div class="totals" id="opv-totalsByCustomer"></div>
-            <div class="footer-actions">
-              <span class="pill warn">Überfällig</span>
-              <span class="pill">Fällig ≤ 7 Tage</span>
-            </div>
-          </div>
         </div>
       </section>
     </div>
