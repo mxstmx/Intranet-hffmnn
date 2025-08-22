@@ -16,13 +16,80 @@ add_action('template_redirect', 'hoffmann_handle_textbestellung_submission');
 function hoffmann_render_textbestellung_form() {
     ob_start();
     ?>
-    <form method="post">
-        <?php wp_nonce_field('hoffmann_textbestellung_action', 'hoffmann_textbestellung_nonce'); ?>
-        <textarea name="bestelltext" rows="15" cols="60"></textarea><br>
-        <label><input type="checkbox" name="vorbestellung" value="1"> Vorbestellung</label><br>
-        <input type="hidden" name="hoffmann_textbestellung" value="1">
-        <button type="submit">CSV erstellen</button>
-    </form>
+    <style>
+        #hoffmann-textbestellung * { box-sizing: border-box; }
+        #hoffmann-textbestellung .wrap { max-width: 700px; margin: 32px auto; padding: 0 20px; }
+        #hoffmann-textbestellung h1 { margin: 0 0 6px; font-size: 26px; font-weight: 700; }
+        #hoffmann-textbestellung .sub { color: #6b7280; font-size: 14px; margin-bottom: 16px; }
+        #hoffmann-textbestellung .card { background: #ffffff; border: 1px solid #e5e7eb; border-radius: 14px; box-shadow: 0 6px 24px rgba(2,6,23,.06); }
+        #hoffmann-textbestellung .card h2 { margin: 0; padding: 14px 16px; border-bottom: 1px solid #e5e7eb; font-size: 15px; color: #374151; }
+        #hoffmann-textbestellung .card .body { padding: 16px; }
+        #hoffmann-textbestellung label { font-size: 12px; color: #374151; margin-bottom: 6px; display: block; }
+        #hoffmann-textbestellung input[type="text"],
+        #hoffmann-textbestellung input[type="date"],
+        #hoffmann-textbestellung input[type="time"],
+        #hoffmann-textbestellung textarea { width: 100%; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 12px; font-size: 14px; background: #fff; }
+        #hoffmann-textbestellung textarea { min-height: 120px; resize: vertical; }
+        #hoffmann-textbestellung .switch { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+        #hoffmann-textbestellung .switch input { appearance: none; width: 46px; height: 26px; border-radius: 999px; background: #e5e7eb; position: relative; outline: none; cursor: pointer; transition: .2s; }
+        #hoffmann-textbestellung .switch input:checked { background: #2563eb; }
+        #hoffmann-textbestellung .switch input:before { content: ""; position: absolute; left: 2px; top: 2px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: .2s; box-shadow: 0 1px 3px rgba(0,0,0,.15); }
+        #hoffmann-textbestellung .switch input:checked:before { left: 22px; }
+        #hoffmann-textbestellung .btn { border: 1px solid #e5e7eb; background: #fff; border-radius: 10px; padding: 10px 14px; font-size: 14px; cursor: pointer; margin-top: 16px; }
+        #hoffmann-textbestellung .btn.primary { background: #2563eb; color: #fff; border-color: #2563eb; }
+    </style>
+    <div id="hoffmann-textbestellung">
+        <div class="wrap">
+            <header>
+                <h1>Text‑Besteller</h1>
+                <div class="sub">Lege eine Textbestellung an – inkl. Option <strong>Vorbestellung</strong>.</div>
+            </header>
+
+            <form method="post">
+                <?php wp_nonce_field('hoffmann_textbestellung_action', 'hoffmann_textbestellung_nonce'); ?>
+                <input type="hidden" name="hoffmann_textbestellung" value="1">
+                <section class="card">
+                    <h2>Bestellung</h2>
+                    <div class="body">
+                        <div class="switch">
+                            <input id="preorder" type="checkbox" name="vorbestellung" value="1">
+                            <label for="preorder" style="margin:0;font-size:14px">Vorbestellung aktivieren</label>
+                        </div>
+
+                        <div id="preorderFields" style="display:none;margin-top:10px">
+                            <div>
+                                <label>Wunschtermin (Datum)</label>
+                                <input id="preDate" type="date" name="pre_date" />
+                            </div>
+                            <div style="margin-top:10px">
+                                <label>Wunschzeit</label>
+                                <input id="preTime" type="time" name="pre_time" />
+                            </div>
+                        </div>
+
+                        <div style="margin-top:10px">
+                            <label>Nachrichtentext</label>
+                            <textarea id="message" name="bestelltext" placeholder="Schreibe hier die Textbestellung…"></textarea>
+                            <div class="sub" id="charCount">0 Zeichen</div>
+                        </div>
+
+                        <button class="btn primary" type="submit">CSV erstellen</button>
+                    </div>
+                </section>
+            </form>
+        </div>
+    </div>
+    <script>
+        const $$ = (s) => document.querySelector('#hoffmann-textbestellung ' + s);
+        function updateCharCount(){
+            const len = $$('#message').value.length; $$('#charCount').textContent = len + ' Zeichen';
+        }
+        $$('#preorder').addEventListener('change', e=>{
+            $$('#preorderFields').style.display = e.target.checked ? 'block' : 'none';
+        });
+        $$('#message').addEventListener('input', updateCharCount);
+        updateCharCount();
+    </script>
     <?php
     return ob_get_clean();
 }
@@ -38,6 +105,8 @@ function hoffmann_handle_textbestellung_submission() {
 
     $text = sanitize_textarea_field($_POST['bestelltext']);
     $vorbestellung = !empty($_POST['vorbestellung']);
+    $preorder_date = isset($_POST['pre_date']) ? sanitize_text_field($_POST['pre_date']) : '';
+    $preorder_time = isset($_POST['pre_time']) ? sanitize_text_field($_POST['pre_time']) : '';
 
     $lines = array_filter(array_map('trim', preg_split("/\r\n|\r|\n/", $text)));
     if (empty($lines)) {
