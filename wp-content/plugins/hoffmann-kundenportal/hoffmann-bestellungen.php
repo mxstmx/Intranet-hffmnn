@@ -416,6 +416,19 @@ function hoffmann_save_lieferschein_costs(){
     wp_send_json_success();
 }
 
+add_action('wp_ajax_hoffmann_save_wechselkurs','hoffmann_save_wechselkurs');
+add_action('wp_ajax_nopriv_hoffmann_save_wechselkurs','hoffmann_save_wechselkurs');
+function hoffmann_save_wechselkurs(){
+    $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
+    if(!$post_id || !current_user_can('edit_post',$post_id)){
+        wp_send_json_error();
+    }
+    check_ajax_referer('hoffmann_wechselkurs','nonce');
+    $rate = isset($_POST['wechselkurs']) ? hoffmann_to_float(sanitize_text_field($_POST['wechselkurs'])) : 0.0;
+    update_post_meta($post_id,'wechselkurs',$rate);
+    wp_send_json_success();
+}
+
 if (!function_exists('hoffmann_sum_menge_recursive')) {
     function hoffmann_sum_menge_recursive($items) {
         $sum = 0;
@@ -535,6 +548,8 @@ function hoffmann_bestellung_single_content($content){
     }
     $pid = $post->ID;
     $title = get_the_title($pid);
+    $exchange_rate = hoffmann_to_float(get_post_meta($pid, 'wechselkurs', true));
+    if (!$exchange_rate) { $exchange_rate = 1.0; }
     if (has_term('2900','bestellart',$post)) {
         return $content . hoffmann_bestellung_detail_html($pid);
     }
@@ -596,14 +611,17 @@ function hoffmann_bestellung_single_content($content){
             }
         }
     }
-    $total_ordered   = 0;
-    $total_delivered = 0;
-    $total_warenwert = 0;
-    foreach ($products as $art => $info) {
+    $total_ordered      = 0;
+    $total_delivered    = 0;
+    $total_warenwert_usd = 0;
+    foreach ($products as $art => &$info) {
         $total_ordered   += $info['ordered'];
         $total_delivered += $info['delivered'];
-        $total_warenwert += $info['ordered'] * $info['preis'];
+        $total_warenwert_usd += $info['ordered'] * $info['preis'];
+        $info['preis'] = $info['preis'] * $exchange_rate;
     }
+    unset($info);
+    $total_warenwert = $total_warenwert_usd * $exchange_rate;
     $stm_posts = get_posts(array(
         'post_type'  => 'steuermarken',
         'numberposts'=> -1,
@@ -622,6 +640,17 @@ function hoffmann_bestellung_single_content($content){
         'tax_query'   => array(array('taxonomy'=>'bestellart','field'=>'name','terms'=>'2900')),
     ));
     $popup_html = '';
+    $exchange_popup  = '<div id="overlay-exchange" class="hoffmann-overlay"></div>';
+    $exchange_popup .= '<div id="popup-exchange" class="hoffmann-popup">';
+    $exchange_popup .= '<button class="popup-close">&times;</button>';
+    $exchange_popup .= '<form class="exchange-form">'.
+        wp_nonce_field('hoffmann_wechselkurs','nonce',true,false).
+        '<input type="hidden" name="action" value="hoffmann_save_wechselkurs">'.
+        '<input type="hidden" name="post_id" value="'.esc_attr($pid).'">'.
+        '<p><label>Wechselkurs <input type="text" name="wechselkurs" value="'.esc_attr($exchange_rate).'"></label></p>'.
+        '<p><button type="submit">Speichern</button></p>'.
+        '</form>';
+    $exchange_popup .= '</div>';
     $air_per_unit   = $total_ordered > 0 ? $total_air / $total_ordered : 0;
     $zoll_per_unit  = $total_ordered > 0 ? $total_zoll / $total_ordered : 0;
     $stm_per_unit   = $total_ordered > 0 ? $total_stm / $total_ordered : 0;
@@ -659,7 +688,7 @@ function hoffmann_bestellung_single_content($content){
     <h1 style="font-size: 28px;">Bestellübersicht</h1>
     <div class="subtitle">Order <strong><?php echo esc_html($title); ?></strong> · Betreff <strong><?php echo esc_html($betreff); ?></strong> · Lieferant <strong><?php echo esc_html($supplier); ?></strong> · ETA <strong><?php echo esc_html($eta); ?></strong></div>
     <div class="grid grid-4">
-        <div class="card"><h2>Warenwert (bestellt)</h2><div class="value"><?php echo esc_html(number_format_i18n($total_warenwert, 2)); ?> €</div></div>
+        <div class="card"><h2>Warenwert (bestellt)</h2><div class="value"><?php echo esc_html(number_format_i18n($total_warenwert, 2)); ?> €<br><span class="muted">$<?php echo esc_html(number_format_i18n($total_warenwert_usd, 2)); ?></span></div></div>
         <div class="card"><h2>Aircargo gesamt</h2><div class="value"><?php echo esc_html(number_format_i18n($total_air, 2)); ?> €</div></div>
         <div class="card"><h2>Zollabwicklung gesamt</h2><div class="value"><?php echo esc_html(number_format_i18n($total_zoll, 2)); ?> €</div></div>
         <div class="card"><h2>Steuermarken gesamt</h2><div class="value"><?php echo esc_html(number_format_i18n($total_stm, 2)); ?>  €</div></div>
@@ -673,7 +702,7 @@ function hoffmann_bestellung_single_content($content){
         <div class="card">
             <h2>Kosten-Zusammenfassung</h2>
 <p>Bestellung Stückzahl: <strong><?php echo esc_html(number_format_i18n($total_ordered)); ?> Stück</strong></p>
-<p>Warenwert gesamt: <strong><?php echo esc_html(number_format_i18n($total_warenwert, 2)); ?> €</strong></p>
+<p>Warenwert gesamt: <strong><?php echo esc_html(number_format_i18n($total_warenwert, 2)); ?> €</strong> (<span>$<?php echo esc_html(number_format_i18n($total_warenwert_usd, 2)); ?></span>)</p>
 <p>Aircargo gesamt: <strong><?php echo esc_html(number_format_i18n($total_air, 2)); ?> €</strong></p>
 <p>Aircargo Stückpreis: <strong><?php echo esc_html(number_format_i18n($air_per_unit, 2)); ?> €</strong></p>
 <p>Zollabwicklung gesamt: <strong><?php echo esc_html(number_format_i18n($total_zoll, 2)); ?> €</strong></p>
@@ -681,6 +710,7 @@ function hoffmann_bestellung_single_content($content){
 <p>Steuermarken gesamt: <strong><?php echo esc_html(number_format_i18n($total_stm, 2)); ?> €</strong></p>
 <p>Landed Cost gesamt: <strong><?php echo esc_html(number_format_i18n($landed_total, 2)); ?> €</strong></p>
 <p>Stückpreis: <strong><?php echo esc_html(number_format_i18n($landed_per_unit, 2)); ?> €</strong></p>
+<p>Wechselkurs: <strong><?php echo esc_html($exchange_rate); ?></strong> <a href="#" class="show-popup" data-popup="popup-exchange">ändern</a></p>
 
         </div>
     </div>
@@ -719,7 +749,7 @@ function hoffmann_bestellung_single_content($content){
                     <?php endforeach; ?>
                     </tbody>
                 </table>
-                <?php echo $popup_html; ?>
+                <?php echo $popup_html . $exchange_popup; ?>
             <?php else: ?>
                 <p>Keine Lieferscheine vorhanden.</p>
             <?php endif; ?>
@@ -802,7 +832,7 @@ function hoffmann_bestellung_single_content($content){
         }
     });
     document.addEventListener('submit',function(e){
-        if(e.target.matches('.lieferschein-form')){
+        if(e.target.matches('.lieferschein-form')||e.target.matches('.exchange-form')){
             e.preventDefault();
             var form=e.target;
             var data=new FormData(form);
