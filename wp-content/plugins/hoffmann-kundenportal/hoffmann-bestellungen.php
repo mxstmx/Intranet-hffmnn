@@ -618,10 +618,10 @@ function hoffmann_bestellung_single_content($content){
         $total_ordered   += $info['ordered'];
         $total_delivered += $info['delivered'];
         $total_warenwert_usd += $info['ordered'] * $info['preis'];
-        $info['preis'] = $info['preis'] * $exchange_rate;
+        $info['preis'] = $info['preis'] / $exchange_rate;
     }
     unset($info);
-    $total_warenwert = $total_warenwert_usd * $exchange_rate;
+    $total_warenwert = $total_warenwert_usd / $exchange_rate;
     $stm_posts = get_posts(array(
         'post_type'  => 'steuermarken',
         'numberposts'=> -1,
