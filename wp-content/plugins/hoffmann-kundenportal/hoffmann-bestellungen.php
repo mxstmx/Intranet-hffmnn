@@ -875,35 +875,4 @@ function hoffmann_bestellung_single_content($content){
     return $content . $html;
 }
 
-add_action('admin_menu','hoffmann_bestellungen_dashboard_menu');
-function hoffmann_bestellungen_dashboard_menu(){
-    add_submenu_page('edit.php?post_type=bestellungen','Dashboard','Dashboard','read','bestellungen-dashboard','hoffmann_bestellungen_dashboard_page');
-}
 
-function hoffmann_bestellungen_dashboard_page(){
-    $orders = get_posts(array('post_type'=>'bestellungen','numberposts'=>-1));
-    $total_netto = $total_air = $total_zoll = 0;
-    foreach($orders as $o){
-        $net = hoffmann_to_float(get_post_meta($o->ID,'betragnetto',true));
-        $total_netto += $net;
-        $air = hoffmann_to_float(get_post_meta($o->ID,'air_cargo_kosten',true));
-        $total_air += $air;
-        $zoll = hoffmann_to_float(get_post_meta($o->ID,'zoll_abwicklung_kosten',true));
-        $total_zoll += $zoll;
-    }
-    $stm_posts = get_posts(array('post_type'=>'steuermarken','numberposts'=>-1));
-    $total_stm = 0;
-    foreach($stm_posts as $s){
-        $w = get_post_meta($s->ID,'wert',true);
-        $total_stm += (float)$w;
-    }
-    ?>
-    <div class="wrap"><h1>Bestellungen Dashboard</h1>
-    <canvas id="bestellungenChart" width="400" height="200"></canvas></div>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-    const ctx = document.getElementById('bestellungenChart').getContext('2d');
-    new Chart(ctx,{type:'bar',data:{labels:['Netto','Aircargo','Zoll','Steuermarken'],datasets:[{label:'Kosten',data:[<?php echo $total_netto; ?>,<?php echo $total_air; ?>,<?php echo $total_zoll; ?>,<?php echo $total_stm; ?>],backgroundColor:['#4e79a7','#f28e2b','#e15759','#76b7b2']}]} });
-    </script>
-    <?php
-}
