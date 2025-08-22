@@ -688,29 +688,37 @@ function hoffmann_bestellung_single_content($content){
         <div class="card">
             <h2>Lieferscheine</h2>
             <?php if ($lieferscheine): ?>
-                <ul>
-                <?php foreach ($lieferscheine as $ls):
-                    $ls_id   = $ls->ID;
-                    $ls_date = get_post_meta($ls_id,'belegdatum', true);
-                    $lf_no   = get_post_meta($ls_id,'lfbelegnummer', true);
-                    $air_v   = get_post_meta($ls_id,'air_cargo_kosten',true);
-                    $zoll_v  = get_post_meta($ls_id,'zoll_abwicklung_kosten',true);
-                    $popup_html .= '<div id="overlay-'.$ls_id.'" class="hoffmann-overlay"></div>';
-                    $popup_html .= '<div id="popup-'.$ls_id.'" class="hoffmann-popup">';
-                    $popup_html .= '<button class="popup-close">&times;</button>';
-                    $popup_html .= '<form class="lieferschein-form">'.
-                        wp_nonce_field('hoffmann_lieferschein_costs','nonce',true,false).
-                        '<input type="hidden" name="action" value="hoffmann_save_lieferschein_costs">'.
-                        '<input type="hidden" name="post_id" value="'.esc_attr($ls_id).'">'.
-                        '<p><label>Aircargo <input type="text" name="air_cargo_kosten" value="'.esc_attr($air_v).'"></label></p>'.
-                        '<p><label>Zollabwicklung <input type="text" name="zoll_abwicklung_kosten" value="'.esc_attr($zoll_v).'"></label></p>'.
-                        '<p><button type="submit">Speichern</button></p>'.
-                        '</form>';
-                    $popup_html .= '</div>';
-                ?>
-                    <li><a href="#" class="show-popup" data-popup="popup-<?php echo esc_attr($ls_id); ?>"><?php echo esc_html(get_the_title($ls)); ?></a> (<?php echo esc_html(date_i18n('Y-m-d', strtotime($ls_date))); ?>)<?php if($lf_no) echo ' – LF-Belegnummer: '.esc_html($lf_no); ?></li>
-                <?php endforeach; ?>
-                </ul>
+                <table>
+                    <thead><tr><th>Titel</th><th>Datum</th><th>Zollabwicklung</th><th>Aircargo</th></tr></thead>
+                    <tbody>
+                    <?php foreach ($lieferscheine as $ls):
+                        $ls_id   = $ls->ID;
+                        $ls_date = get_post_meta($ls_id,'belegdatum', true);
+                        $lf_no   = get_post_meta($ls_id,'lfbelegnummer', true);
+                        $air_v   = get_post_meta($ls_id,'air_cargo_kosten',true);
+                        $zoll_v  = get_post_meta($ls_id,'zoll_abwicklung_kosten',true);
+                        $popup_html .= '<div id="overlay-'.$ls_id.'" class="hoffmann-overlay"></div>';
+                        $popup_html .= '<div id="popup-'.$ls_id.'" class="hoffmann-popup">';
+                        $popup_html .= '<button class="popup-close">&times;</button>';
+                        $popup_html .= '<form class="lieferschein-form">'.
+                            wp_nonce_field('hoffmann_lieferschein_costs','nonce',true,false).
+                            '<input type="hidden" name="action" value="hoffmann_save_lieferschein_costs">'.
+                            '<input type="hidden" name="post_id" value="'.esc_attr($ls_id).'">'.
+                            '<p><label>Aircargo <input type="text" name="air_cargo_kosten" value="'.esc_attr($air_v).'"></label></p>'.
+                            '<p><label>Zollabwicklung <input type="text" name="zoll_abwicklung_kosten" value="'.esc_attr($zoll_v).'"></label></p>'.
+                            '<p><button type="submit">Speichern</button></p>'.
+                            '</form>';
+                        $popup_html .= '</div>';
+                    ?>
+                        <tr>
+                            <td><a href="#" class="show-popup" data-popup="popup-<?php echo esc_attr($ls_id); ?>"><?php echo esc_html(get_the_title($ls)); ?></a><?php if($lf_no) echo '<br>LF-Belegnummer: '.esc_html($lf_no); ?></td>
+                            <td><?php echo esc_html(date_i18n('Y-m-d', strtotime($ls_date))); ?></td>
+                            <td><?php echo esc_html(hoffmann_format_currency($zoll_v)); ?> €</td>
+                            <td><?php echo esc_html(hoffmann_format_currency($air_v)); ?> €</td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
                 <?php echo $popup_html; ?>
             <?php else: ?>
                 <p>Keine Lieferscheine vorhanden.</p>
