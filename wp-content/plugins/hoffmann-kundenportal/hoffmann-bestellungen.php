@@ -711,7 +711,7 @@ function hoffmann_bestellung_single_content($content){
                         $popup_html .= '</div>';
                     ?>
                         <tr>
-                            <td><a href="#" class="show-popup" data-popup="popup-<?php echo esc_attr($ls_id); ?>"><?php echo esc_html(get_the_title($ls)); ?></a><?php if($lf_no) echo '<br>LF-Belegnummer: '.esc_html($lf_no); ?></td>
+                            <td><a href="#" class="show-popup" data-popup="popup-<?php echo esc_attr($ls_id); ?>"><?php echo esc_html(get_the_title($ls)); ?></a><?php if($lf_no) echo '<br>'.esc_html($lf_no); ?></td>
                             <td><?php echo esc_html(date_i18n('Y-m-d', strtotime($ls_date))); ?></td>
                             <td><?php echo esc_html(hoffmann_format_currency($zoll_v)); ?> €</td>
                             <td><?php echo esc_html(hoffmann_format_currency($air_v)); ?> €</td>
