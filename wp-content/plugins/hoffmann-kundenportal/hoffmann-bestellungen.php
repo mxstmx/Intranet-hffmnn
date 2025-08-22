@@ -765,7 +765,6 @@ function hoffmann_bestellung_single_content($content){
                             '<input type="hidden" name="action" value="hoffmann_save_lieferschein_costs">'.
             '<input type="hidden" name="post_id" value="'.esc_attr($ls_id).'">'.
             '<p><label>Aircargo USD <input type="text" name="air_cargo_kosten_usd" value="'.esc_attr($air_v_usd).'"></label></p>'.
-            '<p><label>Aircargo EUR <input type="text" name="air_cargo_kosten" value="'.esc_attr($air_v).'" readonly></label></p>'.
             '<p><label>Zollabwicklung <input type="text" name="zoll_abwicklung_kosten" value="'.esc_attr($zoll_v).'"></label></p>'.
                             '<p><button type="submit">Speichern</button></p>'.
                             '</form>';
@@ -775,7 +774,7 @@ function hoffmann_bestellung_single_content($content){
                             <td><a href="#" class="show-popup" data-popup="popup-<?php echo esc_attr($ls_id); ?>"><?php echo esc_html(get_the_title($ls)); ?></a><?php if($lf_no) echo '<br>'.esc_html($lf_no); ?></td>
                             <td><?php echo esc_html(date_i18n('Y-m-d', strtotime($ls_date))); ?></td>
                             <td><?php echo esc_html(hoffmann_format_currency($zoll_v)); ?> €</td>
-                            <td><?php echo esc_html(hoffmann_format_currency($air_v)); ?> €<br><span class="muted">$<?php echo esc_html(hoffmann_format_currency($air_v_usd)); ?></span></td>
+                            <td><?php echo esc_html(number_format((float)$air_v, 2, ',', '.')); ?> €<br><span class="muted">$<?php echo esc_html(hoffmann_format_currency($air_v_usd)); ?></span></td>
                         </tr>
                     <?php endforeach; ?>
                     </tbody>
