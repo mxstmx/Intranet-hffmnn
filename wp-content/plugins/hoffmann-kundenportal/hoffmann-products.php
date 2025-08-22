@@ -103,6 +103,14 @@ function hoffmann_update_inventory() {
             $bestellt = isset($artikel['Bestellt']) ? intval($artikel['Bestellt']) : 0;
             $information = isset($artikel['Information']) ? sanitize_text_field($artikel['Information']) : '';
 
+            $meta_input = [
+                'artikelnummer' => $artikelnummer,
+                'bestand'       => $bestand,
+                'reserviert'    => $reserviert,
+                'bestellt'      => $bestellt,
+                'information'   => $information,
+            ];
+
             // Prüfen, ob das Produkt existiert (nach Artikelnummer als Primärschlüssel)
             $existing_product = get_posts([
                 'post_type' => 'produkte',
@@ -115,24 +123,19 @@ function hoffmann_update_inventory() {
                 // Produkt aktualisieren
                 $post_id = $existing_product[0]->ID;
                 wp_update_post([
-                    'ID' => $post_id,
+                    'ID'         => $post_id,
                     'post_title' => $artikelbezeichnung,
+                    'meta_input' => $meta_input,
                 ]);
             } else {
                 // Neues Produkt erstellen
                 $post_id = wp_insert_post([
-                    'post_title' => $artikelbezeichnung,
-                    'post_type' => 'produkte',
+                    'post_title'  => $artikelbezeichnung,
+                    'post_type'   => 'produkte',
                     'post_status' => 'publish',
+                    'meta_input'  => $meta_input,
                 ]);
             }
-
-            // Produkt-Metadaten aktualisieren
-            update_post_meta($post_id, 'artikelnummer', $artikelnummer);
-            update_post_meta($post_id, 'bestand', $bestand);
-            update_post_meta($post_id, 'reserviert', $reserviert);
-            update_post_meta($post_id, 'bestellt', $bestellt);
-            update_post_meta($post_id, 'information', $information);
 
             // Warengruppe (Kategorie) dem Produkt zuweisen
             wp_set_object_terms($post_id, intval($term_id), 'warengruppe');
