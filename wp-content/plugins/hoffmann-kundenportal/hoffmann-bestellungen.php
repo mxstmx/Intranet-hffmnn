@@ -640,7 +640,6 @@ function hoffmann_bestellung_single_content($content){
         $total_ordered   += $info['ordered'];
         $total_delivered += $info['delivered'];
         $total_warenwert_usd += $info['ordered'] * $info['preis'];
-        $info['preis'] = $info['preis'] / $exchange_rate;
     }
     unset($info);
     $total_warenwert = $total_warenwert_usd / $exchange_rate;
@@ -819,7 +818,7 @@ function hoffmann_bestellung_single_content($content){
                     <th>SKU</th>
                     <th>Bestellt</th>
                     <th>Geliefert</th>
-                    <th>EK €/Stk</th>
+                    <th>EK $/Stk</th>
                 </tr>
             </thead>
             <tbody>
@@ -833,7 +832,7 @@ function hoffmann_bestellung_single_content($content){
                     <td><?php echo esc_html($art); ?></td>
                     <td><?php echo esc_html(number_format_i18n($info['ordered'])); ?></td>
                     <td><?php echo esc_html(number_format_i18n($info['delivered'])); ?></td>
-                    <td><?php echo esc_html(hoffmann_format_currency($info['preis'])); ?></td>
+                    <td>$<?php echo esc_html(hoffmann_format_currency($info['preis'])); ?></td>
 
                 </tr>
                 <?php endforeach; ?>
