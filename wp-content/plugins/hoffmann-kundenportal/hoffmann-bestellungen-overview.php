@@ -69,7 +69,7 @@ function hoffmann_bestellungen_overview_shortcode() {
             foreach ($products as $info){ $total_ordered += $info['ordered']; $total_warenwert_usd += $info['ordered']*$info['preis']; }
             $exchange_rate = hoffmann_to_float(get_post_meta($pid,'wechselkurs',true));
             if(!$exchange_rate){ $exchange_rate = 1.0; }
-            $total_warenwert_eur = $total_warenwert_usd * $exchange_rate;
+            $total_warenwert_eur = $total_warenwert_usd / $exchange_rate;
             $air_per_unit  = $total_ordered>0 ? $total_air/$total_ordered : 0;
             $zoll_per_unit = $total_ordered>0 ? $total_zoll/$total_ordered : 0;
             $stm_per_unit  = $total_ordered>0 ? $total_stm/$total_ordered : 0;
