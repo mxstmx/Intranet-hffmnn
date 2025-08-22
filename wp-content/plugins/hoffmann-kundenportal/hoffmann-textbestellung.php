@@ -61,6 +61,22 @@ function hoffmann_handle_textbestellung_submission() {
         $product_titles[$p->ID] = strtolower($p->post_title);
     }
 
+    // Warengruppen sammeln, um Präfixe aus dem Namen entfernen zu können
+    $warengruppen = get_terms([
+        'taxonomy'   => 'warengruppe',
+        'hide_empty' => false,
+    ]);
+    $warengruppe_names = [];
+    if (!is_wp_error($warengruppen)) {
+        foreach ($warengruppen as $wg) {
+            $warengruppe_names[] = strtolower($wg->name);
+        }
+        // Längere Namen zuerst prüfen
+        usort($warengruppe_names, function ($a, $b) {
+            return strlen($b) - strlen($a);
+        });
+    }
+
     $items = [];
     foreach ($lines as $line) {
         if (!preg_match('/(.+?)\s*(\d+)/', $line, $m)) {
@@ -68,6 +84,17 @@ function hoffmann_handle_textbestellung_submission() {
         }
         $name = strtolower(trim($m[1]));
         $qty  = (int) $m[2];
+
+        // Warengruppenpräfix entfernen, falls vorhanden
+        foreach ($warengruppe_names as $wg_name) {
+            if (stripos($name, $wg_name . ' ') === 0) {
+                $name = trim(substr($name, strlen($wg_name)));
+                break;
+            }
+        }
+        if ($name === '') {
+            continue;
+        }
 
         $best_id = null;
         $best_score = 0;
