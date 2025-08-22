@@ -133,11 +133,14 @@ function hoffmann_steuermarken_shortcode() {
     foreach ($posts as $p) {
         $order_id = get_post_meta($p->ID, 'bestellung_id', true);
         $rows[] = array(
+            'id'           => $p->ID,
             'title'        => get_the_title($p),
             'orderNo'      => $order_id ? get_the_title($order_id) : '',
+            'orderUrl'     => $order_id ? get_permalink($order_id) : '',
             'orderedAt'    => get_post_meta($p->ID, 'bestelldatum', true),
             'qty'          => intval(get_post_meta($p->ID, 'stueckzahl', true)),
             'unitValueEUR' => floatval(get_post_meta($p->ID, 'kategorie', true)),
+            'editUrl'      => get_edit_post_link($p->ID, 'raw'),
         );
     }
 
@@ -162,7 +165,7 @@ function hoffmann_steuermarken_shortcode() {
         </select>
         <button id="reset" class="btn">Zurücksetzen</button>
         <button id="export-dsv" class="btn primary">DSV Export</button>
-        <a href="<?php echo esc_url(admin_url('post-new.php?post_type=steuermarken')); ?>" class="btn">Steuermarke hinzufügen</a>
+        <button id="stm-add" class="btn">Steuermarke hinzufügen</button>
       </section>
 
       <section class="grid grid-4" id="kpis">
@@ -184,6 +187,7 @@ function hoffmann_steuermarken_shortcode() {
                 <th class="right">Stückzahl</th>
                 <th class="right">Wert je Marke</th>
                 <th class="right">Gesamtwert</th>
+                <th>Aktionen</th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -197,6 +201,11 @@ function hoffmann_steuermarken_shortcode() {
         <div class="card"><h2>Datenquellen</h2><div class="body muted">Steuerportal / ERP – Export als CSV/JSON einspielen und mappen auf: <code>{ title, orderNo, orderedAt, qty, unitValueEUR }</code>.</div></div>
         <div class="card"><h2>Quick-Stats</h2><div class="body"><span id="qsTop"></span> <span id="qsAvg"></span></div></div>
       </section>
+    </div>
+    <div id="stm-overlay" class="hoffmann-overlay"></div>
+    <div id="stm-popup" class="hoffmann-popup">
+      <button class="popup-close">&times;</button>
+      <iframe id="stm-frame" style="width:100%;height:80vh;border:0;"></iframe>
     </div>
 
     <style>
@@ -275,11 +284,12 @@ function hoffmann_steuermarken_shortcode() {
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td><strong>${r.title}</strong></td>
-          <td><a href="#" class="orderNo">${r.orderNo}</a></td>
+          <td><a href="${r.orderUrl}" class="orderNo" target="_blank">${r.orderNo}</a></td>
           <td>${fmtDate(r.orderedAt)}</td>
           <td class="right">${r.qty.toLocaleString('de-DE')}</td>
           <td class="right">${money(r.unitValueEUR)}</td>
-          <td class="right">${money(total)}</td>`;
+          <td class="right">${money(total)}</td>
+          <td><button class="btn edit-stm" data-url="${r.editUrl}">Bearbeiten</button></td>`;
         tbody.appendChild(tr);
       });
 
@@ -312,6 +322,20 @@ function hoffmann_steuermarken_shortcode() {
     document.getElementById('sort').addEventListener('change', e=>{state.sort=e.target.value; render();});
     document.getElementById('reset').addEventListener('click', ()=>{state.q='';state.from='';state.to='';state.sort='date_desc';document.getElementById('q').value='';document.getElementById('from').value='';document.getElementById('to').value='';document.getElementById('sort').value='date_desc';render();});
     document.getElementById('export-dsv').addEventListener('click', exportDSV);
+
+    const OVERLAY=document.getElementById('stm-overlay');
+    const POPUP=document.getElementById('stm-popup');
+    const FRAME=document.getElementById('stm-frame');
+    const ADD_URL='<?php echo esc_js(admin_url('post-new.php?post_type=steuermarken')); ?>';
+
+    function openPopup(url){ FRAME.src=url; OVERLAY.style.display='block'; POPUP.style.display='block'; }
+    function closePopup(){ FRAME.src=''; OVERLAY.style.display='none'; POPUP.style.display='none'; }
+
+    document.addEventListener('click',e=>{
+      if(e.target.matches('.edit-stm')){ e.preventDefault(); openPopup(e.target.getAttribute('data-url')); }
+      else if(e.target.matches('#stm-add')){ e.preventDefault(); openPopup(ADD_URL); }
+      else if(e.target.matches('.popup-close')||e.target.classList.contains('hoffmann-overlay')){ closePopup(); }
+    });
 
     render();
     </script>
