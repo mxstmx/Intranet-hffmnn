@@ -659,10 +659,10 @@ function hoffmann_bestellung_single_content($content){
     <h1 style="font-size: 28px;">Bestellübersicht</h1>
     <div class="subtitle">Order <strong><?php echo esc_html($title); ?></strong> · Betreff <strong><?php echo esc_html($betreff); ?></strong> · Lieferant <strong><?php echo esc_html($supplier); ?></strong> · ETA <strong><?php echo esc_html($eta); ?></strong></div>
     <div class="grid grid-4">
-        <div class="card"><h2>Warenwert (bestellt)</h2><div class="value"><?php echo number_format((float) $total_warenwert, 2, ',', ''); ?> €</div></div>
-        <div class="card"><h2>Aircargo gesamt</h2><div class="value"><?php echo number_format((float) $total_air, 2, ',', ''); ?> €</div></div>
-        <div class="card"><h2>Zollabwicklung gesamt</h2><div class="value"><?php echo number_format((float) $total_zoll, 2, ',', ''); ?> €</div></div>
-        <div class="card"><h2>Steuermarken gesamt</h2><div class="value"><?php echo number_format((float) $total_stm, 2, ',', ''); ?> €</div></div>
+        <div class="card"><h2>Warenwert (bestellt)</h2><div class="value"><?php echo esc_html(number_format_i18n($total_warenwert, 2)); ?> €</div></div>
+        <div class="card"><h2>Aircargo gesamt</h2><div class="value"><?php echo esc_html(number_format_i18n($$total_air, 2)); ?> €</div></div>
+        <div class="card"><h2>Zollabwicklung gesamt</h2><div class="value"><?php echo esc_html(number_format_i18n($total_zoll, 2)); ?> €</div></div>
+        <div class="card"><h2>Steuermarken gesamt</h2><div class="value"><?php echo esc_html(number_format_i18n($total_stm, 2)); ?>  €</div></div>
     </div>
     <div class="grid" style="grid-template-columns: 1fr 2fr; margin-top:20px;">
         <div class="card">
