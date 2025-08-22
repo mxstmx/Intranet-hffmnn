@@ -155,6 +155,7 @@ function hoffmann_update_inventory() {
                 if ($info_changed) {
                     update_post_meta($post_id, 'information', $information);
                 }
+            }
             $meta_input = [
                 'artikelnummer' => $artikelnummer,
                 'bestand'       => $bestand,
