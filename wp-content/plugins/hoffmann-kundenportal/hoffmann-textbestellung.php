@@ -57,8 +57,12 @@ function hoffmann_handle_textbestellung_submission() {
     }
 
     $product_titles = [];
+    $product_warengruppen = [];
     foreach ($product_posts as $p) {
         $product_titles[$p->ID] = strtolower($p->post_title);
+        // Zugeordnete Warengruppen der Produkte für spätere Filterung erfassen
+        $terms = wp_get_post_terms($p->ID, 'warengruppe', ['fields' => 'ids']);
+        $product_warengruppen[$p->ID] = is_wp_error($terms) ? [] : $terms;
     }
 
     // Warengruppen sammeln, um Präfixe aus dem Namen entfernen zu können
@@ -66,14 +70,18 @@ function hoffmann_handle_textbestellung_submission() {
         'taxonomy'   => 'warengruppe',
         'hide_empty' => false,
     ]);
-    $warengruppe_names = [];
+    $warengruppe_info = [];
     if (!is_wp_error($warengruppen)) {
         foreach ($warengruppen as $wg) {
-            $warengruppe_names[] = strtolower($wg->name);
+            $warengruppe_info[] = [
+                'name'    => strtolower($wg->name),
+                'term_id' => $wg->term_id,
+                'slug'    => $wg->slug,
+            ];
         }
         // Längere Namen zuerst prüfen
-        usort($warengruppe_names, function ($a, $b) {
-            return strlen($b) - strlen($a);
+        usort($warengruppe_info, function ($a, $b) {
+            return strlen($b['name']) - strlen($a['name']);
         });
     }
 
@@ -86,9 +94,11 @@ function hoffmann_handle_textbestellung_submission() {
         $qty  = (int) $m[2];
 
         // Warengruppenpräfix entfernen, falls vorhanden
-        foreach ($warengruppe_names as $wg_name) {
-            if (stripos($name, $wg_name . ' ') === 0) {
-                $name = trim(substr($name, strlen($wg_name)));
+        $warengruppe_id = null;
+        foreach ($warengruppe_info as $wg) {
+            if (stripos($name, $wg['name'] . ' ') === 0) {
+                $name = trim(substr($name, strlen($wg['name'])));
+                $warengruppe_id = $wg['term_id'];
                 break;
             }
         }
@@ -99,6 +109,9 @@ function hoffmann_handle_textbestellung_submission() {
         $best_id = null;
         $best_score = 0;
         foreach ($product_titles as $id => $title) {
+            if ($warengruppe_id !== null && !in_array($warengruppe_id, $product_warengruppen[$id], true)) {
+                continue; // Nur Produkte der angegebenen Warengruppe berücksichtigen
+            }
             similar_text($name, $title, $percent);
             if ($percent > $best_score) {
                 $best_score = $percent;
