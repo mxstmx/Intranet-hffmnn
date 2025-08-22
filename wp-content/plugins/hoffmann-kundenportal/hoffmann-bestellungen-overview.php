@@ -65,8 +65,11 @@ function hoffmann_bestellungen_overview_shortcode() {
             }
             $stm_posts = get_posts(array('post_type'=>'steuermarken','numberposts'=>-1,'meta_key'=>'bestellung_id','meta_value'=>$pid));
             $total_stm = 0; foreach ($stm_posts as $s){ $total_stm += (float)get_post_meta($s->ID,'wert',true); }
-            $total_ordered = 0; $total_warenwert = 0;
-            foreach ($products as $info){ $total_ordered += $info['ordered']; $total_warenwert += $info['ordered']*$info['preis']; }
+            $total_ordered = 0; $total_warenwert_usd = 0;
+            foreach ($products as $info){ $total_ordered += $info['ordered']; $total_warenwert_usd += $info['ordered']*$info['preis']; }
+            $exchange_rate = hoffmann_to_float(get_post_meta($pid,'wechselkurs',true));
+            if(!$exchange_rate){ $exchange_rate = 1.0; }
+            $total_warenwert_eur = $total_warenwert_usd * $exchange_rate;
             $air_per_unit  = $total_ordered>0 ? $total_air/$total_ordered : 0;
             $zoll_per_unit = $total_ordered>0 ? $total_zoll/$total_ordered : 0;
             $stm_per_unit  = $total_ordered>0 ? $total_stm/$total_ordered : 0;
@@ -79,7 +82,8 @@ function hoffmann_bestellungen_overview_shortcode() {
                 'air'       => round($air_per_unit,2),
                 'custom'    => round($zoll_per_unit,2),
                 'stamps'    => round($stm_per_unit,2),
-                'total'     => round($total_warenwert,2),
+                'totalUsd'  => round($total_warenwert_usd,2),
+                'totalEur'  => round($total_warenwert_eur,2),
                 'delivered' => $delivered_pct,
             );
         }
@@ -99,7 +103,7 @@ function hoffmann_bestellungen_overview_shortcode() {
         <button id="hoff-export" class="btn primary">CSV Export</button>
       </section>
       <section class="grid grid-4" id="hoff-kpis">
-        <div class="kpi"><div class="label">Summe Warenwert</div><div class="val" id="hoff-kpi-total">€ 0,00</div></div>
+        <div class="kpi"><div class="label">Summe Warenwert</div><div class="val" id="hoff-kpi-total">€ 0,00 / $0.00</div></div>
         <div class="kpi"><div class="label">Ø Stückpreis Aircargo</div><div class="val" id="hoff-kpi-air">€ 0,00</div></div>
         <div class="kpi"><div class="label">Ø Stückpreis Zollabwicklung</div><div class="val" id="hoff-kpi-custom">€ 0,00</div></div>
         <div class="kpi"><div class="label">Anzahl Bestellungen</div><div class="val" id="hoff-kpi-count">0</div></div>
@@ -118,7 +122,77 @@ function hoffmann_bestellungen_overview_shortcode() {
       </section>
     </div>
     <script>
-    const EUR=new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'});const fmtDate=d=>new Date(d).toLocaleDateString('de-DE');const DATA=<?php echo wp_json_encode($data); ?>;const state={q:'',from:'',to:'',sort:'date_desc'};function money(n){return EUR.format(n||0)}function within(d,from,to){const t=+new Date(d);return(!from||t>=+new Date(from))&&(!to||t<=+new Date(to)+86400000-1)}function getFiltered(){let rows=DATA.filter(r=>{const txt=(r.title+" "+r.orderNo).toLowerCase();const matches=!state.q||txt.includes(state.q.toLowerCase());const inRange=within(r.orderedAt,state.from,state.to);return matches&&inRange});rows.sort((a,b)=>{switch(state.sort){case'date_asc':return+new Date(a.orderedAt)-+new Date(b.orderedAt);case'value_desc':return b.total-a.total;case'value_asc':return a.total-b.total;default:return+new Date(b.orderedAt)-+new Date(a.orderedAt)}});return rows}function render(){const rows=getFiltered();const tbody=document.querySelector('#hoff-tbl tbody');tbody.innerHTML='';let sumTotal=0,airSum=0,customSum=0;rows.forEach(r=>{sumTotal+=r.total;airSum+=r.air;customSum+=r.custom;const tr=document.createElement('tr');tr.innerHTML=`<td><strong>${r.title}</strong></td><td><a href="${r.link}" class="orderNo" target="_blank">${r.orderNo}</a></td><td>${fmtDate(r.orderedAt)}</td><td class="right">${money(r.air)}</td><td class="right">${money(r.custom)}</td><td class="right">${money(r.stamps)}</td><td class="right">${money(r.total)}</td><td class="right">${r.delivered}%</td>`;tbody.appendChild(tr)});document.getElementById('hoff-rowsum').textContent=`${rows.length} Bestellungen angezeigt`;document.getElementById('hoff-kpi-total').textContent=money(sumTotal);document.getElementById('hoff-kpi-air').textContent=money(rows.length?airSum/rows.length:0);document.getElementById('hoff-kpi-custom').textContent=money(rows.length?customSum/rows.length:0);document.getElementById('hoff-kpi-count').textContent=rows.length.toString();const top=rows.reduce((m,r)=>r.total>m.total?r:m,rows[0]||{title:'—',total:0});document.getElementById('hoff-qsTop').textContent=`Top-Order: ${top.title} (${money(top.total)})`;document.getElementById('hoff-qsAvg').textContent=`Ø Warenwert: ${rows.length?money(sumTotal/rows.length):money(0)}`}function exportCSV(){const rows=getFiltered();const header=['Titel','Bestellnr','Bestelldatum','Stückpreis Aircargo','Stückpreis Zoll','Steuermarken','Warenwert','Geliefert %'];const out=[header.join(';')].concat(rows.map(r=>[r.title,r.orderNo,r.orderedAt,r.air.toFixed(2).replace('.',','),r.custom.toFixed(2).replace('.',','),r.stamps.toFixed(2).replace('.',','),r.total.toFixed(2).replace('.',','),r.delivered].join(';'))).join('\n');const blob=new Blob([out],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='bestellungen_export.csv';a.click();URL.revokeObjectURL(url)}document.getElementById('hoff-q').addEventListener('input',e=>{state.q=e.target.value;render()});document.getElementById('hoff-from').addEventListener('change',e=>{state.from=e.target.value;render()});document.getElementById('hoff-to').addEventListener('change',e=>{state.to=e.target.value;render()});document.getElementById('hoff-sort').addEventListener('change',e=>{state.sort=e.target.value;render()});document.getElementById('hoff-reset').addEventListener('click',()=>{state.q='';state.from='';state.to='';state.sort='date_desc';document.getElementById('hoff-q').value='';document.getElementById('hoff-from').value='';document.getElementById('hoff-to').value='';document.getElementById('hoff-sort').value='date_desc';render()});document.getElementById('hoff-export').addEventListener('click',exportCSV);render();
+    const EUR = new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'});
+    const USD = new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'});
+    const fmtDate = d => new Date(d).toLocaleDateString('de-DE');
+    const DATA = <?php echo wp_json_encode($data); ?>;
+    const state = {q:'',from:'',to:'',sort:'date_desc'};
+    const moneyEur = n => EUR.format(n||0);
+    const moneyUsd = n => USD.format(n||0);
+    function within(d,from,to){
+        const t = +new Date(d);
+        return (!from||t>=+new Date(from))&&(!to||t<=+new Date(to)+86400000-1);
+    }
+    function getFiltered(){
+        let rows = DATA.filter(r=>{
+            const txt=(r.title+" "+r.orderNo).toLowerCase();
+            const matches=!state.q||txt.includes(state.q.toLowerCase());
+            const inRange=within(r.orderedAt,state.from,state.to);
+            return matches&&inRange;
+        });
+        rows.sort((a,b)=>{
+            switch(state.sort){
+                case 'date_asc': return+new Date(a.orderedAt)-+new Date(b.orderedAt);
+                case 'value_desc': return b.totalEur-a.totalEur;
+                case 'value_asc': return a.totalEur-b.totalEur;
+                default: return+new Date(b.orderedAt)-+new Date(a.orderedAt);
+            }
+        });
+        return rows;
+    }
+    function render(){
+        const rows=getFiltered();
+        const tbody=document.querySelector('#hoff-tbl tbody');
+        tbody.innerHTML='';
+        let sumTotalEur=0,sumTotalUsd=0,airSum=0,customSum=0;
+        rows.forEach(r=>{
+            sumTotalEur+=r.totalEur; sumTotalUsd+=r.totalUsd;
+            airSum+=r.air; customSum+=r.custom;
+            const tr=document.createElement('tr');
+            tr.innerHTML=`<td><strong>${r.title}</strong></td><td><a href="${r.link}" class="orderNo" target="_blank">${r.orderNo}</a></td><td>${fmtDate(r.orderedAt)}</td><td class="right">${moneyEur(r.air)}</td><td class="right">${moneyEur(r.custom)}</td><td class="right">${moneyEur(r.stamps)}</td><td class="right">${moneyEur(r.totalEur)}<br><span class="muted">${moneyUsd(r.totalUsd)}</span></td><td class="right">${r.delivered}%</td>`;
+            tbody.appendChild(tr);
+        });
+        document.getElementById('hoff-rowsum').textContent=`${rows.length} Bestellungen angezeigt`;
+        document.getElementById('hoff-kpi-total').textContent=`${moneyEur(sumTotalEur)} / ${moneyUsd(sumTotalUsd)}`;
+        document.getElementById('hoff-kpi-air').textContent=moneyEur(rows.length?airSum/rows.length:0);
+        document.getElementById('hoff-kpi-custom').textContent=moneyEur(rows.length?customSum/rows.length:0);
+        document.getElementById('hoff-kpi-count').textContent=rows.length.toString();
+        const top=rows.reduce((m,r)=>r.totalEur>m.totalEur?r:m,rows[0]||{title:'—',totalEur:0});
+        document.getElementById('hoff-qsTop').textContent=`Top-Order: ${top.title} (${moneyEur(top.totalEur)})`;
+        document.getElementById('hoff-qsAvg').textContent=`Ø Warenwert: ${rows.length?moneyEur(sumTotalEur/rows.length):moneyEur(0)}`;
+    }
+    function exportCSV(){
+        const rows=getFiltered();
+        const header=['Titel','Bestellnr','Bestelldatum','Stückpreis Aircargo','Stückpreis Zoll','Steuermarken','Warenwert USD','Warenwert EUR','Geliefert %'];
+        const out=[header.join(';')].concat(rows.map(r=>[r.title,r.orderNo,r.orderedAt,r.air.toFixed(2).replace('.',','),r.custom.toFixed(2).replace('.',','),r.stamps.toFixed(2).replace('.',','),r.totalUsd.toFixed(2).replace('.',','),r.totalEur.toFixed(2).replace('.',','),r.delivered].join(';'))).join('\n');
+        const blob=new Blob([out],{type:'text/csv;charset=utf-8;'});
+        const url=URL.createObjectURL(blob);
+        const a=document.createElement('a');a.href=url;a.download='bestellungen_export.csv';a.click();URL.revokeObjectURL(url);
+    }
+    document.getElementById('hoff-q').addEventListener('input',e=>{state.q=e.target.value;render()});
+    document.getElementById('hoff-from').addEventListener('change',e=>{state.from=e.target.value;render()});
+    document.getElementById('hoff-to').addEventListener('change',e=>{state.to=e.target.value;render()});
+    document.getElementById('hoff-sort').addEventListener('change',e=>{state.sort=e.target.value;render()});
+    document.getElementById('hoff-reset').addEventListener('click',()=>{
+        state.q='';state.from='';state.to='';state.sort='date_desc';
+        document.getElementById('hoff-q').value='';
+        document.getElementById('hoff-from').value='';
+        document.getElementById('hoff-to').value='';
+        document.getElementById('hoff-sort').value='date_desc';
+        render();
+    });
+    document.getElementById('hoff-export').addEventListener('click',exportCSV);
+    render();
     </script>
     <?php
     return ob_get_clean();
