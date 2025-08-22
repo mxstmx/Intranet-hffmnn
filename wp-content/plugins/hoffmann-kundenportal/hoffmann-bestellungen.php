@@ -319,7 +319,11 @@ if (!function_exists('hoffmann_bestellung_detail_html')) {
             'betragnetto'      => __('Betrag Netto', 'hoffmann'),
             'letzte_aenderung' => __('Letzte Änderung', 'hoffmann'),
         );
+        $betreff = get_post_meta($pid, 'betreff', true);
         $html = '<h3>'. $title .'</h3>';
+        if ($betreff) {
+            $html .= '<p><strong>'.esc_html__('Betreff', 'hoffmann').':</strong> '.esc_html($betreff).'</p>';
+        }
         $html .= '<table style="width:100%;border-collapse:collapse;"><tbody>';
         foreach ($fields as $key => $label) {
             $val = get_post_meta($pid, $key, true);
@@ -687,6 +691,7 @@ function hoffmann_bestellung_single_content($content){
                 <?php foreach ($lieferscheine as $ls):
                     $ls_id   = $ls->ID;
                     $ls_date = get_post_meta($ls_id,'belegdatum', true);
+                    $lf_no   = get_post_meta($ls_id,'lfbelegnummer', true);
                     $air_v   = get_post_meta($ls_id,'air_cargo_kosten',true);
                     $zoll_v  = get_post_meta($ls_id,'zoll_abwicklung_kosten',true);
                     $popup_html .= '<div id="overlay-'.$ls_id.'" class="hoffmann-overlay"></div>';
@@ -702,7 +707,7 @@ function hoffmann_bestellung_single_content($content){
                         '</form>';
                     $popup_html .= '</div>';
                 ?>
-                    <li><a href="#" class="show-popup" data-popup="popup-<?php echo esc_attr($ls_id); ?>"><?php echo esc_html(get_the_title($ls)); ?></a> (<?php echo esc_html(date_i18n('Y-m-d', strtotime($ls_date))); ?>)</li>
+                    <li><a href="#" class="show-popup" data-popup="popup-<?php echo esc_attr($ls_id); ?>"><?php echo esc_html(get_the_title($ls)); ?></a> (<?php echo esc_html(date_i18n('Y-m-d', strtotime($ls_date))); ?>)<?php if($lf_no) echo ' – LF-Belegnummer: '.esc_html($lf_no); ?></li>
                 <?php endforeach; ?>
                 </ul>
                 <?php echo $popup_html; ?>
