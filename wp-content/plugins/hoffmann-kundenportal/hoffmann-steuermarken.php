@@ -147,6 +147,18 @@ function hoffmann_save_steuermarke(){
     wp_send_json_success(array('id'=>$id));
 }
 
+add_action('wp_ajax_hoffmann_delete_steuermarke','hoffmann_delete_steuermarke');
+function hoffmann_delete_steuermarke(){
+    if(!current_user_can('edit_posts')){ wp_send_json_error(); }
+    check_ajax_referer('hoffmann_steuermarken_save','nonce');
+    $id = intval($_POST['id'] ?? 0);
+    if($id && current_user_can('delete_post',$id)){
+        wp_delete_post($id,true);
+        wp_send_json_success();
+    }
+    wp_send_json_error();
+}
+
 function hoffmann_steuermarken_shortcode() {
     if (!current_user_can('read')) {
         return '';
@@ -158,6 +170,18 @@ function hoffmann_steuermarken_shortcode() {
         'post_status'    => 'publish',
         'orderby'        => 'date',
         'order'          => 'DESC',
+    ));
+
+    $orders = get_posts(array(
+        'post_type'  => 'bestellungen',
+        'numberposts'=> -1,
+        'orderby'    => 'title',
+        'order'      => 'ASC',
+        'tax_query'  => array(array(
+            'taxonomy' => 'bestellart',
+            'field'    => 'name',
+            'terms'    => '2200',
+        )),
     ));
 
     $rows = array();
@@ -240,7 +264,7 @@ function hoffmann_steuermarken_shortcode() {
         <input type="hidden" name="id" />
         <p><label>Belegnummer<br><input type="text" name="title" required></label></p>
         <p><label>Bestelldatum<br><input type="date" name="bestelldatum"></label></p>
-        <p><label>Bestellung ID<br><input type="text" name="bestellung_id"></label></p>
+        <p><label>Bestellung<br><select name="bestellung_id"><option value="">-</option><?php foreach($orders as $o){ echo '<option value="'.esc_attr($o->ID).'">'.esc_html($o->post_title).'</option>'; } ?></select></label></p>
         <p><label>Stückzahl<br><input type="number" name="stueckzahl"></label></p>
         <p><label>Wert je Marke (EUR)<br><input type="number" step="0.01" name="kategorie"></label></p>
         <p><button type="submit" class="btn primary">Speichern</button></p>
@@ -260,6 +284,7 @@ function hoffmann_steuermarken_shortcode() {
     .hoffmann-steuermarken .input,.hoffmann-steuermarken select,.hoffmann-steuermarken .btn{border:1px solid var(--line);background:#fff;border-radius:10px;height:40px;padding:8px 12px;font-size:14px}
     .hoffmann-steuermarken .btn{cursor:pointer}
     .hoffmann-steuermarken .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+    .hoffmann-steuermarken .btn.danger{background:#e11d48;border-color:#e11d48;color:#fff}
     .hoffmann-steuermarken .grid{display:grid;gap:16px}
     .hoffmann-steuermarken .grid-4{grid-template-columns:repeat(4,1fr)}
     @media (max-width:990px){.hoffmann-steuermarken .grid-4{grid-template-columns:repeat(2,1fr)}}
@@ -321,14 +346,14 @@ function hoffmann_steuermarken_shortcode() {
         const total = r.qty * r.unitValueEUR;
         qtySum += r.qty; valueSum += total;
         const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td><strong>${r.title}</strong></td>
-          <td><a href="${r.orderUrl}" class="orderNo" target="_blank">${r.orderNo}</a></td>
-          <td>${fmtDate(r.orderedAt)}</td>
-          <td class="right">${r.qty.toLocaleString('de-DE')}</td>
-          <td class="right">${money(r.unitValueEUR)}</td>
-          <td class="right">${money(total)}</td>
-          <td><button class="btn edit-stm" data-id="${r.id}">Bearbeiten</button></td>`;
+          tr.innerHTML = `
+            <td><strong>${r.title}</strong></td>
+            <td><a href="${r.orderUrl}" class="orderNo" target="_blank">${r.orderNo}</a></td>
+            <td>${fmtDate(r.orderedAt)}</td>
+            <td class="right">${r.qty.toLocaleString('de-DE')}</td>
+            <td class="right">${money(r.unitValueEUR)}</td>
+            <td class="right">${money(total)}</td>
+            <td><button class="btn edit-stm" data-id="${r.id}">Bearbeiten</button> <button class="btn danger delete-stm" data-id="${r.id}">Löschen</button></td>`;
         tbody.appendChild(tr);
       });
 
@@ -381,19 +406,29 @@ function hoffmann_steuermarken_shortcode() {
     }
     function closePopup(){ OVERLAY.style.display='none'; POPUP.style.display='none'; }
 
-    document.addEventListener('click',e=>{
-      if(e.target.matches('.edit-stm')){
-        e.preventDefault();
-        const id=e.target.getAttribute('data-id');
-        const row=DATA.find(r=>r.id==id);
-        openPopup(row||{});
-      }else if(e.target.matches('#stm-add')){
-        e.preventDefault();
-        openPopup();
-      }else if(e.target.matches('.popup-close')||e.target.classList.contains('hoffmann-overlay')){
-        closePopup();
-      }
-    });
+      document.addEventListener('click',e=>{
+        if(e.target.matches('.edit-stm')){
+          e.preventDefault();
+          const id=e.target.getAttribute('data-id');
+          const row=DATA.find(r=>r.id==id);
+          openPopup(row||{});
+        }else if(e.target.matches('#stm-add')){
+          e.preventDefault();
+          openPopup();
+        }else if(e.target.matches('.delete-stm')){
+          e.preventDefault();
+          if(confirm('Steuermarke löschen?')){
+            const id=e.target.getAttribute('data-id');
+            const fd=new FormData();
+            fd.append('action','hoffmann_delete_steuermarke');
+            fd.append('nonce',NONCE);
+            fd.append('id',id);
+            fetch(AJAX_URL,{method:'POST',body:fd}).then(r=>r.json()).then(res=>{if(res.success){location.reload();}});
+          }
+        }else if(e.target.matches('.popup-close')||e.target.classList.contains('hoffmann-overlay')){
+          closePopup();
+        }
+      });
 
     FORM.addEventListener('submit',e=>{
       e.preventDefault();
