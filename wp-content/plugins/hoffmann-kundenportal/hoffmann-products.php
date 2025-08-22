@@ -85,6 +85,21 @@ function hoffmann_update_inventory() {
         return;
     }
 
+    // Vorhandene Produkte anhand der Artikelnummern laden
+    $existing_products = get_posts([
+        'post_type'      => 'produkte',
+        'meta_key'       => 'artikelnummer',
+        'posts_per_page' => -1,
+    ]);
+
+    $produkt_map = [];
+    foreach ($existing_products as $prod) {
+        $nummer = get_post_meta($prod->ID, 'artikelnummer', true);
+        if ($nummer) {
+            $produkt_map[$nummer] = $prod->ID;
+        }
+    }
+
     foreach ($bestandData as $warengruppe_id => $warengruppe) {
         $warengruppenbezeichnung = $warengruppe['Warengruppenbezeichnung'];
 
@@ -103,39 +118,65 @@ function hoffmann_update_inventory() {
             $bestellt = isset($artikel['Bestellt']) ? intval($artikel['Bestellt']) : 0;
             $information = isset($artikel['Information']) ? sanitize_text_field($artikel['Information']) : '';
 
-            // Prüfen, ob das Produkt existiert (nach Artikelnummer als Primärschlüssel)
-            $existing_product = get_posts([
-                'post_type' => 'produkte',
-                'meta_key' => 'artikelnummer',
-                'meta_value' => $artikelnummer,
-                'numberposts' => 1
-            ]);
+            // Post-ID aus dem Mapping ermitteln
+            $post_id = isset($produkt_map[$artikelnummer]) ? intval($produkt_map[$artikelnummer]) : 0;
 
-            if ($existing_product) {
-                // Produkt aktualisieren
-                $post_id = $existing_product[0]->ID;
-                wp_update_post([
-                    'ID' => $post_id,
-                    'post_title' => $artikelbezeichnung,
-                ]);
+            if ($post_id) {
+                $current_title      = get_post_field('post_title', $post_id);
+                $current_bestand    = intval(get_post_meta($post_id, 'bestand', true));
+                $current_reserviert = intval(get_post_meta($post_id, 'reserviert', true));
+                $current_bestellt   = intval(get_post_meta($post_id, 'bestellt', true));
+                $current_info       = get_post_meta($post_id, 'information', true);
+
+                $title_changed      = $artikelbezeichnung !== $current_title;
+                $bestand_changed    = $bestand !== $current_bestand;
+                $reserviert_changed = $reserviert !== $current_reserviert;
+                $bestellt_changed   = $bestellt !== $current_bestellt;
+                $info_changed       = $information !== $current_info;
+
+                if ($title_changed || $bestand_changed || $reserviert_changed || $bestellt_changed) {
+                    $update_data = ['ID' => $post_id];
+                    if ($title_changed) {
+                        $update_data['post_title'] = $artikelbezeichnung;
+                    }
+                    wp_update_post($update_data);
+
+                    if ($bestand_changed) {
+                        update_post_meta($post_id, 'bestand', $bestand);
+                    }
+                    if ($reserviert_changed) {
+                        update_post_meta($post_id, 'reserviert', $reserviert);
+                    }
+                    if ($bestellt_changed) {
+                        update_post_meta($post_id, 'bestellt', $bestellt);
+                    }
+                }
+
+                if ($info_changed) {
+                    update_post_meta($post_id, 'information', $information);
+                }
             } else {
                 // Neues Produkt erstellen
                 $post_id = wp_insert_post([
-                    'post_title' => $artikelbezeichnung,
-                    'post_type' => 'produkte',
+                    'post_title'  => $artikelbezeichnung,
+                    'post_type'   => 'produkte',
                     'post_status' => 'publish',
                 ]);
+
+                if ($post_id) {
+                    $produkt_map[$artikelnummer] = $post_id;
+                    update_post_meta($post_id, 'artikelnummer', $artikelnummer);
+                    update_post_meta($post_id, 'bestand', $bestand);
+                    update_post_meta($post_id, 'reserviert', $reserviert);
+                    update_post_meta($post_id, 'bestellt', $bestellt);
+                    update_post_meta($post_id, 'information', $information);
+                }
             }
 
-            // Produkt-Metadaten aktualisieren
-            update_post_meta($post_id, 'artikelnummer', $artikelnummer);
-            update_post_meta($post_id, 'bestand', $bestand);
-            update_post_meta($post_id, 'reserviert', $reserviert);
-            update_post_meta($post_id, 'bestellt', $bestellt);
-            update_post_meta($post_id, 'information', $information);
-
-            // Warengruppe (Kategorie) dem Produkt zuweisen
-            wp_set_object_terms($post_id, intval($term_id), 'warengruppe');
+            if ($post_id) {
+                // Warengruppe (Kategorie) dem Produkt zuweisen
+                wp_set_object_terms($post_id, intval($term_id), 'warengruppe');
+            }
         }
     }
 }
