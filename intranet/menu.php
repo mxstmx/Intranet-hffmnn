@@ -18,11 +18,11 @@
                 <li class="nxl-item nxl-caption"><label>Navigation</label></li>
                 <li class="nxl-item"><a class="nxl-link" href="dashboard.php"><span class="nxl-micon"><i class="feather-file-text"></i></span><span class="nxl-mtext">Dashboard</span></a></li>
                 <li class="nxl-item"><a class="nxl-link" href="offene_posten.php"><span class="nxl-micon"><i class="feather-file-text"></i></span><span class="nxl-mtext">Belege</span></a></li>
-                <li class="nxl-item"><a class="nxl-link" href="textbestellungen.php"><span class="nxl-micon"><i class="feather-type"></i></span><span class="nxl-mtext">Textbestellung</span></a></li>
-                <li class="nxl-item"><a class="nxl-link" href="bestand.php"><span class="nxl-micon"><i class="feather-database"></i></span><span class="nxl-mtext">Bestand</span></a></li>
-                <li class="nxl-item"><a class="nxl-link" href="steuermarken.php"><span class="nxl-micon"><i class="feather-tag"></i></span><span class="nxl-mtext">Steuermarken</span></a></li>
-                <li class="nxl-item"><a class="nxl-link" href="bestellungen.php"><span class="nxl-micon"><i class="feather-shopping-cart"></i></span><span class="nxl-mtext">Bestellungen</span></a></li>
-                <li class="nxl-item"><a class="nxl-link" href="tickets.php"><span class="nxl-micon"><i class="feather-life-buoy"></i></span><span class="nxl-mtext">Ticketsystem</span></a></li>
+                <li class="nxl-item"><a class="nxl-link" href="dashboard.php?page=textbestellungen"><span class="nxl-micon"><i class="feather-type"></i></span><span class="nxl-mtext">Textbestellung</span></a></li>
+                <li class="nxl-item"><a class="nxl-link" href="dashboard.php?page=bestand"><span class="nxl-micon"><i class="feather-database"></i></span><span class="nxl-mtext">Bestand</span></a></li>
+                <li class="nxl-item"><a class="nxl-link" href="dashboard.php?page=steuermarken"><span class="nxl-micon"><i class="feather-tag"></i></span><span class="nxl-mtext">Steuermarken</span></a></li>
+                <li class="nxl-item"><a class="nxl-link" href="dashboard.php?page=bestellungen"><span class="nxl-micon"><i class="feather-shopping-cart"></i></span><span class="nxl-mtext">Bestellungen</span></a></li>
+                <li class="nxl-item"><a class="nxl-link" href="dashboard.php?page=tickets"><span class="nxl-micon"><i class="feather-life-buoy"></i></span><span class="nxl-mtext">Ticketsystem</span></a></li>
             </ul>
         </div>
     </div>
