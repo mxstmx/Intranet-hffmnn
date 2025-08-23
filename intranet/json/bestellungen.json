@@ -1,0 +1,30 @@
+[
+  {
+    "Belegnummer": "72200154",
+    "Metadaten": {
+      "Belegdatum": "2025-08-05",
+      "Betreff": "Beispiel Bestellung",
+      "Belegart": "2200",
+      "BetragNetto": "1000.00"
+    },
+    "Produkte": [
+      {
+        "Artikelnummer": "EBR-800-2-BLUEBERRY",
+        "Bezeichnung": "Elfbar 800 - Blueberry 2%",
+        "Menge": 100,
+        "Einzelpreis": "10.00"
+      }
+    ]
+  },
+  {
+    "Belegnummer": "72900445",
+    "Metadaten": {
+      "Belegdatum": "2025-08-13",
+      "Betreff": "Beispiel Lieferschein",
+      "Belegart": "2900",
+      "Vorbelegnummer": "72200154",
+      "BetragNetto": "500.00"
+    },
+    "Produkte": []
+  }
+]

@@ -1,0 +1,65 @@
+{
+  "EB600-0": {
+    "Warengruppenbezeichnung": "Elfbar 600 ohne Nikotin",
+    "Artikel": [
+      {
+        "Artikelbezeichnung": "Elfbar 600 - Apple Peach 0% Nikotin",
+        "Artikelnummer": "EBR-600-0-APPLEPEACH",
+        "Bestand": "5200",
+        "Reserviert": "400",
+        "Bestellt": "0",
+        "Information": ""
+      },
+      {
+        "Artikelbezeichnung": "Elfbar 600 - Blueberry 0% Nikotin",
+        "Artikelnummer": "EBR-600-0-BLUEBERRY",
+        "Bestand": "4000",
+        "Reserviert": "400",
+        "Bestellt": "0",
+        "Information": ""
+      }
+    ]
+  },
+  "EB600": {
+    "Warengruppenbezeichnung": "Elfbar 600",
+    "Artikel": [
+      {
+        "Artikelbezeichnung": "Elfbar 600 - Apple Peach 2%",
+        "Artikelnummer": "EBR-600V1-2-APPLEPEACH",
+        "Bestand": "1520",
+        "Reserviert": "350",
+        "Bestellt": "0",
+        "Information": ""
+      },
+      {
+        "Artikelbezeichnung": "Elfbar 600 - Banana Ice 2%",
+        "Artikelnummer": "EBR-600V1-2-BANANAICE",
+        "Bestand": "0",
+        "Reserviert": "0",
+        "Bestellt": "0",
+        "Information": ""
+      }
+    ]
+  },
+  "ELFAAKKU": {
+    "Warengruppenbezeichnung": "Elfa Akku",
+    "Artikel": [
+      {
+        "Artikelbezeichnung": "Elfbar Elfa Akkuträger - Aurora Blue",
+        "Artikelnummer": "EBR-ELFA-AKKU-ABLUE",
+        "Bestand": "6600",
+        "Reserviert": "200",
+        "Bestellt": "0",
+        "Information": ""
+      },
+      {
+        "Artikelbezeichnung": "Elfbar Elfa Akkuträger - Aurora Green",
+        "Artikelnummer": "EBR-ELFA-AKKU-AGREEN",
+        "Bestand": "5200",
+        "Reserviert": "600",
+        "Bestellt": "0",
+        "Information": ""
+      }
+    ]
+  }
+}
