@@ -19,7 +19,7 @@ session_destroy();
         <div class="auth-cover-content-inner">
             <div class="auth-cover-content-wrapper">
                 <div class="auth-img">
-                    <img src="assets/images/auth/auth-cover-login-bg.svg" alt="" class="img-fluid">
+                    <img src="assets/images/auth-cover.png" alt="" class="img-fluid">
                 </div>
             </div>
         </div>
