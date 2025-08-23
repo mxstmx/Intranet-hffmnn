@@ -65,7 +65,12 @@ function hoffmann_bestellungen_overview_shortcode() {
                 }
             }
             $stm_posts = get_posts(array('post_type'=>'steuermarken','numberposts'=>-1,'meta_key'=>'bestellung_id','meta_value'=>$pid));
-            $total_stm = 0; foreach ($stm_posts as $s){ $total_stm += (float)get_post_meta($s->ID,'wert',true); }
+            $total_stm = 0;
+            $total_stm_qty = 0;
+            foreach ($stm_posts as $s){
+                $total_stm += (float)get_post_meta($s->ID,'wert',true);
+                $total_stm_qty += (int)get_post_meta($s->ID,'stueckzahl',true);
+            }
             $total_ordered = 0; $total_warenwert_usd = 0;
             foreach ($products as $info){ $total_ordered += $info['ordered']; $total_warenwert_usd += $info['ordered']*$info['preis']; }
             $exchange_rate = hoffmann_to_float(get_post_meta($pid,'wechselkurs',true));
@@ -74,7 +79,7 @@ function hoffmann_bestellungen_overview_shortcode() {
             $air_per_unit    = $total_ordered>0 ? $total_air/$total_ordered : 0;
             $air_per_unit_usd= $total_ordered>0 ? $total_air_usd/$total_ordered : 0;
             $zoll_per_unit   = $total_ordered>0 ? $total_zoll/$total_ordered : 0;
-            $stm_per_unit    = $total_ordered>0 ? $total_stm/$total_ordered : 0;
+            $stm_per_unit    = $total_stm_qty>0 ? $total_stm/$total_stm_qty : 0;
             $delivered_pct   = $total_ordered>0 ? round($total_delivered_qty/$total_ordered*100) : 0;
             $data[] = array(
                 'title'     => $title,
