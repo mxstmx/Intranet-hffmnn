@@ -21,11 +21,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 $orders = $pdo->query('SELECT id, kunde, artikel, menge FROM bestellungen')->fetchAll(PDO::FETCH_ASSOC);
 if (!$orders) {
-    $json = @file_get_contents('https://dashboard.hoffmann-hd.de/wp-content/uploads/json/bestellungen.json');
-    if (!$json) {
-        $file = __DIR__ . '/bestellungen.json';
-        $json = file_exists($file) ? file_get_contents($file) : '';
-    }
+    $file = __DIR__ . '/json/bestellungen.json';
+    $json = file_exists($file) ? file_get_contents($file) : @file_get_contents('https://dashboard.hoffmann-hd.de/wp-content/uploads/json/bestellungen.json');
     $data = json_decode($json, true);
     if (is_array($data)) {
         $stmt = $pdo->prepare('INSERT INTO bestellungen (kunde, artikel, menge) VALUES (:kunde, :artikel, :menge)');
@@ -38,6 +35,15 @@ if (!$orders) {
         }
         $orders = $pdo->query('SELECT id, kunde, artikel, menge FROM bestellungen')->fetchAll(PDO::FETCH_ASSOC);
     }
+}
+
+$filterKunde = trim($_GET['kunde'] ?? '');
+$filterArtikel = trim($_GET['artikel'] ?? '');
+if ($filterKunde || $filterArtikel) {
+    $orders = array_filter($orders, function ($o) use ($filterKunde, $filterArtikel) {
+        return (!$filterKunde || stripos($o['kunde'], $filterKunde) !== false)
+            && (!$filterArtikel || stripos($o['artikel'], $filterArtikel) !== false);
+    });
 }
 ?>
 <!DOCTYPE html>
@@ -65,6 +71,17 @@ if (!$orders) {
         </div>
         <div class="col-md-auto">
             <button class="btn btn-primary" type="submit">Hinzufügen</button>
+        </div>
+    </form>
+    <form method="GET" class="row g-2 mb-4">
+        <div class="col-md">
+            <input type="text" name="kunde" class="form-control" placeholder="Kunde filtern" value="<?php echo htmlspecialchars($filterKunde); ?>">
+        </div>
+        <div class="col-md">
+            <input type="text" name="artikel" class="form-control" placeholder="Artikel filtern" value="<?php echo htmlspecialchars($filterArtikel); ?>">
+        </div>
+        <div class="col-md-auto">
+            <button class="btn btn-secondary" type="submit">Filtern</button>
         </div>
     </form>
     <table class="table table-striped">

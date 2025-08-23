@@ -82,11 +82,8 @@ if (is_array($customers)) {
 
 // Load orders from JSON if table is empty
 if (!$pdo->query('SELECT 1 FROM bestellungen LIMIT 1')->fetch()) {
-    $json = @file_get_contents('https://dashboard.hoffmann-hd.de/wp-content/uploads/json/bestellungen.json');
-    if (!$json) {
-        $file = __DIR__ . '/bestellungen.json';
-        $json = file_exists($file) ? file_get_contents($file) : '';
-    }
+    $file = __DIR__ . '/json/bestellungen.json';
+    $json = file_exists($file) ? file_get_contents($file) : @file_get_contents('https://dashboard.hoffmann-hd.de/wp-content/uploads/json/bestellungen.json');
     $data = json_decode($json, true);
     if (is_array($data)) {
         $stmt = $pdo->prepare('INSERT INTO bestellungen (kunde, artikel, menge) VALUES (:kunde, :artikel, :menge)');
@@ -102,11 +99,8 @@ if (!$pdo->query('SELECT 1 FROM bestellungen LIMIT 1')->fetch()) {
 
 // Load open items from JSON if table is empty
 if (!$pdo->query('SELECT 1 FROM offene_posten LIMIT 1')->fetch()) {
-    $json = @file_get_contents('https://dashboard.hoffmann-hd.de/wp-content/uploads/json/offene_posten.json');
-    if (!$json) {
-        $file = __DIR__ . '/offene_posten.json';
-        $json = file_exists($file) ? file_get_contents($file) : '';
-    }
+    $file = __DIR__ . '/json/offene_posten.json';
+    $json = file_exists($file) ? file_get_contents($file) : @file_get_contents('https://dashboard.hoffmann-hd.de/wp-content/uploads/json/offene_posten.json');
     $data = json_decode($json, true);
     if (is_array($data)) {
         $stmt = $pdo->prepare('INSERT INTO offene_posten (beschreibung, betrag) VALUES (:beschreibung, :betrag)');
@@ -121,11 +115,8 @@ if (!$pdo->query('SELECT 1 FROM offene_posten LIMIT 1')->fetch()) {
 
 // Load inventory from JSON if table is empty
 if (!$pdo->query('SELECT 1 FROM bestand LIMIT 1')->fetch()) {
-    $json = @file_get_contents('https://dashboard.hoffmann-hd.de/wp-content/uploads/json/bestand.json');
-    if (!$json) {
-        $file = __DIR__ . '/bestand.json';
-        $json = file_exists($file) ? file_get_contents($file) : '';
-    }
+    $file = __DIR__ . '/json/bestand.json';
+    $json = file_exists($file) ? file_get_contents($file) : @file_get_contents('https://dashboard.hoffmann-hd.de/wp-content/uploads/json/bestand.json');
     $data = json_decode($json, true);
     if (is_array($data)) {
         $stmt = $pdo->prepare('INSERT INTO bestand (artikel, bestand) VALUES (:artikel, :bestand)');

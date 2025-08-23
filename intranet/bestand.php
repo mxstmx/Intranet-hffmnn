@@ -19,11 +19,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 $items = $pdo->query('SELECT id, artikel, bestand FROM bestand')->fetchAll(PDO::FETCH_ASSOC);
 if (!$items) {
-    $json = @file_get_contents('https://dashboard.hoffmann-hd.de/wp-content/uploads/json/bestand.json');
-    if (!$json) {
-        $file = __DIR__ . '/bestand.json';
-        $json = file_exists($file) ? file_get_contents($file) : '';
-    }
+    $file = __DIR__ . '/json/bestand.json';
+    $json = file_exists($file) ? file_get_contents($file) : @file_get_contents('https://dashboard.hoffmann-hd.de/wp-content/uploads/json/bestand.json');
     $data = json_decode($json, true);
     if (is_array($data)) {
         $stmt = $pdo->prepare('INSERT INTO bestand (artikel, bestand) VALUES (:artikel, :bestand)');
@@ -35,6 +32,13 @@ if (!$items) {
         }
         $items = $pdo->query('SELECT id, artikel, bestand FROM bestand')->fetchAll(PDO::FETCH_ASSOC);
     }
+}
+
+$filterArtikel = trim($_GET['artikel'] ?? '');
+if ($filterArtikel) {
+    $items = array_filter($items, function ($i) use ($filterArtikel) {
+        return stripos($i['artikel'], $filterArtikel) !== false;
+    });
 }
 ?>
 <!DOCTYPE html>
@@ -57,6 +61,14 @@ if (!$items) {
         </div>
         <div class="col-md-auto">
             <button class="btn btn-primary" type="submit">Hinzufügen</button>
+        </div>
+    </form>
+    <form method="GET" class="row g-2 mb-4">
+        <div class="col-md">
+            <input type="text" name="artikel" class="form-control" placeholder="Artikel filtern" value="<?php echo htmlspecialchars($filterArtikel); ?>">
+        </div>
+        <div class="col-md-auto">
+            <button class="btn btn-secondary" type="submit">Filtern</button>
         </div>
     </form>
     <table class="table table-striped">

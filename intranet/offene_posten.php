@@ -19,11 +19,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 $items = $pdo->query('SELECT id, beschreibung, betrag FROM offene_posten')->fetchAll(PDO::FETCH_ASSOC);
 if (!$items) {
-    $json = @file_get_contents('https://dashboard.hoffmann-hd.de/wp-content/uploads/json/offene_posten.json');
-    if (!$json) {
-        $file = __DIR__ . '/offene_posten.json';
-        $json = file_exists($file) ? file_get_contents($file) : '';
-    }
+    $file = __DIR__ . '/json/offene_posten.json';
+    $json = file_exists($file) ? file_get_contents($file) : @file_get_contents('https://dashboard.hoffmann-hd.de/wp-content/uploads/json/offene_posten.json');
     $data = json_decode($json, true);
     if (is_array($data)) {
         $stmt = $pdo->prepare('INSERT INTO offene_posten (beschreibung, betrag) VALUES (:beschreibung, :betrag)');
@@ -35,6 +32,17 @@ if (!$items) {
         }
         $items = $pdo->query('SELECT id, beschreibung, betrag FROM offene_posten')->fetchAll(PDO::FETCH_ASSOC);
     }
+}
+
+$filterBeschreibung = trim($_GET['beschreibung'] ?? '');
+$minBetrag = isset($_GET['min']) && $_GET['min'] !== '' ? (float)$_GET['min'] : null;
+$maxBetrag = isset($_GET['max']) && $_GET['max'] !== '' ? (float)$_GET['max'] : null;
+if ($filterBeschreibung || $minBetrag !== null || $maxBetrag !== null) {
+    $items = array_filter($items, function ($i) use ($filterBeschreibung, $minBetrag, $maxBetrag) {
+        return (!$filterBeschreibung || stripos($i['beschreibung'], $filterBeschreibung) !== false)
+            && ($minBetrag === null || $i['betrag'] >= $minBetrag)
+            && ($maxBetrag === null || $i['betrag'] <= $maxBetrag);
+    });
 }
 ?>
 <!DOCTYPE html>
@@ -57,6 +65,20 @@ if (!$items) {
         </div>
         <div class="col-md-auto">
             <button class="btn btn-primary" type="submit">Hinzufügen</button>
+        </div>
+    </form>
+    <form method="GET" class="row g-2 mb-4">
+        <div class="col-md">
+            <input type="text" name="beschreibung" class="form-control" placeholder="Beschreibung filtern" value="<?php echo htmlspecialchars($filterBeschreibung); ?>">
+        </div>
+        <div class="col-md">
+            <input type="number" step="0.01" name="min" class="form-control" placeholder="Min Betrag" value="<?php echo $minBetrag !== null ? htmlspecialchars($minBetrag) : ''; ?>">
+        </div>
+        <div class="col-md">
+            <input type="number" step="0.01" name="max" class="form-control" placeholder="Max Betrag" value="<?php echo $maxBetrag !== null ? htmlspecialchars($maxBetrag) : ''; ?>">
+        </div>
+        <div class="col-md-auto">
+            <button class="btn btn-secondary" type="submit">Filtern</button>
         </div>
     </form>
     <table class="table table-striped">
