@@ -60,15 +60,27 @@ foreach ($allOrders as $row) {
         ];
     }
 }
+$lsNums = array_column($lieferscheine, 'nr');
+if ($lsNums) {
+    $placeholders = implode(',', array_fill(0, count($lsNums), '?'));
+    $stmt = $pdo->prepare("SELECT belegnummer, zoll_eur, aircargo_usd FROM bestellungen WHERE belegnummer IN ($placeholders)");
+    $stmt->execute($lsNums);
+    $costMap = [];
+    foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+        $costMap[$row['belegnummer']] = $row;
+    }
+    foreach ($lieferscheine as &$ls) {
+        $c = $costMap[$ls['nr']] ?? ['zoll_eur'=>0,'aircargo_usd'=>0];
+        $ls['zoll'] = (float)$c['zoll_eur'];
+        $ls['air'] = (float)$c['aircargo_usd'];
+    }
+    unset($ls);
+}
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $sid = $_POST['steuermarke_id'] ?? null;
-    $qty = (int)($_POST['menge'] ?? 0);
-    $zoll = (float)($_POST['zoll_eur'] ?? 0);
-    $airUsd = (float)($_POST['aircargo_usd'] ?? 0);
     $rate = (float)($_POST['wechselkurs'] ?? 1);
-    $stmt = $pdo->prepare('UPDATE bestellungen SET steuermarke_id = :sid, steuermarke_qty = :qty, zoll_eur = :zoll, aircargo_usd = :air, wechselkurs = :rate WHERE belegnummer = :bn');
-    $stmt->execute([':sid'=>$sid, ':qty'=>$qty, ':zoll'=>$zoll, ':air'=>$airUsd, ':rate'=>$rate, ':bn'=>$orderNo]);
-    header('Location: dashboard.php?page=bestellungen');
+    $stmt = $pdo->prepare('UPDATE bestellungen SET wechselkurs = :rate WHERE belegnummer = :bn');
+    $stmt->execute([':rate'=>$rate, ':bn'=>$orderNo]);
+    header('Location: dashboard.php?page=order_edit&orderNo=' . urlencode($orderNo));
     exit();
 }
 ?>
@@ -92,8 +104,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <table class="table">
                     <tr><th>Warenwert</th><td class="text-end">€ <?php echo number_format($warenwert,2,',','.'); ?></td><td class="text-end">$ <?php echo number_format($warenwert,2,',','.'); ?></td></tr>
                     <tr><th>Steuermarkenwert<?php echo $assignedName? ' ('.htmlspecialchars($assignedName).')':''; ?></th><td class="text-end" colspan="2">€ <?php echo number_format($stampsValue,2,',','.'); ?></td></tr>
-                    <tr><th>Zollkosten</th><td class="text-end">€ <?php echo number_format($zoll,2,',','.'); ?></td><td class="text-end">&ndash;</td></tr>
-                    <tr><th>Aircargo</th><td class="text-end">€ <?php echo number_format($airEuro,2,',','.'); ?></td><td class="text-end">$ <?php echo number_format($airUsd,2,',','.'); ?></td></tr>
+                    <tr><th>Zollkosten</th><td class="text-end" id="total-zoll">€ <?php echo number_format($zoll,2,',','.'); ?></td><td class="text-end">&ndash;</td></tr>
+                    <tr><th>Aircargo</th><td class="text-end" id="total-air-eur">€ <?php echo number_format($airEuro,2,',','.'); ?></td><td class="text-end" id="total-air-usd">$ <?php echo number_format($airUsd,2,',','.'); ?></td></tr>
                 </table>
             </div>
         </div>
@@ -114,9 +126,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <h2>Lieferscheine</h2>
             <div class="body">
                 <?php if ($lieferscheine): ?>
-                    <ul>
+                    <ul id="ls-list" class="list-unstyled">
                     <?php foreach ($lieferscheine as $ls): ?>
-                        <li><?php echo htmlspecialchars($ls['nr']); ?> (<?php echo htmlspecialchars($ls['datum']); ?>)</li>
+                        <li class="d-flex justify-content-between align-items-center mb-2" data-nr="<?php echo htmlspecialchars($ls['nr']); ?>">
+                            <span><?php echo htmlspecialchars($ls['nr']); ?> (<?php echo htmlspecialchars($ls['datum']); ?>)</span>
+                            <span>Zoll: <span class="ls-zoll"><?php echo number_format($ls['zoll'],2,',','.'); ?></span> € &nbsp;|&nbsp; Air: <span class="ls-air"><?php echo number_format($ls['air'],2,',','.'); ?></span> $ <a href="#" class="edit-ls ms-2" data-nr="<?php echo htmlspecialchars($ls['nr']); ?>" data-zoll="<?php echo htmlspecialchars($ls['zoll']); ?>" data-air="<?php echo htmlspecialchars($ls['air']); ?>">✎</a></span>
+                        </li>
                     <?php endforeach; ?>
                     </ul>
                 <?php else: ?>
@@ -126,27 +141,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
         <form method="POST" class="mt-3">
             <div class="mb-3">
-                <label class="form-label">Steuermarke</label>
-                <select name="steuermarke_id" class="form-select">
-                    <option value="">-- wählen --</option>
-                    <?php foreach ($marks as $m): ?>
-                        <option value="<?php echo $m['id']; ?>" <?php echo $assign['steuermarke_id']==$m['id']?'selected':''; ?>><?php echo htmlspecialchars($m['name']); ?> (<?php echo number_format($m['wert_je_marke'],2,',','.'); ?> €)</option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Menge Steuermarken</label>
-                <input type="number" name="menge" class="form-control" value="<?php echo (int)$assign['steuermarke_qty']; ?>">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Zollgebühr (EUR, gesamt)</label>
-                <input type="number" step="0.01" name="zoll_eur" class="form-control" value="<?php echo htmlspecialchars($zoll); ?>">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Aircargo Gebühr (USD, gesamt)</label>
-                <input type="number" step="0.01" name="aircargo_usd" class="form-control" value="<?php echo htmlspecialchars($airUsd); ?>">
-            </div>
-            <div class="mb-3">
                 <label class="form-label">Wechselkurs (USD → EUR)</label>
                 <input type="number" step="0.0001" name="wechselkurs" class="form-control" value="<?php echo htmlspecialchars($rate); ?>">
             </div>
@@ -155,6 +149,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
     </div>
 </div>
+<div id="lsModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;">
+    <div style="background:#fff;padding:20px;border-radius:8px;max-width:400px;width:100%;">
+        <form id="lsForm">
+            <h3>Lieferschein bearbeiten</h3>
+            <input type="hidden" id="lsNr">
+            <div class="mb-3">
+                <label class="form-label">Zollgebühr (EUR)</label>
+                <input type="number" step="0.01" id="lsZoll" class="form-control">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Aircargo Gebühr (USD)</label>
+                <input type="number" step="0.01" id="lsAir" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-primary">Speichern</button>
+            <button type="button" id="lsCancel" class="btn btn-secondary">Abbrechen</button>
+        </form>
+    </div>
+</div>
+<script>
+const lsModal=document.getElementById('lsModal');
+document.querySelectorAll('.edit-ls').forEach(btn=>{
+    btn.addEventListener('click',e=>{
+        e.preventDefault();
+        document.getElementById('lsNr').value=btn.dataset.nr;
+        document.getElementById('lsZoll').value=btn.dataset.zoll;
+        document.getElementById('lsAir').value=btn.dataset.air;
+        lsModal.style.display='flex';
+    });
+});
+document.getElementById('lsCancel').addEventListener('click',()=>lsModal.style.display='none');
+document.getElementById('lsForm').addEventListener('submit',e=>{
+    e.preventDefault();
+    const nr=document.getElementById('lsNr').value;
+    const zoll=document.getElementById('lsZoll').value||0;
+    const air=document.getElementById('lsAir').value||0;
+    fetch('update_lieferschein_costs.php',{method:'POST',headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({lieferschein:nr,zoll:zoll,air:air})})
+    .then(r=>r.json())
+    .then(res=>{
+        if(res.success){
+            lsModal.style.display='none';
+            const row=document.querySelector(`li[data-nr="${nr}"]`);
+            row.querySelector('.ls-zoll').textContent=parseFloat(zoll).toFixed(2).replace('.',',');
+            row.querySelector('.ls-air').textContent=parseFloat(air).toFixed(2).replace('.',',');
+            const t=res.totals;
+            document.getElementById('total-zoll').textContent='€ '+parseFloat(t.zoll).toFixed(2).replace('.',',');
+            const rate=<?php echo $rate ?: 1; ?>;
+            document.getElementById('total-air-usd').textContent='$ '+parseFloat(t.air).toFixed(2).replace('.',',');
+            document.getElementById('total-air-eur').textContent='€ '+(parseFloat(t.air)*rate).toFixed(2).replace('.',',');
+        }
+    });
+});
+</script>
 <footer class="footer">
     <p class="fs-11 text-muted fw-medium text-uppercase mb-0 copyright">
         <span>Copyright ©</span>
