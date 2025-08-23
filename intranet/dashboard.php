@@ -69,6 +69,16 @@ if (!isset($_SESSION['username'])) {
                     <div class="card text-center h-100"><div class="card-body">Offene Posten</div></div>
                 </a>
             </div>
+            <div class="col-md-4">
+                <a class="tile-link" href="bestand.php">
+                    <div class="card text-center h-100"><div class="card-body">Bestand</div></div>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a class="tile-link" href="<?php echo $_SESSION['role']==='admin' ? 'admin_tickets.php' : 'tickets.php'; ?>">
+                    <div class="card text-center h-100"><div class="card-body">Tickets</div></div>
+                </a>
+            </div>
         <?php endif; ?>
     </div>
 </div>
