@@ -62,12 +62,31 @@ foreach ($orders as &$o) {
         : 0;
 }
 unset($o);
-$assignments = $pdo->query('SELECT belegnummer, steuermarke_id FROM bestellungen')->fetchAll(PDO::FETCH_KEY_PAIR);
+
+$assignRows = $pdo->query('SELECT belegnummer, steuermarke_id, steuermarke_qty FROM bestellungen')->fetchAll(PDO::FETCH_ASSOC);
+$assignMap = [];
+foreach ($assignRows as $row) {
+    $assignMap[$row['belegnummer']] = $row;
+}
+$marks = $pdo->query('SELECT id, name, wert_je_marke FROM steuermarken ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
+$markMap = [];
+foreach ($marks as $m) {
+    $markMap[$m['id']] = $m;
+}
 foreach ($orders as $no => &$o) {
-    $o['steuermarke_id'] = $assignments[$no] ?? null;
+    $assign = $assignMap[$no] ?? null;
+    if ($assign) {
+        $o['steuermarke_id']  = $assign['steuermarke_id'];
+        $o['steuermarke_qty'] = (int)$assign['steuermarke_qty'];
+        $mark = $markMap[$assign['steuermarke_id']] ?? null;
+        $o['stamps'] = $mark ? ($mark['wert_je_marke'] * $o['steuermarke_qty']) : 0;
+    } else {
+        $o['steuermarke_id'] = null;
+        $o['steuermarke_qty'] = 0;
+        $o['stamps'] = 0;
+    }
 }
 unset($o);
-$marks = $pdo->query('SELECT id, name FROM steuermarken ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
 $json = json_encode(array_values($orders));
 $marksJson = json_encode($marks);
 ?>
@@ -175,7 +194,7 @@ $marksJson = json_encode($marks);
         const fmtDate = d => new Date(d).toLocaleDateString('de-DE');
         const DATA = <?php echo $json; ?>;
         const MARKS = <?php echo $marksJson; ?>;
-        const MARK_MAP = Object.fromEntries(MARKS.map(m=>[m.id,m.name]));
+        const MARK_MAP = Object.fromEntries(MARKS.map(m => [m.id, m]));
         const state = {q:'',from:'',to:'',sort:'date_desc'};
         const moneyEur = n => EUR.format(n||0);
         const moneyUsd = n => USD.format(n||0);
@@ -209,14 +228,29 @@ $marksJson = json_encode($marks);
                 sumTotalEur+=r.totalEur; sumTotalUsd+=r.totalUsd;
                 airSum+=r.air; airUsdSum+=r.airUsd; customSum+=r.custom;
                 const tr=document.createElement('tr');
-                tr.innerHTML=`<td><strong>${r.title}</strong></td><td><span class="orderNo">${r.orderNo}</span></td><td>${fmtDate(r.orderedAt)}</td><td class="right">${moneyEur(r.air)}<br><span class="muted">${moneyUsd(r.airUsd)}</span></td><td class="right">${moneyEur(r.custom)}</td><td class="right"></td><td class="right">${moneyEur(r.totalEur)}<br><span class="muted">${moneyUsd(r.totalUsd)}</span></td><td class="right">${r.delivered}%</td><td class="right"><a href="dashboard.php?page=order_edit&orderNo=${r.orderNo}" class="edit-btn" title="Bearbeiten">✎</a></td>`;
+                tr.innerHTML=`<td><strong>${r.title}</strong></td><td><span class="orderNo">${r.orderNo}</span></td><td>${fmtDate(r.orderedAt)}</td><td class="right">${moneyEur(r.air)}<br><span class="muted">${moneyUsd(r.airUsd)}</span></td><td class="right">${moneyEur(r.custom)}</td><td class="right"><span class="sm-cost">${moneyEur(r.stamps)}</span></td><td class="right">${moneyEur(r.totalEur)}<br><span class="muted">${moneyUsd(r.totalUsd)}</span></td><td class="right">${r.delivered}%</td><td class="right"><a href="dashboard.php?page=order_edit&orderNo=${r.orderNo}" class="edit-btn" title="Bearbeiten">✎</a></td>`;
+                const cell = tr.children[5];
+                cell.appendChild(document.createElement('br'));
                 const sel=document.createElement('select');
                 sel.innerHTML='<option value=""></option>'+MARKS.map(m=>`<option value="${m.id}"${r.steuermarke_id==m.id?' selected':''}>${m.name}</option>`).join('');
-                sel.addEventListener('change',e=>{
-                    fetch('update_order_steuermarke.php',{method:'POST',headers:{"Content-Type":"application/x-www-form-urlencoded"},body:`order=${encodeURIComponent(r.orderNo)}&steuermarke_id=${encodeURIComponent(e.target.value)}`});
-                    r.steuermarke_id=e.target.value;
-                });
-                tr.children[5].appendChild(sel);
+                const qty=document.createElement('input');
+                qty.type='number';
+                qty.min='0';
+                qty.value=r.steuermarke_qty||0;
+                qty.style.width='60px';
+                qty.className='ms-2';
+                function save(){
+                    fetch('update_order_steuermarke.php',{method:'POST',headers:{"Content-Type":"application/x-www-form-urlencoded"},body:`order=${encodeURIComponent(r.orderNo)}&steuermarke_id=${encodeURIComponent(sel.value)}&menge=${encodeURIComponent(qty.value)}`});
+                    r.steuermarke_id=sel.value;
+                    r.steuermarke_qty=parseInt(qty.value)||0;
+                    const m=MARK_MAP[r.steuermarke_id];
+                    r.stamps=m?m.wert_je_marke*r.steuermarke_qty:0;
+                    cell.querySelector('.sm-cost').textContent=moneyEur(r.stamps);
+                }
+                sel.addEventListener('change',save);
+                qty.addEventListener('change',save);
+                cell.appendChild(sel);
+                cell.appendChild(qty);
                 tbody.appendChild(tr);
             });
             document.getElementById('hoff-rowsum').textContent=`${rows.length} Bestellungen angezeigt`;
@@ -230,8 +264,21 @@ $marksJson = json_encode($marks);
         }
         function exportCSV(){
             const rows=getFiltered();
-            const header=['Titel','Bestellnr','Bestelldatum','Stückpreis Aircargo EUR','Stückpreis Aircargo USD','Stückpreis Zoll','Steuermarken','Warenwert USD','Warenwert EUR','Geliefert %'];
-            const out=[header.join(';')].concat(rows.map(r=>[r.title,r.orderNo,r.orderedAt,r.air.toFixed(2).replace('.',','),r.airUsd.toFixed(2).replace('.',','),r.custom.toFixed(2).replace('.',','),MARK_MAP[r.steuermarke_id]||'',r.totalUsd.toFixed(2).replace('.',','),r.totalEur.toFixed(2).replace('.',','),r.delivered].join(';'))).join('\n');
+            const header=['Titel','Bestellnr','Bestelldatum','Stückpreis Aircargo EUR','Stückpreis Aircargo USD','Stückpreis Zoll','Steuermarke','Anzahl Steuermarken','Wert Steuermarken','Warenwert USD','Warenwert EUR','Geliefert %'];
+            const out=[header.join(';')].concat(rows.map(r=>[
+                r.title,
+                r.orderNo,
+                r.orderedAt,
+                r.air.toFixed(2).replace('.',','),
+                r.airUsd.toFixed(2).replace('.',','),
+                r.custom.toFixed(2).replace('.',','),
+                MARK_MAP[r.steuermarke_id]?MARK_MAP[r.steuermarke_id].name:'',
+                r.steuermarke_qty,
+                r.stamps.toFixed(2).replace('.',','),
+                r.totalUsd.toFixed(2).replace('.',','),
+                r.totalEur.toFixed(2).replace('.',','),
+                r.delivered
+            ].join(';'))).join('\n');
             const blob=new Blob([out],{type:'text/csv;charset=utf-8;'});
             const url=URL.createObjectURL(blob);
             const a=document.createElement('a');a.href=url;a.download='bestellungen_export.csv';a.click();URL.revokeObjectURL(url);

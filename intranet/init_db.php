@@ -51,7 +51,8 @@ $pdo->exec('CREATE TABLE bestellungen (
     vorbelegnummer TEXT,
     betreff TEXT,
     betrag REAL,
-    steuermarke_id INTEGER
+    steuermarke_id INTEGER,
+    steuermarke_qty INTEGER DEFAULT 0
 )');
 
 $pdo->exec('DROP TABLE IF EXISTS offene_posten');
