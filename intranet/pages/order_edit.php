@@ -126,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <h2>Produkte</h2>
             <div class="body table">
                 <table class="table">
-                    <thead><tr><th>Artikel</th><th class="text-end">Menge</th><th class="text-end">Preis €</th><th class="text-end">Summe €</th></tr></thead>
+                    <thead><tr><th>Artikel</th><th class="text-end">Menge</th><th class="text-end">Preis $</th><th class="text-end">Summe $</th></tr></thead>
                     <tbody>
                         <?php foreach ($order['Produkte'] as $p): $qty=(int)($p['Menge']??0); $price=(float)($p['Einzelpreis']??0); ?>
                             <tr><td><?php echo htmlspecialchars($p['Bezeichnung'] ?? ''); ?></td><td class="text-end"><?php echo $qty; ?></td><td class="text-end"><?php echo number_format($price,2,',','.'); ?></td><td class="text-end"><?php echo number_format($qty*$price,2,',','.'); ?></td></tr>
