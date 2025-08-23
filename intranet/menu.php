@@ -9,8 +9,8 @@
         <div class="m-header">
             <a href="index.html" class="b-brand">
                 <!-- ========   change your logo hear   ============ -->
-                <img src="assets/images/logo-full.png" alt="" class="logo logo-lg" />
-                <img src="assets/images/logo-abbr.png" alt="" class="logo logo-sm" />
+                <img src="assets/images/hoffmann-logo-light.png" alt="" class="logo logo-lg" />
+                <img src="assets/images/hoffmann-logo-light.png" alt="" class="logo logo-sm" />
             </a>
         </div>
         <div class="navbar-content">
