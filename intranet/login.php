@@ -10,64 +10,116 @@ $error = $_GET['error'] ?? '';
 <html lang="de">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Hoffmann Intranet Login</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="silva-template/assets/app.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/vendors/css/vendors.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/theme.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-primary-subtle">
-<div class="account-page">
-  <div class="container-fluid p-0">
-    <div class="row align-items-center g-0">
-      <div class="col-xl-5">
-        <div class="row">
-          <div class="col-md-8 mx-auto">
-            <div class="card p-4 mb-0">
-              <div class="card-body">
-                <div class="mb-0 border-0 p-md-5 p-lg-0 p-4">
-                  <div class="mb-4 text-center">
-                    <img src="img/hoffmann-logo-light.png" alt="Hoffmann" class="mx-auto" style="max-width:200px;">
-                  </div>
-                  <div class="auth-title-section mb-3 text-center">
-                    <h3 class="text-dark fs-20 fw-medium mb-2">Willkommen zurück</h3>
-                    <p class="text-dark fs-14 mb-0">Melden Sie sich an, um fortzufahren.</p>
-                  </div>
-                  <?php if ($error): ?>
-                      <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
-                  <?php endif; ?>
-                  <form method="POST" action="login_process.php" class="pt-0">
-                    <div class="form-group mb-3">
-                      <label class="form-label">Benutzername</label>
-                      <input type="text" name="username" class="form-control" required>
-                    </div>
-                    <div class="form-group mb-3">
-                      <label class="form-label">Passwort</label>
-                      <input type="password" name="password" class="form-control" required>
-                    </div>
-                    <div class="d-grid">
-                      <button type="submit" class="btn btn-primary">Anmelden</button>
-                    </div>
-                  </form>
-                  <div class="text-center text-muted mt-4">
-                    <p class="mb-0">Noch keinen Zugang? <a class="text-primary ms-2 fw-medium" href="register.php">Registrieren</a></p>
-                  </div>
+<body>
+    <main class="auth-cover-wrapper">
+        <div class="auth-cover-content-inner">
+            <div class="auth-cover-content-wrapper">
+                <div class="auth-img">
+                    <img src="assets/images/auth/auth-cover-login-bg.svg" alt="" class="img-fluid">
                 </div>
-              </div>
             </div>
-          </div>
         </div>
-      </div>
-      <div class="col-xl-7">
-        <div class="account-page-bg p-md-5 p-4">
-          <div class="text-center">
-            <div class="auth-image">
-              <img src="img/auth-cover.svg" class="mx-auto img-fluid" alt="Login Bild">
+        <div class="auth-cover-sidebar-inner">
+            <div class="auth-cover-card-wrapper">
+                <div class="auth-cover-card p-sm-5">
+                    <div class="wd-50 mb-5">
+                        <img src="assets/images/hoffmann-logo-light.png" alt="Hoffmann" class="img-fluid">
+                    </div>
+                    <h2 class="fs-20 fw-bolder mb-4">Login</h2>
+                    <h4 class="fs-13 fw-bold mb-2">Melden Sie sich an</h4>
+                    <p class="fs-12 fw-medium text-muted">Melden Sie sich an, um fortzufahren.</p>
+                    <?php if ($error): ?>
+                        <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
+                    <?php endif; ?>
+                    <form method="POST" action="login_process.php" class="w-100 mt-4 pt-2">
+                        <div class="mb-4">
+                            <input type="text" name="username" class="form-control" placeholder="Benutzername" required>
+                        </div>
+                        <div class="mb-3">
+                            <input type="password" name="password" class="form-control" placeholder="Passwort" required>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" id="rememberMe">
+                                <label class="custom-control-label c-pointer" for="rememberMe">Angemeldet bleiben</label>
+                            </div>
+                            <div>
+                                <a href="auth-reset-cover.html" class="fs-11 text-primary">Passwort vergessen?</a>
+                            </div>
+                        </div>
+                        <div class="mt-5">
+                            <button type="submit" class="btn btn-lg btn-primary w-100">Login</button>
+                        </div>
+                    </form>
+                    <div class="mt-5 text-muted">
+                        <span>Noch keinen Zugang?</span>
+                        <a href="register.php" class="fw-bold">Registrieren</a>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
+    </main>
+    <div class="theme-customizer">
+        <div class="customizer-handle">
+            <a href="javascript:void(0);" class="cutomizer-open-trigger bg-primary">
+                <i class="feather-settings"></i>
+            </a>
+        </div>
+        <div class="customizer-sidebar-wrapper">
+            <div class="customizer-sidebar-header px-4 ht-80 border-bottom d-flex align-items-center justify-content-between">
+                <h5 class="mb-0">Theme Settings</h5>
+                <a href="javascript:void(0);" class="cutomizer-close-trigger d-flex">
+                    <i class="feather-x"></i>
+                </a>
+            </div>
+            <div class="customizer-sidebar-body position-relative p-4" data-scrollbar-target="#psScrollbarInit">
+                <div class="position-relative px-3 pb-3 pt-4 mt-3 mb-5 border border-gray-2 theme-options-set">
+                    <label class="py-1 px-2 fs-8 fw-bold text-uppercase text-muted text-spacing-2 bg-white border border-gray-2 position-absolute rounded-2 options-label" style="top: -12px">Skins</label>
+                    <div class="row g-2 theme-options-items app-skin" id="appSkinList">
+                        <div class="col-6 text-center position-relative single-option light-button active">
+                            <input type="radio" class="btn-check" id="app-skin-light" name="app-skin" value="1" data-app-skin="app-skin-light">
+                            <label class="py-2 fs-9 fw-bold text-dark text-uppercase text-spacing-1 border border-gray-2 w-100 h-100 c-pointer position-relative options-label" for="app-skin-light">Light</label>
+                        </div>
+                        <div class="col-6 text-center position-relative single-option dark-button">
+                            <input type="radio" class="btn-check" id="app-skin-dark" name="app-skin" value="2" data-app-skin="app-skin-dark">
+                            <label class="py-2 fs-9 fw-bold text-dark text-uppercase text-spacing-1 border border-gray-2 w-100 h-100 c-pointer position-relative options-label" for="app-skin-dark">Dark</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="position-relative px-3 pb-3 pt-4 mt-3 mb-0 border border-gray-2 theme-options-set">
+                    <label class="py-1 px-2 fs-8 fw-bold text-uppercase text-muted text-spacing-2 bg-white border border-gray-2 position-absolute rounded-2 options-label" style="top: -12px">Typography</label>
+                    <div class="row g-2 theme-options-items font-family" id="fontFamilyList">
+                        <div class="col-6 text-center single-option">
+                            <input type="radio" class="btn-check" id="app-font-family-inter" name="font-family" value="3" data-font-family="app-font-family-inter" checked>
+                            <label class="py-2 fs-9 fw-bold text-dark text-uppercase text-spacing-1 border border-gray-2 w-100 h-100 c-pointer position-relative options-label" for="app-font-family-inter">Inter</label>
+                        </div>
+                        <div class="col-6 text-center single-option">
+                            <input type="radio" class="btn-check" id="app-font-family-roboto" name="font-family" value="7" data-font-family="app-font-family-roboto">
+                            <label class="py-2 fs-9 fw-bold text-dark text-uppercase text-spacing-1 border border-gray-2 w-100 h-100 c-pointer position-relative options-label" for="app-font-family-roboto">Roboto</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="customizer-sidebar-footer px-4 ht-60 border-top d-flex align-items-center gap-2">
+                <div class="flex-fill w-50">
+                    <a href="javascript:void(0);" class="btn btn-danger" data-style="reset-all-common-style">Reset</a>
+                </div>
+                <div class="flex-fill w-50">
+                    <a href="javascript:void(0);" class="btn btn-primary">Download</a>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
+    <script src="assets/vendors/js/vendors.min.js"></script>
+    <script src="assets/js/common-init.min.js"></script>
+    <script src="assets/js/theme-customizer-init.min.js"></script>
 </body>
 </html>
+
