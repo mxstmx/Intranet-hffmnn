@@ -1,6 +1,0 @@
-body{background:#f7fafc;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;}
-.card{border:1px solid #e5e7eb;border-radius:0.75rem;box-shadow:0 6px 24px rgba(2,6,23,0.06);background:#fff;}
-.btn-primary{background-color:#2563eb;border-color:#2563eb;}
-.account-page{min-height:100vh;display:flex;align-items:center;}
-.account-page .account-page-bg{background-size:cover;background-position:center center;min-height:100vh;display:flex;justify-content:center;align-items:center;}
-.account-page .auth-image{max-width:800px;margin:auto;}
