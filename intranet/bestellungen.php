@@ -130,12 +130,12 @@ function render(){
     const tr=document.createElement('tr');
     tr.classList.add('parent');
     tr.dataset.id=r.orderNo;
-    tr.innerHTML=`<td><strong>${r.title}</strong></td><td><span class="orderNo">${r.orderNo}</span></td><td>${new Date(r.orderedAt).toLocaleDateString('de-DE')}</td><td class="right">${EUR.format(r.betrag)}</td>`;
+    tr.innerHTML=`<td><strong>${r.title}</strong></td><td><a href="bestellung_details.php?id=${r.orderNo}" class="orderNo">${r.orderNo}</a></td><td>${new Date(r.orderedAt).toLocaleDateString('de-DE')}</td><td class="right">${EUR.format(r.betrag)}</td>`;
     tbody.appendChild(tr);
     r.children.forEach(c=>{
       const cr=document.createElement('tr');
       cr.classList.add('child',`child-${r.orderNo}`);
-      cr.innerHTML=`<td>↳ ${c.title}</td><td><span class="orderNo">${c.orderNo}</span></td><td>${new Date(c.orderedAt).toLocaleDateString('de-DE')}</td><td class="right">${EUR.format(c.betrag)}</td>`;
+      cr.innerHTML=`<td>↳ ${c.title}</td><td><a href="bestellung_details.php?id=${c.orderNo}" class="orderNo">${c.orderNo}</a></td><td>${new Date(c.orderedAt).toLocaleDateString('de-DE')}</td><td class="right">${EUR.format(c.betrag)}</td>`;
       tbody.appendChild(cr);
     });
   });
