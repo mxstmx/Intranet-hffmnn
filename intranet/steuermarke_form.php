@@ -26,7 +26,20 @@ if ($id) {
         $id = 0;
     }
 }
-$orders = $pdo->query('SELECT belegnummer, betreff FROM bestellungen ORDER BY belegnummer')->fetchAll(PDO::FETCH_ASSOC);
+// Orders for assignment come from JSON instead of the database
+$orders = [];
+$file = __DIR__ . '/json/bestellungen.json';
+$json = file_exists($file) ? file_get_contents($file) : '';
+if ($json) {
+    $arr = json_decode($json, true) ?: [];
+    foreach ($arr as $row) {
+        $orders[] = [
+            'belegnummer' => $row['Belegnummer'] ?? '',
+            'betreff'     => $row['Metadaten']['Betreff'] ?? ''
+        ];
+    }
+    usort($orders, fn($a,$b)=>strcmp($a['belegnummer'],$b['belegnummer']));
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name   = trim($_POST['name'] ?? '');
