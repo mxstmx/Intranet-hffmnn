@@ -8,7 +8,9 @@ require __DIR__ . '/config.php';
 $search = $_GET['search'] ?? '';
 $from = $_GET['from'] ?? '';
 $to = $_GET['to'] ?? '';
-$sql = "SELECT s.id,s.name,s.warenwert_gesamt,s.wert_je_marke,s.datum,s.anzahl,IFNULL(SUM(b.steuermarke_qty),0) as used_qty
+$sql = "SELECT s.id,s.name,s.warenwert_gesamt,s.wert_je_marke,s.datum,s.anzahl,
+        IFNULL(SUM(b.steuermarke_qty),0) as used_qty,
+        GROUP_CONCAT(b.betreff, ', ') AS betreffe
         FROM steuermarken s LEFT JOIN bestellungen b ON b.steuermarke_id = s.id";
 $conds = [];
 $params = [];

@@ -14,15 +14,15 @@ require __DIR__ . '/../config.php';
         </div>
     </div>
     <div class="container mt-4">
+        <div class="row mb-4">
+            <div class="col-md-6"><canvas id="valueChart"></canvas></div>
+            <div class="col-md-6"><canvas id="distributionChart"></canvas></div>
+        </div>
         <div class="row mb-3 g-2">
             <div class="col-md-3"><input type="text" id="search" class="form-control" placeholder="Suchen..."></div>
             <div class="col-md-3"><input type="date" id="fromDate" class="form-control"></div>
             <div class="col-md-3"><input type="date" id="toDate" class="form-control"></div>
             <div class="col-md-3 text-end"><a href="steuermarke_form.php" class="btn btn-primary w-100">Neue Steuermarke</a></div>
-        </div>
-        <div class="row mb-4">
-            <div class="col-md-6"><canvas id="valueChart"></canvas></div>
-            <div class="col-md-6"><canvas id="distributionChart"></canvas></div>
         </div>
         <table class="table table-striped" id="markTable">
             <thead>
@@ -48,6 +48,12 @@ document.addEventListener('DOMContentLoaded', function(){
     const toDate=document.getElementById('toDate');
     const tbody=document.querySelector('#markTable tbody');
     let barChart,pieChart;
+
+    const formatCurrency = val => {
+        const num = parseFloat(val);
+        if (isNaN(num)) return '';
+        return num.toLocaleString('de-DE',{style:'currency',currency:'EUR'});
+    };
 
     function renderCharts(data){
         const labels=data.map(d=>d.wert_je_marke);
@@ -77,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function(){
                 }
                 data.forEach(m=>{
                     const tr=document.createElement('tr');
-                    tr.innerHTML=`<td>${m.id}</td><td>${m.name}</td><td>${m.warenwert_gesamt}</td><td>${m.wert_je_marke}</td><td>${m.datum||''}</td><td>${m.anzahl}</td><td>${m.used_qty}</td><td><a href="steuermarke_form.php?id=${m.id}" class="btn btn-sm btn-secondary">Bearbeiten</a> <a href="steuermarke_delete.php?id=${m.id}" class="btn btn-sm btn-danger" onclick="return confirm('Steuermarke löschen?');">Löschen</a></td>`;
+                    tr.innerHTML=`<td>${m.id}</td><td>${m.name}</td><td>${formatCurrency(m.warenwert_gesamt)}</td><td>${formatCurrency(m.wert_je_marke)}</td><td>${m.datum||''}</td><td>${m.anzahl}</td><td>${m.betreffe||''}</td><td><a href="steuermarke_form.php?id=${m.id}" class="btn btn-sm btn-secondary">Bearbeiten</a> <a href="steuermarke_delete.php?id=${m.id}" class="btn btn-sm btn-danger" onclick="return confirm('Steuermarke löschen?');">Löschen</a></td>`;
                     tbody.appendChild(tr);
                 });
                 renderCharts(data);
