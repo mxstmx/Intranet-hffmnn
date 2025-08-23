@@ -1,39 +1,37 @@
 <?php
 session_start();
+require __DIR__ . '/config.php';
 if (!isset($_SESSION['username'])) {
     header('Location: login.php?error=Keine+Zugriffsrechte');
     exit();
 }
 
-// Daten aus JSON laden (lokal oder remote)
-$data = [];
-$file = __DIR__ . '/json/bestellungen.json';
-$json = file_exists($file) ? file_get_contents($file) : @file_get_contents('https://dashboard.hoffmann-hd.de/wp-content/uploads/json/bestellungen.json');
-$orders = json_decode($json, true);
-if (is_array($orders)) {
-    foreach ($orders as $order) {
-        $meta = $order['Metadaten'] ?? [];
-        $products = $order['Produkte'] ?? [];
-        $total = 0.0;
-        foreach ($products as $p) {
-            $qty   = (int)($p['Menge'] ?? 0);
-            $price = (float)($p['Einzelpreis'] ?? 0);
-            $total += $qty * $price;
-        }
-        $data[] = [
-            'title'     => $meta['Betreff'] ?? '',
-            'orderNo'   => $order['Belegnummer'] ?? '',
-            'orderedAt' => $meta['Belegdatum'] ?? '',
-            'air'       => 0,
-            'airUsd'    => 0,
-            'custom'    => 0,
-            'stamps'    => 0,
-            'totalUsd'  => $total,
-            'totalEur'  => $total,
-            'delivered' => 0,
+// Daten aus der Datenbank laden und nach Eltern/Kind gruppieren
+$rows = $pdo->query('SELECT belegnummer, belegdatum, belegart, vorbelegnummer, betreff, betrag FROM bestellungen')->fetchAll(PDO::FETCH_ASSOC);
+$orders = [];
+foreach ($rows as $r) {
+    if ($r['belegart'] === '2200') {
+        $orders[$r['belegnummer']] = [
+            'title'    => $r['betreff'],
+            'orderNo'  => $r['belegnummer'],
+            'orderedAt'=> $r['belegdatum'],
+            'betrag'   => (float)$r['betrag'],
+            'children' => []
         ];
     }
 }
+foreach ($rows as $r) {
+    if ($r['belegart'] === '2900') {
+        $parent = $r['vorbelegnummer'];
+        $orders[$parent]['children'][] = [
+            'title'    => $r['betreff'],
+            'orderNo'  => $r['belegnummer'],
+            'orderedAt'=> $r['belegdatum'],
+            'betrag'   => (float)$r['betrag']
+        ];
+    }
+}
+$data = array_values($orders);
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -69,6 +67,8 @@ if (is_array($orders)) {
     .hoffmann-orders-wrap .orderNo{font-weight:700;background:var(--order-bg);color:var(--order-fg);padding:4px 8px;border-radius:6px;display:inline-block;text-decoration:none}
     .hoffmann-orders-wrap .orderNo:hover{background:var(--accent);color:#fff}
     .hoffmann-orders-wrap .muted{color:var(--muted);font-size:13px}
+    .hoffmann-orders-wrap tr.child{display:none;background:#fff}
+    .hoffmann-orders-wrap tr.child td:first-child{padding-left:32px}
     .hoffmann-orders-wrap .footer{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px}
     @media(max-width:990px){.hoffmann-orders-wrap .footer{grid-template-columns:1fr}}
     </style>
@@ -92,7 +92,7 @@ if (is_array($orders)) {
   <section class="card" style="margin-top:16px">
     <h2>Bestellliste</h2>
     <div class="body table">
-      <table id="hoff-tbl"><thead><tr><th>Titel</th><th>Bestellnr</th><th>Bestelldatum</th><th class="right">Warenwert</th></tr></thead><tbody></tbody></table>
+      <table id="hoff-tbl"><thead><tr><th>Titel</th><th>Belegnr</th><th>Datum</th><th class="right">Betrag</th></tr></thead><tbody></tbody></table>
     </div>
     <div class="body muted" id="hoff-rowsum"></div>
   </section>
@@ -113,8 +113,8 @@ function getFiltered(){
   rows.sort((a,b)=>{
     switch(state.sort){
       case 'date_asc': return +new Date(a.orderedAt)-+new Date(b.orderedAt);
-      case 'value_desc': return b.totalEur-a.totalEur;
-      case 'value_asc': return a.totalEur-b.totalEur;
+      case 'value_desc': return b.betrag-a.betrag;
+      case 'value_asc': return a.betrag-b.betrag;
       default: return +new Date(b.orderedAt)-+new Date(a.orderedAt);
     }
   });
@@ -124,12 +124,34 @@ function render(){
   const rows=getFiltered();
   const tbody=document.querySelector('#hoff-tbl tbody');
   tbody.innerHTML='';
-  let sumTotal=0; rows.forEach(r=>{sumTotal+=r.totalEur;const tr=document.createElement('tr');tr.innerHTML=`<td><strong>${r.title}</strong></td><td><span class="orderNo">${r.orderNo}</span></td><td>${new Date(r.orderedAt).toLocaleDateString('de-DE')}</td><td class="right">${EUR.format(r.totalEur)}</td>`;tbody.appendChild(tr);});
+  let sumTotal=0;
+  rows.forEach(r=>{
+    sumTotal+=r.betrag;
+    const tr=document.createElement('tr');
+    tr.classList.add('parent');
+    tr.dataset.id=r.orderNo;
+    tr.innerHTML=`<td><strong>${r.title}</strong></td><td><span class="orderNo">${r.orderNo}</span></td><td>${new Date(r.orderedAt).toLocaleDateString('de-DE')}</td><td class="right">${EUR.format(r.betrag)}</td>`;
+    tbody.appendChild(tr);
+    r.children.forEach(c=>{
+      const cr=document.createElement('tr');
+      cr.classList.add('child',`child-${r.orderNo}`);
+      cr.innerHTML=`<td>↳ ${c.title}</td><td><span class="orderNo">${c.orderNo}</span></td><td>${new Date(c.orderedAt).toLocaleDateString('de-DE')}</td><td class="right">${EUR.format(c.betrag)}</td>`;
+      tbody.appendChild(cr);
+    });
+  });
   document.getElementById('hoff-rowsum').textContent=`${rows.length} Bestellungen angezeigt`;
   document.getElementById('hoff-kpi-total').textContent=EUR.format(sumTotal);
   document.getElementById('hoff-kpi-air').textContent=EUR.format(0);
   document.getElementById('hoff-kpi-custom').textContent=EUR.format(0);
   document.getElementById('hoff-kpi-count').textContent=rows.length.toString();
+  document.querySelectorAll('tr.parent').forEach(row=>{
+    row.addEventListener('click',()=>{
+      const id=row.dataset.id;
+      document.querySelectorAll(`.child-${id}`).forEach(ch=>{
+        ch.style.display=ch.style.display==='table-row'?'none':'table-row';
+      });
+    });
+  });
 }
 document.getElementById('hoff-q').addEventListener('input',e=>{state.q=e.target.value;render()});
 document.getElementById('hoff-from').addEventListener('change',e=>{state.from=e.target.value;render()});

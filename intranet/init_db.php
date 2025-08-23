@@ -35,11 +35,15 @@ $pdo->exec('CREATE TABLE IF NOT EXISTS tickets (
     created_at TEXT NOT NULL
 )');
 
-$pdo->exec('CREATE TABLE IF NOT EXISTS bestellungen (
+$pdo->exec('DROP TABLE IF EXISTS bestellungen');
+$pdo->exec('CREATE TABLE bestellungen (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    kunde TEXT NOT NULL,
-    artikel TEXT NOT NULL,
-    menge INTEGER NOT NULL
+    belegnummer TEXT,
+    belegdatum TEXT,
+    belegart TEXT,
+    vorbelegnummer TEXT,
+    betreff TEXT,
+    betrag REAL
 )');
 
 $pdo->exec('DROP TABLE IF EXISTS offene_posten');
@@ -98,12 +102,16 @@ if (!$pdo->query('SELECT 1 FROM bestellungen LIMIT 1')->fetch()) {
     $json = file_exists($file) ? file_get_contents($file) : @file_get_contents('https://dashboard.hoffmann-hd.de/wp-content/uploads/json/bestellungen.json');
     $data = json_decode($json, true);
     if (is_array($data)) {
-        $stmt = $pdo->prepare('INSERT INTO bestellungen (kunde, artikel, menge) VALUES (:kunde, :artikel, :menge)');
+        $stmt = $pdo->prepare('INSERT INTO bestellungen (belegnummer, belegdatum, belegart, vorbelegnummer, betreff, betrag) VALUES (:belegnummer, :belegdatum, :belegart, :vorbelegnummer, :betreff, :betrag)');
         foreach ($data as $row) {
+            $meta = $row['Metadaten'] ?? [];
             $stmt->execute([
-                ':kunde' => $row['kunde'] ?? '',
-                ':artikel' => $row['artikel'] ?? '',
-                ':menge' => (int)($row['menge'] ?? 0)
+                ':belegnummer'    => $row['Belegnummer'] ?? '',
+                ':belegdatum'     => $meta['Belegdatum'] ?? '',
+                ':belegart'       => $meta['Belegart'] ?? '',
+                ':vorbelegnummer' => $meta['Vorbelegnummer'] ?? '',
+                ':betreff'        => $meta['Betreff'] ?? '',
+                ':betrag'         => (float)($meta['BetragNetto'] ?? 0)
             ]);
         }
     }
