@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
             $id = $pdo->lastInsertId();
         }
-        header('Location: tickets.php');
+        header('Location: dashboard.php?page=tickets');
         exit();
     }
 }
@@ -68,7 +68,7 @@ $employees = $pdo->query("SELECT username FROM users WHERE role='mitarbeiter' OR
                 <div class="page-header-title"><h5 class="m-b-10">Tickets</h5></div>
                 <ul class="breadcrumb">
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-                    <li class="breadcrumb-item"><a href="tickets.php">Tickets</a></li>
+                    <li class="breadcrumb-item"><a href="dashboard.php?page=tickets">Tickets</a></li>
                     <li class="breadcrumb-item"><?php echo $id ? 'Bearbeiten' : 'Neu'; ?></li>
                 </ul>
             </div>
@@ -106,7 +106,7 @@ $employees = $pdo->query("SELECT username FROM users WHERE role='mitarbeiter' OR
                     </select>
                 </div>
                 <button class="btn btn-primary" type="submit">Speichern</button>
-                <a href="tickets.php" class="btn btn-secondary">Abbrechen</a>
+                <a href="dashboard.php?page=tickets" class="btn btn-secondary">Abbrechen</a>
             </form>
         </div>
     </div>
