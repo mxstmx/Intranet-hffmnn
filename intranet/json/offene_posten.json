@@ -1,4 +1,40 @@
-[
-  {"beschreibung": "Rechnung 1001", "betrag": 120.5},
-  {"beschreibung": "Rechnung 1002", "betrag": 80}
-]
+{
+  "CannaFlowers GmbH": [
+    {
+      "Rechnungsnr": "40006421",
+      "Datum": "2025-08-22",
+      "Produkttyp": "Messeaufbau",
+      "Betrag Gesamt": "1347.81",
+      "Bisher gezahlt": "0.00",
+      "Noch zu zahlen": "1347.81"
+    }
+  ],
+  "Hoffmann Vertriebs GmbH": [
+    {
+      "Rechnungsnr": "40005057",
+      "Datum": "2024-09-09",
+      "Produkttyp": "Elfa Pods",
+      "Betrag Gesamt": "130281.20",
+      "Bisher gezahlt": "0.00",
+      "Noch zu zahlen": "130281.20"
+    },
+    {
+      "Rechnungsnr": "40005261",
+      "Datum": "2024-10-14",
+      "Produkttyp": "Elfliq",
+      "Betrag Gesamt": "30380.70",
+      "Bisher gezahlt": "0.00",
+      "Noch zu zahlen": "30380.70"
+    }
+  ],
+  "ISI GmbH": [
+    {
+      "Rechnungsnr": "40006192",
+      "Datum": "2025-05-30",
+      "Produkttyp": "V1",
+      "Betrag Gesamt": "48552.00",
+      "Bisher gezahlt": "47124.00",
+      "Noch zu zahlen": "1428.00"
+    }
+  ]
+}

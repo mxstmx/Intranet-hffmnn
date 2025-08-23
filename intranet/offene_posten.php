@@ -7,41 +7,62 @@ if (!isset($_SESSION['username']) || !in_array($_SESSION['role'], ['mitarbeiter'
 require __DIR__ . '/config.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $beschreibung = trim($_POST['beschreibung'] ?? '');
-    $betrag = (float)($_POST['betrag'] ?? 0);
-    if ($beschreibung && $betrag > 0) {
-        $stmt = $pdo->prepare('INSERT INTO offene_posten (beschreibung, betrag) VALUES (:beschreibung, :betrag)');
+    $kunde = trim($_POST['kunde'] ?? '');
+    $rechnungsnr = trim($_POST['rechnungsnr'] ?? '');
+    $datum = trim($_POST['datum'] ?? '');
+    $produkttyp = trim($_POST['produkttyp'] ?? '');
+    $betrag = (float)($_POST['betrag_gesamt'] ?? 0);
+    $bisher = (float)($_POST['bisher_gezahlt'] ?? 0);
+    $noch = (float)($_POST['noch_zu_zahlen'] ?? 0);
+    if ($kunde && $rechnungsnr) {
+        $stmt = $pdo->prepare('INSERT INTO offene_posten (kunde, rechnungsnr, datum, produkttyp, betrag_gesamt, bisher_gezahlt, noch_zu_zahlen) VALUES (:kunde, :rechnungsnr, :datum, :produkttyp, :betrag, :bisher, :noch)');
         $stmt->execute([
-            ':beschreibung' => $beschreibung,
-            ':betrag' => $betrag
+            ':kunde' => $kunde,
+            ':rechnungsnr' => $rechnungsnr,
+            ':datum' => $datum,
+            ':produkttyp' => $produkttyp,
+            ':betrag' => $betrag,
+            ':bisher' => $bisher,
+            ':noch' => $noch
         ]);
     }
 }
-$items = $pdo->query('SELECT id, beschreibung, betrag FROM offene_posten')->fetchAll(PDO::FETCH_ASSOC);
+$items = $pdo->query('SELECT id, kunde, rechnungsnr, datum, produkttyp, betrag_gesamt, bisher_gezahlt, noch_zu_zahlen FROM offene_posten')->fetchAll(PDO::FETCH_ASSOC);
 if (!$items) {
     $file = __DIR__ . '/json/offene_posten.json';
     $json = file_exists($file) ? file_get_contents($file) : @file_get_contents('https://dashboard.hoffmann-hd.de/wp-content/uploads/json/offene_posten.json');
     $data = json_decode($json, true);
     if (is_array($data)) {
-        $stmt = $pdo->prepare('INSERT INTO offene_posten (beschreibung, betrag) VALUES (:beschreibung, :betrag)');
-        foreach ($data as $row) {
-            $stmt->execute([
-                ':beschreibung' => $row['beschreibung'] ?? '',
-                ':betrag' => (float)($row['betrag'] ?? 0)
-            ]);
+        $stmt = $pdo->prepare('INSERT INTO offene_posten (kunde, rechnungsnr, datum, produkttyp, betrag_gesamt, bisher_gezahlt, noch_zu_zahlen) VALUES (:kunde, :rechnungsnr, :datum, :produkttyp, :betrag, :bisher, :noch)');
+        foreach ($data as $kunde => $rows) {
+            if (is_array($rows)) {
+                foreach ($rows as $row) {
+                    $stmt->execute([
+                        ':kunde' => $kunde,
+                        ':rechnungsnr' => $row['Rechnungsnr'] ?? '',
+                        ':datum' => $row['Datum'] ?? '',
+                        ':produkttyp' => $row['Produkttyp'] ?? '',
+                        ':betrag' => (float)($row['Betrag Gesamt'] ?? 0),
+                        ':bisher' => (float)($row['Bisher gezahlt'] ?? 0),
+                        ':noch' => (float)($row['Noch zu zahlen'] ?? 0)
+                    ]);
+                }
+            }
         }
-        $items = $pdo->query('SELECT id, beschreibung, betrag FROM offene_posten')->fetchAll(PDO::FETCH_ASSOC);
+        $items = $pdo->query('SELECT id, kunde, rechnungsnr, datum, produkttyp, betrag_gesamt, bisher_gezahlt, noch_zu_zahlen FROM offene_posten')->fetchAll(PDO::FETCH_ASSOC);
     }
 }
 
-$filterBeschreibung = trim($_GET['beschreibung'] ?? '');
+$filterKunde = trim($_GET['kunde'] ?? '');
+$filterProdukttyp = trim($_GET['produkttyp'] ?? '');
 $minBetrag = isset($_GET['min']) && $_GET['min'] !== '' ? (float)$_GET['min'] : null;
 $maxBetrag = isset($_GET['max']) && $_GET['max'] !== '' ? (float)$_GET['max'] : null;
-if ($filterBeschreibung || $minBetrag !== null || $maxBetrag !== null) {
-    $items = array_filter($items, function ($i) use ($filterBeschreibung, $minBetrag, $maxBetrag) {
-        return (!$filterBeschreibung || stripos($i['beschreibung'], $filterBeschreibung) !== false)
-            && ($minBetrag === null || $i['betrag'] >= $minBetrag)
-            && ($maxBetrag === null || $i['betrag'] <= $maxBetrag);
+if ($filterKunde || $filterProdukttyp || $minBetrag !== null || $maxBetrag !== null) {
+    $items = array_filter($items, function ($i) use ($filterKunde, $filterProdukttyp, $minBetrag, $maxBetrag) {
+        return (!$filterKunde || stripos($i['kunde'], $filterKunde) !== false)
+            && (!$filterProdukttyp || stripos($i['produkttyp'], $filterProdukttyp) !== false)
+            && ($minBetrag === null || $i['betrag_gesamt'] >= $minBetrag)
+            && ($maxBetrag === null || $i['betrag_gesamt'] <= $maxBetrag);
     });
 }
 ?>
@@ -58,10 +79,25 @@ if ($filterBeschreibung || $minBetrag !== null || $maxBetrag !== null) {
     <h2 class="mb-4">Offene Posten</h2>
     <form method="POST" class="row g-2 mb-4">
         <div class="col-md">
-            <input type="text" name="beschreibung" class="form-control" placeholder="Beschreibung" required>
+            <input type="text" name="kunde" class="form-control" placeholder="Kunde" required>
         </div>
         <div class="col-md">
-            <input type="number" step="0.01" name="betrag" class="form-control" placeholder="Betrag" required>
+            <input type="text" name="rechnungsnr" class="form-control" placeholder="Rechnungsnr" required>
+        </div>
+        <div class="col-md">
+            <input type="date" name="datum" class="form-control" placeholder="Datum">
+        </div>
+        <div class="col-md">
+            <input type="text" name="produkttyp" class="form-control" placeholder="Produkttyp">
+        </div>
+        <div class="col-md-1">
+            <input type="number" step="0.01" name="betrag_gesamt" class="form-control" placeholder="Betrag">
+        </div>
+        <div class="col-md-1">
+            <input type="number" step="0.01" name="bisher_gezahlt" class="form-control" placeholder="Gezahlt">
+        </div>
+        <div class="col-md-1">
+            <input type="number" step="0.01" name="noch_zu_zahlen" class="form-control" placeholder="Offen">
         </div>
         <div class="col-md-auto">
             <button class="btn btn-primary" type="submit">Hinzufügen</button>
@@ -69,7 +105,10 @@ if ($filterBeschreibung || $minBetrag !== null || $maxBetrag !== null) {
     </form>
     <form method="GET" class="row g-2 mb-4">
         <div class="col-md">
-            <input type="text" name="beschreibung" class="form-control" placeholder="Beschreibung filtern" value="<?php echo htmlspecialchars($filterBeschreibung); ?>">
+            <input type="text" name="kunde" class="form-control" placeholder="Kunde filtern" value="<?php echo htmlspecialchars($filterKunde); ?>">
+        </div>
+        <div class="col-md">
+            <input type="text" name="produkttyp" class="form-control" placeholder="Produkttyp filtern" value="<?php echo htmlspecialchars($filterProdukttyp); ?>">
         </div>
         <div class="col-md">
             <input type="number" step="0.01" name="min" class="form-control" placeholder="Min Betrag" value="<?php echo $minBetrag !== null ? htmlspecialchars($minBetrag) : ''; ?>">
@@ -82,13 +121,18 @@ if ($filterBeschreibung || $minBetrag !== null || $maxBetrag !== null) {
         </div>
     </form>
     <table class="table table-striped">
-        <thead><tr><th>ID</th><th>Beschreibung</th><th>Betrag</th></tr></thead>
+        <thead><tr><th>ID</th><th>Kunde</th><th>Rechnungsnr</th><th>Datum</th><th>Produkttyp</th><th>Betrag Gesamt</th><th>Bisher gezahlt</th><th>Noch zu zahlen</th></tr></thead>
         <tbody>
             <?php foreach ($items as $item): ?>
             <tr>
                 <td><?php echo $item['id']; ?></td>
-                <td><?php echo htmlspecialchars($item['beschreibung']); ?></td>
-                <td><?php echo number_format($item['betrag'], 2, ',', '.'); ?> €</td>
+                <td><?php echo htmlspecialchars($item['kunde']); ?></td>
+                <td><?php echo htmlspecialchars($item['rechnungsnr']); ?></td>
+                <td><?php echo htmlspecialchars($item['datum']); ?></td>
+                <td><?php echo htmlspecialchars($item['produkttyp']); ?></td>
+                <td><?php echo number_format($item['betrag_gesamt'], 2, ',', '.'); ?> €</td>
+                <td><?php echo number_format($item['bisher_gezahlt'], 2, ',', '.'); ?> €</td>
+                <td><?php echo number_format($item['noch_zu_zahlen'], 2, ',', '.'); ?> €</td>
             </tr>
             <?php endforeach; ?>
         </tbody>
