@@ -1,4 +1,2484 @@
 [
-  {"kunde": "kunde1", "artikel": "Buch", "menge": 2},
-  {"kunde": "kunde2", "artikel": "Stift", "menge": 5}
+    {
+        "ID": "1185",
+        "Belegnummer": "72200155",
+        "Metadaten": {
+            "Belegdatum": "2025-08-05",
+            "LetzteAenderung": "2025-08-22 16:53:19",
+            "Adressnummer": "100050",
+            "Namezeile2": "Imiracle (Shenzhen) Technology Co. Ltd.",
+            "Betreff": "2025051501",
+            "LFBelegnummer": "300.000 Stk. \/\/ EB800",
+            "Belegart": "2200",
+            "Vorbelegnummer": null,
+            "BetragNetto": "900000.00"
+        },
+        "Produkte": [
+            {
+                "Artikelnummer": "EBR-800-2-BLACKBERRYICE",
+                "Bezeichnung": "Elfbar 800 - Blackberry Ice 2%",
+                "Menge": 17600,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-BLUERAZZLEMON",
+                "Bezeichnung": "Elfbar 800 - Blue Razz Lemonade 2%",
+                "Menge": 13200,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-BLUEBERRY",
+                "Bezeichnung": "Elfbar 800 - Blueberry 2%",
+                "Menge": 18800,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-BLUESRASPB",
+                "Bezeichnung": "Elfbar 800 - Blueberry Sour Raspberry 2%",
+                "Menge": 13200,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-CACTUSICE",
+                "Bezeichnung": "Elfbar 800 - Cactus Ice 2%",
+                "Menge": 15200,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-CHERRY",
+                "Bezeichnung": "Elfbar 800 - Cherry 2%",
+                "Menge": 17600,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-COCOBLUEBERRY",
+                "Bezeichnung": "Elfbar 800 - Coconut Blueberry 2%",
+                "Menge": 14800,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-DRAGFRUITSTRAW",
+                "Bezeichnung": "Elfbar 800 - Dragon Fruit Strawberry 2%",
+                "Menge": 14400,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-GRAPEMINT",
+                "Bezeichnung": "Elfbar 800 - Grape Mint 2%",
+                "Menge": 13200,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-KWIPASSGUAV",
+                "Bezeichnung": "Elfbar 800 - Kiwi Passion Fruit Guava 2%",
+                "Menge": 13200,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-LEMONLIME",
+                "Bezeichnung": "Elfbar 800 - Lemon Lime 2%",
+                "Menge": 17600,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-MADBLUE",
+                "Bezeichnung": "Elfbar 800 - Mad Blue 2%",
+                "Menge": 13200,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-MENTHOL",
+                "Bezeichnung": "Elfbar 800 - Menthol 2%",
+                "Menge": 17200,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-MIXBERRIES",
+                "Bezeichnung": "Elfbar 800 - Mixed Berries 2%",
+                "Menge": 16800,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-PINEAPPLEICE",
+                "Bezeichnung": "Elfbar 800 - Pineapple Ice 2%",
+                "Menge": 13200,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-PINKLEMON",
+                "Bezeichnung": "Elfbar 800 - Pink Lemonade 2%",
+                "Menge": 13200,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-STRAWAPRICOT",
+                "Bezeichnung": "Elfbar 800 - Strawberry Apricot 2%",
+                "Menge": 12800,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-STRAWICE",
+                "Bezeichnung": "Elfbar 800 - Strawberry Ice 2%",
+                "Menge": 13200,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-STRAWRASPCHICE",
+                "Bezeichnung": "Elfbar 800 - Strawberry Raspberry Cherry Ice 2%",
+                "Menge": 13200,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-WATERMELON",
+                "Bezeichnung": "Elfbar 800 - Watermelon 2%",
+                "Menge": 18400,
+                "Einzelpreis": "3.00"
+            }
+        ]
+    },
+    {
+        "ID": "1186",
+        "Belegnummer": "72200156",
+        "Metadaten": {
+            "Belegdatum": "2025-08-05",
+            "LetzteAenderung": "2025-08-14 13:33:34",
+            "Adressnummer": "100050",
+            "Namezeile2": "Imiracle (Shenzhen) Technology Co. Ltd.",
+            "Betreff": "2025060303",
+            "LFBelegnummer": "Elfliq 1% \/\/ 30.000Stk.",
+            "Belegart": "2200",
+            "Vorbelegnummer": null,
+            "BetragNetto": "0.00"
+        },
+        "Produkte": [
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-APPLEPEACH",
+                "Bezeichnung": "ELFLIQ - Apple Peach 20mg Nikotin",
+                "Menge": 1400,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-BBERRYLEMON",
+                "Bezeichnung": "ELFLIQ - Blackberry Lemon 20mg Nikotin",
+                "Menge": 1400,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-BLUERAZZLEMON",
+                "Bezeichnung": "ELFLIQ - Blue Razz Lemonade 20mg Nikotin",
+                "Menge": 1000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-BLUEBERRY",
+                "Bezeichnung": "ELFLIQ - Blueberry 20mg Nikotin",
+                "Menge": 1400,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-BLUESRASPB",
+                "Bezeichnung": "ELFLIQ - Blueberry Sour Raspberry 20mg Nikotin",
+                "Menge": 1400,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-CHERRYCOLA",
+                "Bezeichnung": "ELFLIQ - Cherry Cola 20mg Nikotin",
+                "Menge": 800,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-CHERRY",
+                "Bezeichnung": "ELFLIQ - Cherry 20mg Nikotin",
+                "Menge": 1400,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-GRAPE",
+                "Bezeichnung": "ELFLIQ - Grape 20mg Nikotin",
+                "Menge": 1000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-KWIPASSGUAV",
+                "Bezeichnung": "ELFLIQ - Kiwi Passion Fruit Guava 20mg Nikotin",
+                "Menge": 1000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-MANGO",
+                "Bezeichnung": "ELFLIQ - Mango 20mg Nikotin",
+                "Menge": 800,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-PEACHICE",
+                "Bezeichnung": "ELFLIQ - Peach Ice 20mg Nikotin",
+                "Menge": 1600,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-PINEMANGORAN",
+                "Bezeichnung": "ELFLIQ - Pineapple Mango Orange 20mg Nikotin",
+                "Menge": 800,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-PIINKLEMON",
+                "Bezeichnung": "ELFLIQ - Pink Lemonade 20mg Nikotin",
+                "Menge": 1000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-SOURAPPLE",
+                "Bezeichnung": "ELFLIQ - Sour Apple 20mg Nikotin",
+                "Menge": 1200,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-SPEARMINT",
+                "Bezeichnung": "ELFLIQ - Spearmint 20mg Nikotin",
+                "Menge": 1200,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-STRAWICE",
+                "Bezeichnung": "ELFLIQ - Strawberry Ice 20mg Nikotin",
+                "Menge": 1000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-STRAWRASPCHICE",
+                "Bezeichnung": "ELFLIQ - Strawberry Raspberry Cherry Ice 20mg Nikotin",
+                "Menge": 1200,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-WATERMELON",
+                "Bezeichnung": "ELFLIQ - Watermelon 20mg Nikotin",
+                "Menge": 1400,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-MIXBERRIES",
+                "Bezeichnung": "ELFLIQ - Mix Berries 20mg Nikotin",
+                "Menge": 1800,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-BLACKBERRYICE",
+                "Bezeichnung": "ELFLIQ - Blackberry Ice 20mg Nikotin",
+                "Menge": 1800,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-TROPICALFRUIT",
+                "Bezeichnung": "ELFLIQ - Tropical Fruit 20mg Nikotin",
+                "Menge": 1800,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-MENTHOL",
+                "Bezeichnung": "ELFLIQ - Menthol 20mg Nikotin",
+                "Menge": 1800,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-LMNPCHPSSNFRT",
+                "Bezeichnung": "ELFLIQ - Lemon Peach Passion Fruit 20mg Nikotin",
+                "Menge": 1800,
+                "Einzelpreis": "0.00"
+            }
+        ]
+    },
+    {
+        "ID": "1184",
+        "Belegnummer": "72200154",
+        "Metadaten": {
+            "Belegdatum": "2025-08-05",
+            "LetzteAenderung": "2025-08-21 14:33:15",
+            "Adressnummer": "100050",
+            "Namezeile2": "Imiracle (Shenzhen) Technology Co. Ltd.",
+            "Betreff": "2025050603",
+            "LFBelegnummer": "1.500.000 Stk. \/\/ Elfa Pods",
+            "Belegart": "2200",
+            "Vorbelegnummer": null,
+            "BetragNetto": "0.00"
+        },
+        "Produkte": [
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-APPLEPEACH",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Apple Peach",
+                "Menge": 60000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BANANA",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Banana",
+                "Menge": 24000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BERRYJAM",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blueberry Snoow (Berry Jam)",
+                "Menge": 36000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLACKBERRYICE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blackberry Ice",
+                "Menge": 72000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLACKBERRYLEMON",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blackberry Lemon",
+                "Menge": 48000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLUEBERRY",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blueberry",
+                "Menge": 84000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLUERAZZLEMON",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blue Razz Lemonade",
+                "Menge": 36000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLUESRASPB",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blueberry Sour Raspberry",
+                "Menge": 36000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-CHERRY",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Cherry",
+                "Menge": 72000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-CRANBGRAPE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Cranberry Grape",
+                "Menge": 24000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-GOLDENTOBACCO",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Golden Tobacco",
+                "Menge": 12000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-GRAPE ICE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Grape Ice",
+                "Menge": 36000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-JUPEACH",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Peach ICE(Juicy Peach)",
+                "Menge": 72000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-KWIPASSGUAV",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Kiwi Passion Fruit Guava",
+                "Menge": 66000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-LEMONMINT",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Lemon Mint",
+                "Menge": 72000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-MANGO",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Mango",
+                "Menge": 48000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-MENTHOL",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Menthol",
+                "Menge": 72000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-MIXBERRIES",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Mix Berries",
+                "Menge": 72000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-PINELEMSOD",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Pineapple Lemon Qi",
+                "Menge": 18000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-PINKLEMON",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Pink Lemonade",
+                "Menge": 48000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-RASPBWATER",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Raspberry Watermelon",
+                "Menge": 36000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-STRAWBERRY ICE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Strawberry Ice",
+                "Menge": 36000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-STRAWGRAPE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Strawberry Grape",
+                "Menge": 36000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-STRAWKIWI",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Strawberry Kiwi",
+                "Menge": 36000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-STRAWRASP",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Strawberry Raspberry",
+                "Menge": 36000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-TROPICALF",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Tropical Fruit",
+                "Menge": 60000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-WAMMOJITO",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Watermelon Mojito",
+                "Menge": 48000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-WATERMELCHERRY",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Watermelon Cherry",
+                "Menge": 48000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-WATERMELON",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Watermelon",
+                "Menge": 84000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-WILDORANGE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Orange",
+                "Menge": 24000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-COLA",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Cola",
+                "Menge": 48000,
+                "Einzelpreis": "0.00"
+            }
+        ]
+    },
+    {
+        "ID": "1189",
+        "Belegnummer": "72900445",
+        "Metadaten": {
+            "Belegdatum": "2025-08-13",
+            "LetzteAenderung": "2025-08-13 16:20:05",
+            "Adressnummer": "100050",
+            "Namezeile2": "Imiracle (Shenzhen) Technology Co. Ltd.",
+            "Betreff": "2025050603",
+            "LFBelegnummer": "784-81011921",
+            "Belegart": "2900",
+            "Vorbelegnummer": "72200154",
+            "BetragNetto": "0.00"
+        },
+        "Produkte": [
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-APPLEPEACH",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Apple Peach",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BANANA",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Banana",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BERRYJAM",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blueberry Snoow (Berry Jam)",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLACKBERRYICE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blackberry Ice",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLACKBERRYLEMON",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blackberry Lemon",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLUEBERRY",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blueberry",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLUERAZZLEMON",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blue Razz Lemonade",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLUESRASPB",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blueberry Sour Raspberry",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-CHERRY",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Cherry",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-CRANBGRAPE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Cranberry Grape",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-GOLDENTOBACCO",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Golden Tobacco",
+                "Menge": 6000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-GRAPE ICE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Grape Ice",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-JUPEACH",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Peach ICE(Juicy Peach)",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-KWIPASSGUAV",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Kiwi Passion Fruit Guava",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-LEMONMINT",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Lemon Mint",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-MANGO",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Mango",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-MENTHOL",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Menthol",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-MIXBERRIES",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Mix Berries",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-PINELEMSOD",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Pineapple Lemon Qi",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-PINKLEMON",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Pink Lemonade",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-RASPBWATER",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Raspberry Watermelon",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-STRAWBERRY ICE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Strawberry Ice",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-STRAWGRAPE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Strawberry Grape",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-STRAWKIWI",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Strawberry Kiwi",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-STRAWRASP",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Strawberry Raspberry",
+                "Menge": 18000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-TROPICALF",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Tropical Fruit",
+                "Menge": 30000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-WAMMOJITO",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Watermelon Mojito",
+                "Menge": 24000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-WATERMELCHERRY",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Watermelon Cherry",
+                "Menge": 24000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-WATERMELON",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Watermelon",
+                "Menge": 42000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-WILDORANGE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Orange",
+                "Menge": 12000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-COLA",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Cola",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            }
+        ]
+    },
+    {
+        "ID": "1187",
+        "Belegnummer": "72900444",
+        "Metadaten": {
+            "Belegdatum": "2025-08-13",
+            "LetzteAenderung": "2025-08-13 16:15:50",
+            "Adressnummer": "100050",
+            "Namezeile2": "Imiracle (Shenzhen) Technology Co. Ltd.",
+            "Betreff": "2025051501",
+            "LFBelegnummer": "112-35215515 \/\/ 112-32515526",
+            "Belegart": "2900",
+            "Vorbelegnummer": "72200155",
+            "BetragNetto": "570000.00"
+        },
+        "Produkte": [
+            {
+                "Artikelnummer": "EBR-800-2-BLACKBERRYICE",
+                "Bezeichnung": "Elfbar 800 - Blackberry Ice 2%",
+                "Menge": 0,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-BLUERAZZLEMON",
+                "Bezeichnung": "Elfbar 800 - Blue Razz Lemonade 2%",
+                "Menge": 0,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-BLUEBERRY",
+                "Bezeichnung": "Elfbar 800 - Blueberry 2%",
+                "Menge": 0,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-BLUESRASPB",
+                "Bezeichnung": "Elfbar 800 - Blueberry Sour Raspberry 2%",
+                "Menge": 0,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-CACTUSICE",
+                "Bezeichnung": "Elfbar 800 - Cactus Ice 2%",
+                "Menge": 0,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-CHERRY",
+                "Bezeichnung": "Elfbar 800 - Cherry 2%",
+                "Menge": 0,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-COCOBLUEBERRY",
+                "Bezeichnung": "Elfbar 800 - Coconut Blueberry 2%",
+                "Menge": 400,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-DRAGFRUITSTRAW",
+                "Bezeichnung": "Elfbar 800 - Dragon Fruit Strawberry 2%",
+                "Menge": 14400,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-GRAPEMINT",
+                "Bezeichnung": "Elfbar 800 - Grape Mint 2%",
+                "Menge": 13200,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-KWIPASSGUAV",
+                "Bezeichnung": "Elfbar 800 - Kiwi Passion Fruit Guava 2%",
+                "Menge": 13200,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-LEMONLIME",
+                "Bezeichnung": "Elfbar 800 - Lemon Lime 2%",
+                "Menge": 17600,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-MADBLUE",
+                "Bezeichnung": "Elfbar 800 - Mad Blue 2%",
+                "Menge": 13200,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-MENTHOL",
+                "Bezeichnung": "Elfbar 800 - Menthol 2%",
+                "Menge": 17200,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-MIXBERRIES",
+                "Bezeichnung": "Elfbar 800 - Mixed Berries 2%",
+                "Menge": 16800,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-PINEAPPLEICE",
+                "Bezeichnung": "Elfbar 800 - Pineapple Ice 2%",
+                "Menge": 13200,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-PINKLEMON",
+                "Bezeichnung": "Elfbar 800 - Pink Lemonade 2%",
+                "Menge": 13200,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-STRAWAPRICOT",
+                "Bezeichnung": "Elfbar 800 - Strawberry Apricot 2%",
+                "Menge": 12800,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-STRAWICE",
+                "Bezeichnung": "Elfbar 800 - Strawberry Ice 2%",
+                "Menge": 13200,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-STRAWRASPCHICE",
+                "Bezeichnung": "Elfbar 800 - Strawberry Raspberry Cherry Ice 2%",
+                "Menge": 13200,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-WATERMELON",
+                "Bezeichnung": "Elfbar 800 - Watermelon 2%",
+                "Menge": 18400,
+                "Einzelpreis": "3.00"
+            }
+        ]
+    },
+    {
+        "ID": "1191",
+        "Belegnummer": "72900446",
+        "Metadaten": {
+            "Belegdatum": "2025-08-13",
+            "LetzteAenderung": "2025-08-13 17:00:07",
+            "Adressnummer": "100050",
+            "Namezeile2": "Imiracle (Shenzhen) Technology Co. Ltd.",
+            "Betreff": "2025050603",
+            "LFBelegnummer": "695-52678065\/\/924-49129430",
+            "Belegart": "2900",
+            "Vorbelegnummer": "72200154",
+            "BetragNetto": "0.00"
+        },
+        "Produkte": [
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-APPLEPEACH",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Apple Peach",
+                "Menge": 30000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BANANA",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Banana",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BERRYJAM",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blueberry Snoow (Berry Jam)",
+                "Menge": 18000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLACKBERRYICE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blackberry Ice",
+                "Menge": 53600,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLACKBERRYLEMON",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blackberry Lemon",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLUEBERRY",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blueberry",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLUERAZZLEMON",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blue Razz Lemonade",
+                "Menge": 13200,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLUESRASPB",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blueberry Sour Raspberry",
+                "Menge": 9200,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-CHERRY",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Cherry",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-CRANBGRAPE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Cranberry Grape",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-GOLDENTOBACCO",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Golden Tobacco",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-GRAPE ICE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Grape Ice",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-JUPEACH",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Peach ICE(Juicy Peach)",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-KWIPASSGUAV",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Kiwi Passion Fruit Guava",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-LEMONMINT",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Lemon Mint",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-MANGO",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Mango",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-MENTHOL",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Menthol",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-MIXBERRIES",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Mix Berries",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-PINELEMSOD",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Pineapple Lemon Qi",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-PINKLEMON",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Pink Lemonade",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-RASPBWATER",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Raspberry Watermelon",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-STRAWBERRY ICE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Strawberry Ice",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-STRAWGRAPE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Strawberry Grape",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-STRAWKIWI",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Strawberry Kiwi",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-STRAWRASP",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Strawberry Raspberry",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-TROPICALF",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Tropical Fruit",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-WAMMOJITO",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Watermelon Mojito",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-WATERMELCHERRY",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Watermelon Cherry",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-WATERMELON",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Watermelon",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-WILDORANGE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Orange",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-COLA",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Cola",
+                "Menge": 11200,
+                "Einzelpreis": "0.00"
+            }
+        ]
+    },
+    {
+        "ID": "1199",
+        "Belegnummer": "72900449",
+        "Metadaten": {
+            "Belegdatum": "2025-08-18",
+            "LetzteAenderung": "2025-08-18 10:41:32",
+            "Adressnummer": "100050",
+            "Namezeile2": "Imiracle (Shenzhen) Technology Co. Ltd.",
+            "Betreff": "2025050603",
+            "LFBelegnummer": "784-81011932",
+            "Belegart": "2900",
+            "Vorbelegnummer": "72200154",
+            "BetragNetto": "0.00"
+        },
+        "Produkte": [
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-APPLEPEACH",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Apple Peach",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BANANA",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Banana",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BERRYJAM",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blueberry Snoow (Berry Jam)",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLACKBERRYICE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blackberry Ice",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLACKBERRYLEMON",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blackberry Lemon",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLUEBERRY",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blueberry",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLUERAZZLEMON",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blue Razz Lemonade",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLUESRASPB",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blueberry Sour Raspberry",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-CHERRY",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Cherry",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-CRANBGRAPE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Cranberry Grape",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-GOLDENTOBACCO",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Golden Tobacco",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-GRAPE ICE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Grape Ice",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-JUPEACH",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Peach ICE(Juicy Peach)",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-KWIPASSGUAV",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Kiwi Passion Fruit Guava",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-LEMONMINT",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Lemon Mint",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-MANGO",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Mango",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-MENTHOL",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Menthol",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-MIXBERRIES",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Mix Berries",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-PINELEMSOD",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Pineapple Lemon Qi",
+                "Menge": 800,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-PINKLEMON",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Pink Lemonade",
+                "Menge": 24000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-RASPBWATER",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Raspberry Watermelon",
+                "Menge": 18000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-STRAWBERRY ICE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Strawberry Ice",
+                "Menge": 18000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-STRAWGRAPE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Strawberry Grape",
+                "Menge": 18000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-STRAWKIWI",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Strawberry Kiwi",
+                "Menge": 18000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-STRAWRASP",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Strawberry Raspberry",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-TROPICALF",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Tropical Fruit",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-WAMMOJITO",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Watermelon Mojito",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-WATERMELCHERRY",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Watermelon Cherry",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-WATERMELON",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Watermelon",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-WILDORANGE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Orange",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-COLA",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Cola",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            }
+        ]
+    },
+    {
+        "ID": "1195",
+        "Belegnummer": "72900448",
+        "Metadaten": {
+            "Belegdatum": "2025-08-13",
+            "LetzteAenderung": "2025-08-13 17:02:42",
+            "Adressnummer": "100050",
+            "Namezeile2": "Imiracle (Shenzhen) Technology Co. Ltd.",
+            "Betreff": "2025051501",
+            "LFBelegnummer": "695-52678056",
+            "Belegart": "2900",
+            "Vorbelegnummer": "72200155",
+            "BetragNetto": "120000.00"
+        },
+        "Produkte": [
+            {
+                "Artikelnummer": "EBR-800-2-BLACKBERRYICE",
+                "Bezeichnung": "Elfbar 800 - Blackberry Ice 2%",
+                "Menge": 17600,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-BLUERAZZLEMON",
+                "Bezeichnung": "Elfbar 800 - Blue Razz Lemonade 2%",
+                "Menge": 13200,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-BLUEBERRY",
+                "Bezeichnung": "Elfbar 800 - Blueberry 2%",
+                "Menge": 0,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-BLUESRASPB",
+                "Bezeichnung": "Elfbar 800 - Blueberry Sour Raspberry 2%",
+                "Menge": 9200,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-CACTUSICE",
+                "Bezeichnung": "Elfbar 800 - Cactus Ice 2%",
+                "Menge": 0,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-CHERRY",
+                "Bezeichnung": "Elfbar 800 - Cherry 2%",
+                "Menge": 0,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-COCOBLUEBERRY",
+                "Bezeichnung": "Elfbar 800 - Coconut Blueberry 2%",
+                "Menge": 0,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-DRAGFRUITSTRAW",
+                "Bezeichnung": "Elfbar 800 - Dragon Fruit Strawberry 2%",
+                "Menge": 0,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-GRAPEMINT",
+                "Bezeichnung": "Elfbar 800 - Grape Mint 2%",
+                "Menge": 0,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-KWIPASSGUAV",
+                "Bezeichnung": "Elfbar 800 - Kiwi Passion Fruit Guava 2%",
+                "Menge": 0,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-LEMONLIME",
+                "Bezeichnung": "Elfbar 800 - Lemon Lime 2%",
+                "Menge": 0,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-MADBLUE",
+                "Bezeichnung": "Elfbar 800 - Mad Blue 2%",
+                "Menge": 0,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-MENTHOL",
+                "Bezeichnung": "Elfbar 800 - Menthol 2%",
+                "Menge": 0,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-MIXBERRIES",
+                "Bezeichnung": "Elfbar 800 - Mixed Berries 2%",
+                "Menge": 0,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-PINEAPPLEICE",
+                "Bezeichnung": "Elfbar 800 - Pineapple Ice 2%",
+                "Menge": 0,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-PINKLEMON",
+                "Bezeichnung": "Elfbar 800 - Pink Lemonade 2%",
+                "Menge": 0,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-STRAWAPRICOT",
+                "Bezeichnung": "Elfbar 800 - Strawberry Apricot 2%",
+                "Menge": 0,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-STRAWICE",
+                "Bezeichnung": "Elfbar 800 - Strawberry Ice 2%",
+                "Menge": 0,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-STRAWRASPCHICE",
+                "Bezeichnung": "Elfbar 800 - Strawberry Raspberry Cherry Ice 2%",
+                "Menge": 0,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-WATERMELON",
+                "Bezeichnung": "Elfbar 800 - Watermelon 2%",
+                "Menge": 0,
+                "Einzelpreis": "3.00"
+            }
+        ]
+    },
+    {
+        "ID": "1197",
+        "Belegnummer": "72900447",
+        "Metadaten": {
+            "Belegdatum": "2025-08-14",
+            "LetzteAenderung": "2025-08-14 13:33:33",
+            "Adressnummer": "100050",
+            "Namezeile2": "Imiracle (Shenzhen) Technology Co. Ltd.",
+            "Betreff": "2025060303",
+            "LFBelegnummer": "",
+            "Belegart": "2900",
+            "Vorbelegnummer": "72200156",
+            "BetragNetto": "0.00"
+        },
+        "Produkte": [
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-PIINKLEMON",
+                "Bezeichnung": "ELFLIQ - Pink Lemonade 20mg Nikotin",
+                "Menge": 1000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-SOURAPPLE",
+                "Bezeichnung": "ELFLIQ - Sour Apple 20mg Nikotin",
+                "Menge": 1200,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-SPEARMINT",
+                "Bezeichnung": "ELFLIQ - Spearmint 20mg Nikotin",
+                "Menge": 1200,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-STRAWICE",
+                "Bezeichnung": "ELFLIQ - Strawberry Ice 20mg Nikotin",
+                "Menge": 1000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-STRAWRASPCHICE",
+                "Bezeichnung": "ELFLIQ - Strawberry Raspberry Cherry Ice 20mg Nikotin",
+                "Menge": 1200,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-WATERMELON",
+                "Bezeichnung": "ELFLIQ - Watermelon 20mg Nikotin",
+                "Menge": 1400,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-MIXBERRIES",
+                "Bezeichnung": "ELFLIQ - Mix Berries 20mg Nikotin",
+                "Menge": 1800,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-BLACKBERRYICE",
+                "Bezeichnung": "ELFLIQ - Blackberry Ice 20mg Nikotin",
+                "Menge": 1800,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-TROPICALFRUIT",
+                "Bezeichnung": "ELFLIQ - Tropical Fruit 20mg Nikotin",
+                "Menge": 1800,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-MENTHOL",
+                "Bezeichnung": "ELFLIQ - Menthol 20mg Nikotin",
+                "Menge": 1800,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-LMNPCHPSSNFRT",
+                "Bezeichnung": "ELFLIQ - Lemon Peach Passion Fruit 20mg Nikotin",
+                "Menge": 1800,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-APPLEPEACH",
+                "Bezeichnung": "ELFLIQ - Apple Peach 20mg Nikotin",
+                "Menge": 1400,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-BBERRYLEMON",
+                "Bezeichnung": "ELFLIQ - Blackberry Lemon 20mg Nikotin",
+                "Menge": 1400,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-BLUERAZZLEMON",
+                "Bezeichnung": "ELFLIQ - Blue Razz Lemonade 20mg Nikotin",
+                "Menge": 1000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-BLUEBERRY",
+                "Bezeichnung": "ELFLIQ - Blueberry 20mg Nikotin",
+                "Menge": 1400,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-BLUESRASPB",
+                "Bezeichnung": "ELFLIQ - Blueberry Sour Raspberry 20mg Nikotin",
+                "Menge": 1400,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-CHERRYCOLA",
+                "Bezeichnung": "ELFLIQ - Cherry Cola 20mg Nikotin",
+                "Menge": 800,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-CHERRY",
+                "Bezeichnung": "ELFLIQ - Cherry 20mg Nikotin",
+                "Menge": 1400,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-GRAPE",
+                "Bezeichnung": "ELFLIQ - Grape 20mg Nikotin",
+                "Menge": 1000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-KWIPASSGUAV",
+                "Bezeichnung": "ELFLIQ - Kiwi Passion Fruit Guava 20mg Nikotin",
+                "Menge": 1000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-MANGO",
+                "Bezeichnung": "ELFLIQ - Mango 20mg Nikotin",
+                "Menge": 800,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-PEACHICE",
+                "Bezeichnung": "ELFLIQ - Peach Ice 20mg Nikotin",
+                "Menge": 1600,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFLIQ-20-PINEMANGORAN",
+                "Bezeichnung": "ELFLIQ - Pineapple Mango Orange 20mg Nikotin",
+                "Menge": 800,
+                "Einzelpreis": "0.00"
+            }
+        ]
+    },
+    {
+        "ID": "1201",
+        "Belegnummer": "72900450",
+        "Metadaten": {
+            "Belegdatum": "2025-08-18",
+            "LetzteAenderung": "2025-08-18 10:45:44",
+            "Adressnummer": "100050",
+            "Namezeile2": "Imiracle (Shenzhen) Technology Co. Ltd.",
+            "Betreff": "2025050603",
+            "LFBelegnummer": "160-95356435",
+            "Belegart": "2900",
+            "Vorbelegnummer": "72200154",
+            "BetragNetto": "0.00"
+        },
+        "Produkte": [
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-APPLEPEACH",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Apple Peach",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BANANA",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Banana",
+                "Menge": 12000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BERRYJAM",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blueberry Snoow (Berry Jam)",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLACKBERRYICE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blackberry Ice",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLACKBERRYLEMON",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blackberry Lemon",
+                "Menge": 24000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLUEBERRY",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blueberry",
+                "Menge": 42000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLUERAZZLEMON",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blue Razz Lemonade",
+                "Menge": 18000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLUESRASPB",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blueberry Sour Raspberry",
+                "Menge": 18000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-CHERRY",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Cherry",
+                "Menge": 36000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-CRANBGRAPE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Cranberry Grape",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-GOLDENTOBACCO",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Golden Tobacco",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-GRAPE ICE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Grape Ice",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-JUPEACH",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Peach ICE(Juicy Peach)",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-KWIPASSGUAV",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Kiwi Passion Fruit Guava",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-LEMONMINT",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Lemon Mint",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-MANGO",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Mango",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-MENTHOL",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Menthol",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-MIXBERRIES",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Mix Berries",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-PINELEMSOD",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Pineapple Lemon Qi",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-PINKLEMON",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Pink Lemonade",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-RASPBWATER",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Raspberry Watermelon",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-STRAWBERRY ICE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Strawberry Ice",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-STRAWGRAPE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Strawberry Grape",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-STRAWKIWI",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Strawberry Kiwi",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-STRAWRASP",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Strawberry Raspberry",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-TROPICALF",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Tropical Fruit",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-WAMMOJITO",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Watermelon Mojito",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-WATERMELCHERRY",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Watermelon Cherry",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-WATERMELON",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Watermelon",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-WILDORANGE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Orange",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-COLA",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Cola",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            }
+        ]
+    },
+    {
+        "ID": "1203",
+        "Belegnummer": "72900451",
+        "Metadaten": {
+            "Belegdatum": "2025-08-18",
+            "LetzteAenderung": "2025-08-18 10:52:34",
+            "Adressnummer": "100050",
+            "Namezeile2": "Imiracle (Shenzhen) Technology Co. Ltd.",
+            "Betreff": "2025050603",
+            "LFBelegnummer": "160-95356424",
+            "Belegart": "2900",
+            "Vorbelegnummer": "72200154",
+            "BetragNetto": "0.00"
+        },
+        "Produkte": [
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-APPLEPEACH",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Apple Peach",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BANANA",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Banana",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BERRYJAM",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blueberry Snoow (Berry Jam)",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLACKBERRYICE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blackberry Ice",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLACKBERRYLEMON",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blackberry Lemon",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLUEBERRY",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blueberry",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLUERAZZLEMON",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blue Razz Lemonade",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLUESRASPB",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blueberry Sour Raspberry",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-CHERRY",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Cherry",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-CRANBGRAPE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Cranberry Grape",
+                "Menge": 12000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-GOLDENTOBACCO",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Golden Tobacco",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-GRAPE ICE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Grape Ice",
+                "Menge": 18000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-JUPEACH",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Peach ICE(Juicy Peach)",
+                "Menge": 36000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-KWIPASSGUAV",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Kiwi Passion Fruit Guava",
+                "Menge": 32800,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-LEMONMINT",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Lemon Mint",
+                "Menge": 36000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-MANGO",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Mango",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-MENTHOL",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Menthol",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-MIXBERRIES",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Mix Berries",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-PINELEMSOD",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Pineapple Lemon Qi",
+                "Menge": 4400,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-PINKLEMON",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Pink Lemonade",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-RASPBWATER",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Raspberry Watermelon",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-STRAWBERRY ICE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Strawberry Ice",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-STRAWGRAPE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Strawberry Grape",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-STRAWKIWI",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Strawberry Kiwi",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-STRAWRASP",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Strawberry Raspberry",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-TROPICALF",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Tropical Fruit",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-WAMMOJITO",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Watermelon Mojito",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-WATERMELCHERRY",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Watermelon Cherry",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-WATERMELON",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Watermelon",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-WILDORANGE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Orange",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-COLA",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Cola",
+                "Menge": 12800,
+                "Einzelpreis": "0.00"
+            }
+        ]
+    },
+    {
+        "ID": "1205",
+        "Belegnummer": "72900452",
+        "Metadaten": {
+            "Belegdatum": "2025-08-18",
+            "LetzteAenderung": "2025-08-18 15:48:46",
+            "Adressnummer": "100050",
+            "Namezeile2": "Imiracle (Shenzhen) Technology Co. Ltd.",
+            "Betreff": "2025050603",
+            "LFBelegnummer": "160-99474900",
+            "Belegart": "2900",
+            "Vorbelegnummer": "72200154",
+            "BetragNetto": "0.00"
+        },
+        "Produkte": [
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-APPLEPEACH",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Apple Peach",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BANANA",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Banana",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BERRYJAM",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blueberry Snoow (Berry Jam)",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLACKBERRYICE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blackberry Ice",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLACKBERRYLEMON",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blackberry Lemon",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLUEBERRY",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blueberry",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLUERAZZLEMON",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blue Razz Lemonade",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLUESRASPB",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blueberry Sour Raspberry",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-CHERRY",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Cherry",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-CRANBGRAPE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Cranberry Grape",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-GOLDENTOBACCO",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Golden Tobacco",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-GRAPE ICE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Grape Ice",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-JUPEACH",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Peach ICE(Juicy Peach)",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-KWIPASSGUAV",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Kiwi Passion Fruit Guava",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-LEMONMINT",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Lemon Mint",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-MANGO",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Mango",
+                "Menge": 24000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-MENTHOL",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Menthol",
+                "Menge": 36000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-MIXBERRIES",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Mix Berries",
+                "Menge": 36000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-PINELEMSOD",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Pineapple Lemon Qi",
+                "Menge": 4000,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-PINKLEMON",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Pink Lemonade",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-RASPBWATER",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Raspberry Watermelon",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-STRAWBERRY ICE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Strawberry Ice",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-STRAWGRAPE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Strawberry Grape",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-STRAWKIWI",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Strawberry Kiwi",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-STRAWRASP",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Strawberry Raspberry",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-TROPICALF",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Tropical Fruit",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-WAMMOJITO",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Watermelon Mojito",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-WATERMELCHERRY",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Watermelon Cherry",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-WATERMELON",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Watermelon",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-WILDORANGE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Orange",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-COLA",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Cola",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            }
+        ]
+    },
+    {
+        "ID": "1230",
+        "Belegnummer": "72900454",
+        "Metadaten": {
+            "Belegdatum": "2025-08-22",
+            "LetzteAenderung": "2025-08-22 16:53:19",
+            "Adressnummer": "100050",
+            "Namezeile2": "Imiracle (Shenzhen) Technology Co. Ltd.",
+            "Betreff": "2025051501",
+            "LFBelegnummer": "784-81005304",
+            "Belegart": "2900",
+            "Vorbelegnummer": "72200155",
+            "BetragNetto": "210000.00"
+        },
+        "Produkte": [
+            {
+                "Artikelnummer": "EBR-800-2-BLACKBERRYICE",
+                "Bezeichnung": "Elfbar 800 - Blackberry Ice 2%",
+                "Menge": 0,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-BLUERAZZLEMON",
+                "Bezeichnung": "Elfbar 800 - Blue Razz Lemonade 2%",
+                "Menge": 0,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-BLUEBERRY",
+                "Bezeichnung": "Elfbar 800 - Blueberry 2%",
+                "Menge": 18800,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-BLUESRASPB",
+                "Bezeichnung": "Elfbar 800 - Blueberry Sour Raspberry 2%",
+                "Menge": 4000,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-CACTUSICE",
+                "Bezeichnung": "Elfbar 800 - Cactus Ice 2%",
+                "Menge": 15200,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-CHERRY",
+                "Bezeichnung": "Elfbar 800 - Cherry 2%",
+                "Menge": 17600,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-COCOBLUEBERRY",
+                "Bezeichnung": "Elfbar 800 - Coconut Blueberry 2%",
+                "Menge": 14400,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-DRAGFRUITSTRAW",
+                "Bezeichnung": "Elfbar 800 - Dragon Fruit Strawberry 2%",
+                "Menge": 0,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-GRAPEMINT",
+                "Bezeichnung": "Elfbar 800 - Grape Mint 2%",
+                "Menge": 0,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-KWIPASSGUAV",
+                "Bezeichnung": "Elfbar 800 - Kiwi Passion Fruit Guava 2%",
+                "Menge": 0,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-LEMONLIME",
+                "Bezeichnung": "Elfbar 800 - Lemon Lime 2%",
+                "Menge": 0,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-MADBLUE",
+                "Bezeichnung": "Elfbar 800 - Mad Blue 2%",
+                "Menge": 0,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-MENTHOL",
+                "Bezeichnung": "Elfbar 800 - Menthol 2%",
+                "Menge": 0,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-MIXBERRIES",
+                "Bezeichnung": "Elfbar 800 - Mixed Berries 2%",
+                "Menge": 0,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-PINEAPPLEICE",
+                "Bezeichnung": "Elfbar 800 - Pineapple Ice 2%",
+                "Menge": 0,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-PINKLEMON",
+                "Bezeichnung": "Elfbar 800 - Pink Lemonade 2%",
+                "Menge": 0,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-STRAWAPRICOT",
+                "Bezeichnung": "Elfbar 800 - Strawberry Apricot 2%",
+                "Menge": 0,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-STRAWICE",
+                "Bezeichnung": "Elfbar 800 - Strawberry Ice 2%",
+                "Menge": 0,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-STRAWRASPCHICE",
+                "Bezeichnung": "Elfbar 800 - Strawberry Raspberry Cherry Ice 2%",
+                "Menge": 0,
+                "Einzelpreis": "3.00"
+            },
+            {
+                "Artikelnummer": "EBR-800-2-WATERMELON",
+                "Bezeichnung": "Elfbar 800 - Watermelon 2%",
+                "Menge": 0,
+                "Einzelpreis": "3.00"
+            }
+        ]
+    },
+    {
+        "ID": "1228",
+        "Belegnummer": "72900453",
+        "Metadaten": {
+            "Belegdatum": "2025-08-21",
+            "LetzteAenderung": "2025-08-21 14:31:31",
+            "Adressnummer": "100050",
+            "Namezeile2": "Imiracle (Shenzhen) Technology Co. Ltd.",
+            "Betreff": "2025050603",
+            "LFBelegnummer": "112-35484190",
+            "Belegart": "2900",
+            "Vorbelegnummer": "72200154",
+            "BetragNetto": "0.00"
+        },
+        "Produkte": [
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-APPLEPEACH",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Apple Peach",
+                "Menge": 6800,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BANANA",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Banana",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BERRYJAM",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blueberry Snoow (Berry Jam)",
+                "Menge": 4800,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLACKBERRYICE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blackberry Ice",
+                "Menge": 6800,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLACKBERRYLEMON",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blackberry Lemon",
+                "Menge": 11600,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLUEBERRY",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blueberry",
+                "Menge": 7600,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLUERAZZLEMON",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blue Razz Lemonade",
+                "Menge": 4800,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-BLUESRASPB",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Blueberry Sour Raspberry",
+                "Menge": 4800,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-CHERRY",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Cherry",
+                "Menge": 6800,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-CRANBGRAPE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Cranberry Grape",
+                "Menge": 4800,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-GOLDENTOBACCO",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Golden Tobacco",
+                "Menge": 9200,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-GRAPE ICE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Grape Ice",
+                "Menge": 11600,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-JUPEACH",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Peach ICE(Juicy Peach)",
+                "Menge": 9200,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-KWIPASSGUAV",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Kiwi Passion Fruit Guava",
+                "Menge": 6800,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-LEMONMINT",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Lemon Mint",
+                "Menge": 4800,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-MANGO",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Mango",
+                "Menge": 4800,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-MENTHOL",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Menthol",
+                "Menge": 11600,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-MIXBERRIES",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Mix Berries",
+                "Menge": 9200,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-PINELEMSOD",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Pineapple Lemon Qi",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-PINKLEMON",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Pink Lemonade",
+                "Menge": 9200,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-RASPBWATER",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Raspberry Watermelon",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-STRAWBERRY ICE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Strawberry Ice",
+                "Menge": 11600,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-STRAWGRAPE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Strawberry Grape",
+                "Menge": 4800,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-STRAWKIWI",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Strawberry Kiwi",
+                "Menge": 4800,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-STRAWRASP",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Strawberry Raspberry",
+                "Menge": 4800,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-TROPICALF",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Tropical Fruit",
+                "Menge": 4800,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-WAMMOJITO",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Watermelon Mojito",
+                "Menge": 4800,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-WATERMELCHERRY",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Watermelon Cherry",
+                "Menge": 4800,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-WATERMELON",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Watermelon",
+                "Menge": 6800,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-WILDORANGE",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Orange",
+                "Menge": 4800,
+                "Einzelpreis": "0.00"
+            },
+            {
+                "Artikelnummer": "EBR-ELFA-PODS-COLA",
+                "Bezeichnung": "Elf Bar Elfa Pods (2er Pack) - Cola",
+                "Menge": 0,
+                "Einzelpreis": "0.00"
+            }
+        ]
+    }
 ]
