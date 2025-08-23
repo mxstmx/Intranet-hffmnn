@@ -112,7 +112,7 @@ if ($query->have_posts()) {
             'title'     => $title,
             'orderNo'   => get_the_title(),
             'orderedAt' => $datum,
-            'link'      => get_permalink($pid),
+            'link'      => 'bestellung.php?id=' . $pid,
             'air'       => round($air_per_unit, 2),
             'airUsd'    => round($air_per_unit_usd, 2),
             'custom'    => round($zoll_per_unit, 2),
@@ -208,7 +208,7 @@ function render(){
     tbody.innerHTML='';
     rows.forEach(r=>{
         const tr=document.createElement('tr');
-        tr.innerHTML=`<td>${r.title}</td><td><a href="${r.link}" target="_blank">${r.orderNo}</a></td><td>${new Date(r.orderedAt).toLocaleDateString('de-DE')}</td><td class="text-end">${EUR.format(r.air)}<br><span class="text-muted">${USD.format(r.airUsd)}</span></td><td class="text-end">${EUR.format(r.custom)}</td><td class="text-end">${EUR.format(r.stamps)}</td><td class="text-end">${EUR.format(r.totalEur)}<br><span class="text-muted">${USD.format(r.totalUsd)}</span></td><td class="text-end">${r.delivered}</td>`;
+        tr.innerHTML=`<td>${r.title}</td><td><a href="${r.link}">${r.orderNo}</a></td><td>${new Date(r.orderedAt).toLocaleDateString('de-DE')}</td><td class="text-end">${EUR.format(r.air)}<br><span class="text-muted">${USD.format(r.airUsd)}</span></td><td class="text-end">${EUR.format(r.custom)}</td><td class="text-end">${EUR.format(r.stamps)}</td><td class="text-end">${EUR.format(r.totalEur)}<br><span class="text-muted">${USD.format(r.totalUsd)}</span></td><td class="text-end">${r.delivered}</td>`;
         tbody.appendChild(tr);
     });
     document.getElementById('rowsum').textContent = rows.length + ' Bestellungen angezeigt';
