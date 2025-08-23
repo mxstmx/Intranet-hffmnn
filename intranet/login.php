@@ -54,7 +54,7 @@ $error = $_GET['error'] ?? '';
         <div class="account-page-bg p-md-5 p-4">
           <div class="text-center">
             <div class="auth-image">
-              <img src="/img/auth-cover.png" class="img-fluid" alt="Login">
+              <img src="img/auth-cover.png" class="img-fluid" alt="Login">
             </div>
           </div>
         </div>
