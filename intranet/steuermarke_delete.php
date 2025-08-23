@@ -5,11 +5,10 @@ if (!isset($_SESSION['username'])) {
     exit();
 }
 require __DIR__ . '/config.php';
-
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 if ($id) {
-    $stmt = $pdo->prepare('DELETE FROM tickets WHERE id = :id');
+    $stmt = $pdo->prepare('DELETE FROM steuermarken WHERE id = :id');
     $stmt->execute([':id' => $id]);
 }
-header('Location: dashboard.php?page=tickets');
+header('Location: dashboard.php?page=steuermarken');
 exit();
