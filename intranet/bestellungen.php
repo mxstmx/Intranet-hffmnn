@@ -20,6 +20,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 $orders = $pdo->query('SELECT id, kunde, artikel, menge FROM bestellungen')->fetchAll(PDO::FETCH_ASSOC);
+if (!$orders) {
+    $file = __DIR__ . '/bestellungen.json';
+    if (file_exists($file)) {
+        $data = json_decode(file_get_contents($file), true);
+        if (is_array($data)) {
+            $stmt = $pdo->prepare('INSERT INTO bestellungen (kunde, artikel, menge) VALUES (:kunde, :artikel, :menge)');
+            foreach ($data as $row) {
+                $stmt->execute([
+                    ':kunde' => $row['kunde'] ?? '',
+                    ':artikel' => $row['artikel'] ?? '',
+                    ':menge' => (int)($row['menge'] ?? 0)
+                ]);
+            }
+        }
+        $orders = $pdo->query('SELECT id, kunde, artikel, menge FROM bestellungen')->fetchAll(PDO::FETCH_ASSOC);
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="de">

@@ -44,4 +44,39 @@ $insert->execute([
     ':role' => 'admin'
 ]);
 
+// Load orders from JSON if table is empty
+if (!$pdo->query('SELECT 1 FROM bestellungen LIMIT 1')->fetch()) {
+    $file = __DIR__ . '/bestellungen.json';
+    if (file_exists($file)) {
+        $data = json_decode(file_get_contents($file), true);
+        if (is_array($data)) {
+            $stmt = $pdo->prepare('INSERT INTO bestellungen (kunde, artikel, menge) VALUES (:kunde, :artikel, :menge)');
+            foreach ($data as $row) {
+                $stmt->execute([
+                    ':kunde' => $row['kunde'] ?? '',
+                    ':artikel' => $row['artikel'] ?? '',
+                    ':menge' => (int)($row['menge'] ?? 0)
+                ]);
+            }
+        }
+    }
+}
+
+// Load open items from JSON if table is empty
+if (!$pdo->query('SELECT 1 FROM offene_posten LIMIT 1')->fetch()) {
+    $file = __DIR__ . '/offene_posten.json';
+    if (file_exists($file)) {
+        $data = json_decode(file_get_contents($file), true);
+        if (is_array($data)) {
+            $stmt = $pdo->prepare('INSERT INTO offene_posten (beschreibung, betrag) VALUES (:beschreibung, :betrag)');
+            foreach ($data as $row) {
+                $stmt->execute([
+                    ':beschreibung' => $row['beschreibung'] ?? '',
+                    ':betrag' => (float)($row['betrag'] ?? 0)
+                ]);
+            }
+        }
+    }
+}
+
 echo "Database initialized.\n";
