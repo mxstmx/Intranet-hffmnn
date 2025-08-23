@@ -14,11 +14,12 @@ $pdo->exec('CREATE TABLE steuermarken (
     name TEXT NOT NULL,
     warenwert_gesamt REAL DEFAULT 0,
     wert_je_marke REAL DEFAULT 0,
-    datum TEXT
+    datum TEXT,
+    anzahl INTEGER DEFAULT 0
 )');
-$pdo->exec("INSERT INTO steuermarken (id,name,warenwert_gesamt,wert_je_marke,datum) VALUES
-    (1,'19%',0,0,DATE('now')),
-    (2,'7%',0,0,DATE('now'))");
+$pdo->exec("INSERT INTO steuermarken (id,name,warenwert_gesamt,wert_je_marke,datum,anzahl) VALUES
+    (1,'19%',0,0,DATE('now'),0),
+    (2,'7%',0,0,DATE('now'),0)");
 
 $pdo->exec('DROP TABLE IF EXISTS bestand');
 $pdo->exec('CREATE TABLE bestand (
