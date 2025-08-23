@@ -19,14 +19,16 @@ if (!$order) {
 $meta   = $order['Metadaten'] ?? [];
 $title  = $meta['Betreff'] ?? '';
 $date   = $meta['Belegdatum'] ?? '';
-$warenwert = 0;
+$warenwertUsd = 0;
+$totalQty = 0;
 foreach ($order['Produkte'] as $prod) {
     $qty   = (int)($prod['Menge'] ?? 0);
     $price = (float)($prod['Einzelpreis'] ?? 0);
-    $warenwert += $qty * $price;
+    $totalQty += $qty;
+    $warenwertUsd += $qty * $price;
 }
-if (!$warenwert) {
-    $warenwert = (float)($meta['BetragNetto'] ?? 0);
+if (!$warenwertUsd) {
+    $warenwertUsd = (float)($meta['BetragNetto'] ?? 0);
 }
 // existing assignment and marks
 $stmt = $pdo->prepare('SELECT steuermarke_id, steuermarke_qty, zoll_eur, aircargo_usd, wechselkurs FROM bestellungen WHERE belegnummer = :bn');
@@ -40,11 +42,14 @@ $assignedName = '';
 $zoll = (float)$assign['zoll_eur'];
 $airUsd = (float)$assign['aircargo_usd'];
 $rate = (float)$assign['wechselkurs'];
-$airEuro = $airUsd * $rate;
+$airEuro = $rate ? $airUsd / $rate : $airUsd;
+$warenwertEuro = $rate ? $warenwertUsd / $rate : $warenwertUsd;
+$markVal = 0;
 if ($assign['steuermarke_id']) {
     $m = $markMap[$assign['steuermarke_id']] ?? null;
     if ($m) {
-        $stampsValue = $m['wert_je_marke'] * (int)$assign['steuermarke_qty'];
+        $markVal = (float)$m['wert_je_marke'];
+        $stampsValue = $markVal * (int)$assign['steuermarke_qty'];
         $assignedName = $m['name'];
     }
 }
@@ -55,6 +60,7 @@ foreach ($allOrders as $row) {
     if (($meta2['Belegart'] ?? '') === '2900' && ($meta2['Vorbelegnummer'] ?? '') === $orderNo) {
         $lieferscheine[] = [
             'nr' => $row['Belegnummer'] ?? '',
+            'lf' => $meta2['LFBelegnummer'] ?? '',
             'datum' => $meta2['Belegdatum'] ?? '',
             'produkte' => $row['Produkte'] ?? []
         ];
@@ -102,10 +108,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <h2>Kostenübersicht</h2>
             <div class="body">
                 <table class="table">
-                    <tr><th>Warenwert</th><td class="text-end">€ <?php echo number_format($warenwert,2,',','.'); ?></td><td class="text-end">$ <?php echo number_format($warenwert,2,',','.'); ?></td></tr>
+                    <tr><th>Warenwert</th><td class="text-end">€ <?php echo number_format($warenwertEuro,2,',','.'); ?></td><td class="text-end">$ <?php echo number_format($warenwertUsd,2,',','.'); ?></td></tr>
                     <tr><th>Steuermarkenwert<?php echo $assignedName? ' ('.htmlspecialchars($assignedName).')':''; ?></th><td class="text-end" colspan="2">€ <?php echo number_format($stampsValue,2,',','.'); ?></td></tr>
                     <tr><th>Zollkosten</th><td class="text-end" id="total-zoll">€ <?php echo number_format($zoll,2,',','.'); ?></td><td class="text-end">&ndash;</td></tr>
                     <tr><th>Aircargo</th><td class="text-end" id="total-air-eur">€ <?php echo number_format($airEuro,2,',','.'); ?></td><td class="text-end" id="total-air-usd">$ <?php echo number_format($airUsd,2,',','.'); ?></td></tr>
+                    <?php
+                        $warenStk = $totalQty ? $warenwertEuro / $totalQty : 0;
+                        $airStk = $totalQty ? $airEuro / $totalQty : 0;
+                        $zollStk = $totalQty ? $zoll / $totalQty : 0;
+                        $stkPreis = $warenStk + $airStk + $zollStk + $markVal;
+                    ?>
+                    <tr><th>Stückpreis</th><td class="text-end" id="stkpreis">€ <?php echo number_format($stkPreis,2,',','.'); ?></td><td class="text-end">&ndash;</td></tr>
                 </table>
             </div>
         </div>
@@ -129,7 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <ul id="ls-list" class="list-unstyled">
                     <?php foreach ($lieferscheine as $ls): ?>
                         <li class="d-flex justify-content-between align-items-center mb-2" data-nr="<?php echo htmlspecialchars($ls['nr']); ?>">
-                            <span><?php echo htmlspecialchars($ls['nr']); ?> (<?php echo htmlspecialchars($ls['datum']); ?>)</span>
+                            <span><?php echo htmlspecialchars($ls['nr']); ?> / LF <?php echo htmlspecialchars($ls['lf']); ?> (<?php echo htmlspecialchars($ls['datum']); ?>)</span>
                             <span>Zoll: <span class="ls-zoll"><?php echo number_format($ls['zoll'],2,',','.'); ?></span> € &nbsp;|&nbsp; Air: <span class="ls-air"><?php echo number_format($ls['air'],2,',','.'); ?></span> $ <a href="#" class="edit-ls ms-2" data-nr="<?php echo htmlspecialchars($ls['nr']); ?>" data-zoll="<?php echo htmlspecialchars($ls['zoll']); ?>" data-air="<?php echo htmlspecialchars($ls['air']); ?>">✎</a></span>
                         </li>
                     <?php endforeach; ?>
@@ -169,6 +182,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 <script>
 const lsModal=document.getElementById('lsModal');
+const rate=<?php echo $rate ?: 1; ?>;
+const totalQty=<?php echo (int)$totalQty; ?>;
+const warenEuro=<?php echo $warenwertEuro; ?>;
+const markVal=<?php echo $markVal; ?>;
 document.querySelectorAll('.edit-ls').forEach(btn=>{
     btn.addEventListener('click',e=>{
         e.preventDefault();
@@ -193,10 +210,14 @@ document.getElementById('lsForm').addEventListener('submit',e=>{
             row.querySelector('.ls-zoll').textContent=parseFloat(zoll).toFixed(2).replace('.',',');
             row.querySelector('.ls-air').textContent=parseFloat(air).toFixed(2).replace('.',',');
             const t=res.totals;
-            document.getElementById('total-zoll').textContent='€ '+parseFloat(t.zoll).toFixed(2).replace('.',',');
-            const rate=<?php echo $rate ?: 1; ?>;
-            document.getElementById('total-air-usd').textContent='$ '+parseFloat(t.air).toFixed(2).replace('.',',');
-            document.getElementById('total-air-eur').textContent='€ '+(parseFloat(t.air)*rate).toFixed(2).replace('.',',');
+            const airUsd=parseFloat(t.air);
+            const airEur=airUsd/ (rate||1);
+            const zollSum=parseFloat(t.zoll);
+            document.getElementById('total-zoll').textContent='€ '+zollSum.toFixed(2).replace('.',',');
+            document.getElementById('total-air-usd').textContent='$ '+airUsd.toFixed(2).replace('.',',');
+            document.getElementById('total-air-eur').textContent='€ '+airEur.toFixed(2).replace('.',',');
+            const stk= totalQty ? (warenEuro/totalQty)+(airEur/totalQty)+(zollSum/totalQty)+markVal : 0;
+            document.getElementById('stkpreis').textContent='€ '+stk.toFixed(2).replace('.',',');
         }
     });
 });
