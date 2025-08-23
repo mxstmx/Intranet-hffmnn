@@ -8,10 +8,17 @@ $pdo->exec('CREATE TABLE IF NOT EXISTS users (
     role TEXT NOT NULL
 )');
 
-$pdo->exec('CREATE TABLE IF NOT EXISTS steuermarken (
+$pdo->exec('DROP TABLE IF EXISTS steuermarken');
+$pdo->exec('CREATE TABLE steuermarken (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL
+    name TEXT NOT NULL,
+    warenwert_gesamt REAL DEFAULT 0,
+    wert_je_marke REAL DEFAULT 0,
+    datum TEXT
 )');
+$pdo->exec("INSERT INTO steuermarken (id,name,warenwert_gesamt,wert_je_marke,datum) VALUES
+    (1,'19%',0,0,DATE('now')),
+    (2,'7%',0,0,DATE('now'))");
 
 $pdo->exec('DROP TABLE IF EXISTS bestand');
 $pdo->exec('CREATE TABLE bestand (
@@ -43,7 +50,9 @@ $pdo->exec('CREATE TABLE bestellungen (
     belegart TEXT,
     vorbelegnummer TEXT,
     betreff TEXT,
-    betrag REAL
+    betrag REAL,
+    steuermarke_id INTEGER,
+    steuermarke_qty INTEGER DEFAULT 0
 )');
 
 $pdo->exec('DROP TABLE IF EXISTS offene_posten');
