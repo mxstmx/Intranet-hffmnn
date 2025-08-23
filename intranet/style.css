@@ -8,3 +8,16 @@ body {
 .container {
     margin-top: 2rem;
 }
+
+.tile-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.tile-link .card {
+    transition: box-shadow .2s ease-in-out;
+}
+
+.tile-link .card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
+}

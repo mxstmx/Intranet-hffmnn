@@ -23,18 +23,52 @@ if (!isset($_SESSION['username'])) {
         </div>
     </div>
 </nav>
-<div class="container">
+<div class="container py-4">
     <h2 class="mb-4">Dashboard</h2>
-    <div class="list-group">
+    <div class="row g-4">
         <?php if ($_SESSION['role'] === 'kunde'): ?>
-            <a href="kunde_area.php" class="list-group-item list-group-item-action">Kundenbereich</a>
-            <a href="bestellungen.php" class="list-group-item list-group-item-action">Bestellungen</a>
+            <div class="col-md-4">
+                <a class="tile-link" href="kunde_area.php">
+                    <div class="card text-center h-100"><div class="card-body">Kundenbereich</div></div>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a class="tile-link" href="bestellungen.php">
+                    <div class="card text-center h-100"><div class="card-body">Bestellungen</div></div>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a class="tile-link" href="textbestellungen.php">
+                    <div class="card text-center h-100"><div class="card-body">Textbestellung</div></div>
+                </a>
+            </div>
         <?php endif; ?>
         <?php if (in_array($_SESSION['role'], ['mitarbeiter','admin'])): ?>
-            <a href="mitarbeiter_area.php" class="list-group-item list-group-item-action">Mitarbeiterbereich</a>
-            <a href="steuermarken.php" class="list-group-item list-group-item-action">Steuermarken</a>
-            <a href="bestellungen.php" class="list-group-item list-group-item-action">Bestellungen</a>
-            <a href="offene_posten.php" class="list-group-item list-group-item-action">Offene Posten</a>
+            <div class="col-md-4">
+                <a class="tile-link" href="mitarbeiter_area.php">
+                    <div class="card text-center h-100"><div class="card-body">Mitarbeiterbereich</div></div>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a class="tile-link" href="steuermarken.php">
+                    <div class="card text-center h-100"><div class="card-body">Steuermarken</div></div>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a class="tile-link" href="bestellungen.php">
+                    <div class="card text-center h-100"><div class="card-body">Bestellungen</div></div>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a class="tile-link" href="textbestellungen.php">
+                    <div class="card text-center h-100"><div class="card-body">Textbestellung</div></div>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a class="tile-link" href="offene_posten.php">
+                    <div class="card text-center h-100"><div class="card-body">Offene Posten</div></div>
+                </a>
+            </div>
         <?php endif; ?>
     </div>
 </div>

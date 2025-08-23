@@ -19,17 +19,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 $items = $pdo->query('SELECT id, beschreibung, betrag FROM offene_posten')->fetchAll(PDO::FETCH_ASSOC);
 if (!$items) {
-    $file = __DIR__ . '/offene_posten.json';
-    if (file_exists($file)) {
-        $data = json_decode(file_get_contents($file), true);
-        if (is_array($data)) {
-            $stmt = $pdo->prepare('INSERT INTO offene_posten (beschreibung, betrag) VALUES (:beschreibung, :betrag)');
-            foreach ($data as $row) {
-                $stmt->execute([
-                    ':beschreibung' => $row['beschreibung'] ?? '',
-                    ':betrag' => (float)($row['betrag'] ?? 0)
-                ]);
-            }
+    $json = @file_get_contents('https://dashboard.hoffmann-hd.de/wp-content/uploads/json/offene_posten.json');
+    if (!$json) {
+        $file = __DIR__ . '/offene_posten.json';
+        $json = file_exists($file) ? file_get_contents($file) : '';
+    }
+    $data = json_decode($json, true);
+    if (is_array($data)) {
+        $stmt = $pdo->prepare('INSERT INTO offene_posten (beschreibung, betrag) VALUES (:beschreibung, :betrag)');
+        foreach ($data as $row) {
+            $stmt->execute([
+                ':beschreibung' => $row['beschreibung'] ?? '',
+                ':betrag' => (float)($row['betrag'] ?? 0)
+            ]);
         }
         $items = $pdo->query('SELECT id, beschreibung, betrag FROM offene_posten')->fetchAll(PDO::FETCH_ASSOC);
     }

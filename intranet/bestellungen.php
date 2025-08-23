@@ -21,18 +21,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 $orders = $pdo->query('SELECT id, kunde, artikel, menge FROM bestellungen')->fetchAll(PDO::FETCH_ASSOC);
 if (!$orders) {
-    $file = __DIR__ . '/bestellungen.json';
-    if (file_exists($file)) {
-        $data = json_decode(file_get_contents($file), true);
-        if (is_array($data)) {
-            $stmt = $pdo->prepare('INSERT INTO bestellungen (kunde, artikel, menge) VALUES (:kunde, :artikel, :menge)');
-            foreach ($data as $row) {
-                $stmt->execute([
-                    ':kunde' => $row['kunde'] ?? '',
-                    ':artikel' => $row['artikel'] ?? '',
-                    ':menge' => (int)($row['menge'] ?? 0)
-                ]);
-            }
+    $json = @file_get_contents('https://dashboard.hoffmann-hd.de/wp-content/uploads/json/bestellungen.json');
+    if (!$json) {
+        $file = __DIR__ . '/bestellungen.json';
+        $json = file_exists($file) ? file_get_contents($file) : '';
+    }
+    $data = json_decode($json, true);
+    if (is_array($data)) {
+        $stmt = $pdo->prepare('INSERT INTO bestellungen (kunde, artikel, menge) VALUES (:kunde, :artikel, :menge)');
+        foreach ($data as $row) {
+            $stmt->execute([
+                ':kunde' => $row['kunde'] ?? '',
+                ':artikel' => $row['artikel'] ?? '',
+                ':menge' => (int)($row['menge'] ?? 0)
+            ]);
         }
         $orders = $pdo->query('SELECT id, kunde, artikel, menge FROM bestellungen')->fetchAll(PDO::FETCH_ASSOC);
     }
