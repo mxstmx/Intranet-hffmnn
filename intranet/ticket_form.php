@@ -57,11 +57,22 @@ $employees = $pdo->query("SELECT username FROM users WHERE role='mitarbeiter' OR
     <title><?php echo $id ? 'Ticket bearbeiten' : 'Ticket erstellen'; ?> - Hoffmann Intranet</title>
     <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
     <link rel="stylesheet" href="assets/css/theme.min.css" />
+    <style>html.minimenu .nxl-header{left:0}</style>
 </head>
 <body>
 <?php include 'menu.php'; ?>
 <main class="nxl-container">
     <div class="nxl-content">
+        <div class="page-header">
+            <div class="page-header-left d-flex align-items-center">
+                <div class="page-header-title"><h5 class="m-b-10">Tickets</h5></div>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
+                    <li class="breadcrumb-item"><a href="tickets.php">Tickets</a></li>
+                    <li class="breadcrumb-item"><?php echo $id ? 'Bearbeiten' : 'Neu'; ?></li>
+                </ul>
+            </div>
+        </div>
         <div class="container mt-4">
             <h2><?php echo $id ? 'Ticket bearbeiten' : 'Neues Ticket'; ?></h2>
             <form method="POST" class="mt-3">

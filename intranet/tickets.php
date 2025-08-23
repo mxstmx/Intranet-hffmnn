@@ -9,7 +9,7 @@ $username = htmlspecialchars($_SESSION['username']);
 
 // Standardmäßig nur offene Tickets anzeigen
 $stmt = $pdo->prepare('SELECT id, title, status, assigned_to FROM tickets WHERE status = ? ORDER BY id DESC');
-$stmt->execute(['open']);
+$stmt->execute(['offen']);
 $tickets = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
@@ -40,8 +40,9 @@ $tickets = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="col-md-3"><input type="date" id="dateFilter" class="form-control"></div>
                 <div class="col-md-3">
                     <select id="statusFilter" class="form-select">
-                        <option value="open" selected>Offen</option>
-                        <option value="closed">Geschlossen</option>
+                        <option value="offen" selected>Offen</option>
+                        <option value="in_bearbeitung">In Bearbeitung</option>
+                        <option value="geschlossen">Geschlossen</option>
                         <option value="all">Alle</option>
                     </select>
                 </div>

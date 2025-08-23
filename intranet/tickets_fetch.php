@@ -7,7 +7,7 @@ if (!isset($_SESSION['username'])) {
 require __DIR__ . '/config.php';
 
 $search = $_GET['search'] ?? '';
-$status = $_GET['status'] ?? 'open';
+$status = $_GET['status'] ?? 'offen';
 $date = $_GET['date'] ?? '';
 
 $query = 'SELECT id, title, status, assigned_to FROM tickets WHERE 1';
