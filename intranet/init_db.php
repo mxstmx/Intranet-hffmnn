@@ -8,10 +8,18 @@ $pdo->exec('CREATE TABLE IF NOT EXISTS users (
     role TEXT NOT NULL
 )');
 
-$pdo->exec('CREATE TABLE IF NOT EXISTS steuermarken (
+$pdo->exec('DROP TABLE IF EXISTS steuermarken');
+$pdo->exec('CREATE TABLE steuermarken (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL
+    name TEXT NOT NULL,
+    warenwert_gesamt REAL DEFAULT 0,
+    wert_je_marke REAL DEFAULT 0,
+    datum TEXT,
+    anzahl INTEGER DEFAULT 0
 )');
+$pdo->exec("INSERT INTO steuermarken (id,name,warenwert_gesamt,wert_je_marke,datum,anzahl) VALUES
+    (1,'19%',0,0,DATE('now'),0),
+    (2,'7%',0,0,DATE('now'),0)");
 
 $pdo->exec('DROP TABLE IF EXISTS bestand');
 $pdo->exec('CREATE TABLE bestand (
@@ -43,7 +51,12 @@ $pdo->exec('CREATE TABLE bestellungen (
     belegart TEXT,
     vorbelegnummer TEXT,
     betreff TEXT,
-    betrag REAL
+    betrag REAL,
+    steuermarke_id INTEGER,
+    steuermarke_qty INTEGER DEFAULT 0,
+    zoll_eur REAL DEFAULT 0,
+    aircargo_usd REAL DEFAULT 0,
+    wechselkurs REAL DEFAULT 1
 )');
 
 $pdo->exec('DROP TABLE IF EXISTS offene_posten');
@@ -102,7 +115,7 @@ if (!$pdo->query('SELECT 1 FROM bestellungen LIMIT 1')->fetch()) {
     $json = file_exists($file) ? file_get_contents($file) : @file_get_contents('https://dashboard.hoffmann-hd.de/wp-content/uploads/json/bestellungen.json');
     $data = json_decode($json, true);
     if (is_array($data)) {
-        $stmt = $pdo->prepare('INSERT INTO bestellungen (belegnummer, belegdatum, belegart, vorbelegnummer, betreff, betrag) VALUES (:belegnummer, :belegdatum, :belegart, :vorbelegnummer, :betreff, :betrag)');
+        $stmt = $pdo->prepare('INSERT INTO bestellungen (belegnummer, belegdatum, belegart, vorbelegnummer, betreff, betrag, zoll_eur, aircargo_usd, wechselkurs) VALUES (:belegnummer, :belegdatum, :belegart, :vorbelegnummer, :betreff, :betrag, 0, 0, 1)');
         foreach ($data as $row) {
             $meta = $row['Metadaten'] ?? [];
             $stmt->execute([
