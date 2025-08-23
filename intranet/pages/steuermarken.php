@@ -1,34 +1,7 @@
 <?php
+session_start();
+if(!isset($_SESSION['username'])){ header('Location: login.php'); exit(); }
 require __DIR__ . '/../config.php';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['add_name'])) {
-        $name = trim($_POST['add_name']);
-        $wg = (float)($_POST['add_warenwert'] ?? 0);
-        $wj = (float)($_POST['add_wert_je'] ?? 0);
-        $datum = $_POST['add_datum'] ?? null;
-        if ($name !== '') {
-            $stmt = $pdo->prepare('INSERT INTO steuermarken (name, warenwert_gesamt, wert_je_marke, datum) VALUES (:name,:wg,:wj,:datum)');
-            $stmt->execute([':name' => $name, ':wg' => $wg, ':wj' => $wj, ':datum' => $datum]);
-        }
-    } elseif (isset($_POST['action'])) {
-        $id = (int)($_POST['id'] ?? 0);
-        if ($_POST['action'] === 'update' && $id) {
-            $name = trim($_POST['name'] ?? '');
-            $wg = (float)($_POST['warenwert_gesamt'] ?? 0);
-            $wj = (float)($_POST['wert_je_marke'] ?? 0);
-            $datum = $_POST['datum'] ?? null;
-            if ($name !== '') {
-                $stmt = $pdo->prepare('UPDATE steuermarken SET name=:name, warenwert_gesamt=:wg, wert_je_marke=:wj, datum=:datum WHERE id=:id');
-                $stmt->execute([':name'=>$name, ':wg'=>$wg, ':wj'=>$wj, ':datum'=>$datum, ':id'=>$id]);
-            }
-        } elseif ($_POST['action'] === 'delete' && $id) {
-            $stmt = $pdo->prepare('DELETE FROM steuermarken WHERE id = :id');
-            $stmt->execute([':id' => $id]);
-        }
-    }
-}
-$marks = $pdo->query('SELECT id, name, warenwert_gesamt, wert_je_marke, datum FROM steuermarken ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <div class="nxl-content">
     <div class="page-header">
@@ -41,47 +14,23 @@ $marks = $pdo->query('SELECT id, name, warenwert_gesamt, wert_je_marke, datum FR
         </div>
     </div>
     <div class="container mt-4">
-        <form method="post" class="row g-2 mb-3">
-            <div class="col-md-3">
-                <input type="text" name="add_name" class="form-control" placeholder="Name" required>
-            </div>
-            <div class="col-md-3">
-                <input type="number" step="0.01" name="add_warenwert" class="form-control" placeholder="Warenwert gesamt">
-            </div>
-            <div class="col-md-3">
-                <input type="number" step="0.01" name="add_wert_je" class="form-control" placeholder="Wert je Marke">
-            </div>
-            <div class="col-md-2">
-                <input type="date" name="add_datum" class="form-control">
-            </div>
-            <div class="col-md-1">
-                <button class="btn btn-primary w-100" type="submit">Hinzufügen</button>
-            </div>
-        </form>
-        <table class="table table-striped">
-            <thead><tr><th>ID</th><th>Name</th><th>Warenwert gesamt</th><th>Wert je Steuermarke</th><th>Datum</th><th>Aktion</th></tr></thead>
-            <tbody>
-            <?php foreach ($marks as $m): ?>
+        <div class="row mb-4">
+            <div class="col-md-6"><canvas id="valueChart"></canvas></div>
+            <div class="col-md-3 offset-md-3"><canvas id="distributionChart"></canvas></div>
+        </div>
+        <div class="row mb-3 g-2">
+            <div class="col-md-3"><input type="text" id="search" class="form-control" placeholder="Suchen..."></div>
+            <div class="col-md-3"><input type="date" id="fromDate" class="form-control"></div>
+            <div class="col-md-3"><input type="date" id="toDate" class="form-control"></div>
+            <div class="col-md-3 text-end"><a href="steuermarke_form.php" class="btn btn-primary w-100">Neue Steuermarke</a></div>
+        </div>
+        <table class="table table-striped" id="markTable">
+            <thead>
                 <tr>
-                    <td>
-                        <?php echo $m['id']; ?>
-                        <input type="hidden" name="id" form="sm<?php echo $m['id']; ?>" value="<?php echo $m['id']; ?>">
-                    </td>
-                    <td><input type="text" name="name" form="sm<?php echo $m['id']; ?>" class="form-control form-control-sm" value="<?php echo htmlspecialchars($m['name']); ?>"></td>
-                    <td><input type="number" step="0.01" name="warenwert_gesamt" form="sm<?php echo $m['id']; ?>" class="form-control form-control-sm" value="<?php echo htmlspecialchars($m['warenwert_gesamt']); ?>"></td>
-                    <td><input type="number" step="0.01" name="wert_je_marke" form="sm<?php echo $m['id']; ?>" class="form-control form-control-sm" value="<?php echo htmlspecialchars($m['wert_je_marke']); ?>"></td>
-                    <td><input type="date" name="datum" form="sm<?php echo $m['id']; ?>" class="form-control form-control-sm" value="<?php echo htmlspecialchars($m['datum']); ?>"></td>
-                    <td>
-                        <form id="sm<?php echo $m['id']; ?>" method="post" class="d-inline"></form>
-                        <button form="sm<?php echo $m['id']; ?>" name="action" value="update" class="btn btn-sm btn-primary">Speichern</button>
-                        <button form="sm<?php echo $m['id']; ?>" name="action" value="delete" class="btn btn-sm btn-danger" onclick="return confirm('Steuermarke löschen?');">Löschen</button>
-                    </td>
+                    <th>ID</th><th>Name</th><th>Warenwert gesamt</th><th>Wert je Marke</th><th>Datum</th><th>Stückzahl</th><th>Zugeordnet</th><th>Aktionen</th>
                 </tr>
-            <?php endforeach; ?>
-            <?php if (!$marks): ?>
-                <tr><td colspan="6" class="text-center">Keine Steuermarken vorhanden.</td></tr>
-            <?php endif; ?>
-            </tbody>
+            </thead>
+            <tbody></tbody>
         </table>
     </div>
 </div>
@@ -91,3 +40,58 @@ $marks = $pdo->query('SELECT id, name, warenwert_gesamt, wert_je_marke, datum FR
         <script>document.write(new Date().getFullYear());</script>
     </p>
 </footer>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    const search=document.getElementById('search');
+    const fromDate=document.getElementById('fromDate');
+    const toDate=document.getElementById('toDate');
+    const tbody=document.querySelector('#markTable tbody');
+    let barChart,pieChart;
+
+    const formatCurrency = val => {
+        const num = parseFloat(val);
+        if (isNaN(num)) return '';
+        return num.toLocaleString('de-DE',{style:'currency',currency:'EUR'});
+    };
+
+    function renderCharts(data){
+        const labels=data.map(d=>d.wert_je_marke);
+        const quantities=data.map(d=>parseInt(d.anzahl,10));
+        if(barChart){ barChart.destroy(); }
+        if(pieChart){ pieChart.destroy(); }
+        barChart=new Chart(document.getElementById('valueChart'),{
+            type:'bar',
+            data:{labels:labels,datasets:[{label:'Stückzahl',data:quantities,backgroundColor:'#0d6efd'}]}
+        });
+        pieChart=new Chart(document.getElementById('distributionChart'),{
+            type:'pie',
+            data:{labels:labels,datasets:[{data:quantities,backgroundColor:['#0d6efd','#198754','#ffc107','#dc3545','#6f42c1','#20c997','#fd7e14','#6c757d']}]} 
+        });
+    }
+
+    function loadMarks(){
+        const params=new URLSearchParams({search:search.value,from:fromDate.value,to:toDate.value});
+        fetch('steuermarken_fetch.php?'+params.toString())
+            .then(r=>r.json())
+            .then(data=>{
+                tbody.innerHTML='';
+                if(data.length===0){
+                    tbody.innerHTML='<tr><td colspan="8" class="text-center">Keine Steuermarken vorhanden.</td></tr>';
+                    renderCharts([]);
+                    return;
+                }
+                data.forEach(m=>{
+                    const tr=document.createElement('tr');
+                    tr.innerHTML=`<td>${m.id}</td><td>${m.name}</td><td>${formatCurrency(m.warenwert_gesamt)}</td><td>${formatCurrency(m.wert_je_marke)}</td><td>${m.datum||''}</td><td>${m.anzahl}</td><td>${m.betreffe||''}</td><td><a href="steuermarke_form.php?id=${m.id}" class="btn btn-sm btn-secondary">Bearbeiten</a> <a href="steuermarke_delete.php?id=${m.id}" class="btn btn-sm btn-danger" onclick="return confirm('Steuermarke löschen?');">Löschen</a></td>`;
+                    tbody.appendChild(tr);
+                });
+                renderCharts(data);
+            });
+    }
+    search.addEventListener('input',loadMarks);
+    fromDate.addEventListener('change',loadMarks);
+    toDate.addEventListener('change',loadMarks);
+    loadMarks();
+});
+</script>
