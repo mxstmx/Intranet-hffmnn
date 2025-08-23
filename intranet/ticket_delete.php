@@ -11,5 +11,5 @@ if ($id) {
     $stmt = $pdo->prepare('DELETE FROM tickets WHERE id = :id');
     $stmt->execute([':id' => $id]);
 }
-header('Location: tickets.php');
+header('Location: dashboard.php?page=tickets');
 exit();
