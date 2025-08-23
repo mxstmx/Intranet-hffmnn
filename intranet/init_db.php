@@ -53,7 +53,10 @@ $pdo->exec('CREATE TABLE bestellungen (
     betreff TEXT,
     betrag REAL,
     steuermarke_id INTEGER,
-    steuermarke_qty INTEGER DEFAULT 0
+    steuermarke_qty INTEGER DEFAULT 0,
+    zoll_eur REAL DEFAULT 0,
+    aircargo_usd REAL DEFAULT 0,
+    wechselkurs REAL DEFAULT 1
 )');
 
 $pdo->exec('DROP TABLE IF EXISTS offene_posten');
@@ -112,7 +115,7 @@ if (!$pdo->query('SELECT 1 FROM bestellungen LIMIT 1')->fetch()) {
     $json = file_exists($file) ? file_get_contents($file) : @file_get_contents('https://dashboard.hoffmann-hd.de/wp-content/uploads/json/bestellungen.json');
     $data = json_decode($json, true);
     if (is_array($data)) {
-        $stmt = $pdo->prepare('INSERT INTO bestellungen (belegnummer, belegdatum, belegart, vorbelegnummer, betreff, betrag) VALUES (:belegnummer, :belegdatum, :belegart, :vorbelegnummer, :betreff, :betrag)');
+        $stmt = $pdo->prepare('INSERT INTO bestellungen (belegnummer, belegdatum, belegart, vorbelegnummer, betreff, betrag, zoll_eur, aircargo_usd, wechselkurs) VALUES (:belegnummer, :belegdatum, :belegart, :vorbelegnummer, :betreff, :betrag, 0, 0, 1)');
         foreach ($data as $row) {
             $meta = $row['Metadaten'] ?? [];
             $stmt->execute([

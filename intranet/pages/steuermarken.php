@@ -16,7 +16,7 @@ require __DIR__ . '/../config.php';
     <div class="container mt-4">
         <div class="row mb-4">
             <div class="col-md-6"><canvas id="valueChart"></canvas></div>
-            <div class="col-md-3 offset-md-3"><canvas id="distributionChart"></canvas></div>
+            <div class="col-md-6"><canvas id="distributionChart"></canvas></div>
         </div>
         <div class="row mb-3 g-2">
             <div class="col-md-3"><input type="text" id="search" class="form-control" placeholder="Suchen..."></div>

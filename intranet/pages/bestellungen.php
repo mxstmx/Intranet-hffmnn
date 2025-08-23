@@ -63,7 +63,7 @@ foreach ($orders as &$o) {
 }
 unset($o);
 
-$assignRows = $pdo->query('SELECT belegnummer, steuermarke_id, steuermarke_qty FROM bestellungen')->fetchAll(PDO::FETCH_ASSOC);
+$assignRows = $pdo->query('SELECT belegnummer, steuermarke_id, steuermarke_qty, zoll_eur, aircargo_usd, wechselkurs FROM bestellungen')->fetchAll(PDO::FETCH_ASSOC);
 $assignMap = [];
 foreach ($assignRows as $row) {
     $assignMap[$row['belegnummer']] = $row;
@@ -79,8 +79,18 @@ foreach ($orders as $no => &$o) {
         $qty = (int)$assign['steuermarke_qty'];
         $price = $markMap[$assign['steuermarke_id']] ?? 0;
         $o['stamps'] = $qty * $price;
+        $baseQty = max(1, $o['orderedQty']);
+        $airUsdTotal = (float)$assign['aircargo_usd'];
+        $rate = (float)$assign['wechselkurs'];
+        $customTotal = (float)$assign['zoll_eur'];
+        $o['air'] = ($airUsdTotal * $rate) / $baseQty;
+        $o['airUsd'] = $airUsdTotal / $baseQty;
+        $o['custom'] = $customTotal / $baseQty;
     } else {
         $o['stamps'] = 0;
+        $o['air'] = 0;
+        $o['airUsd'] = 0;
+        $o['custom'] = 0;
     }
 }
 unset($o);

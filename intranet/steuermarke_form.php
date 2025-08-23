@@ -62,6 +62,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         $pdo->prepare('UPDATE bestellungen SET steuermarke_id=NULL, steuermarke_qty=0 WHERE steuermarke_id=:id')->execute([':id'=>$id]);
         if ($order !== '') {
+            // ensure order exists in table
+            $exists = $pdo->prepare('SELECT 1 FROM bestellungen WHERE belegnummer = :bn');
+            $exists->execute([':bn'=>$order]);
+            if (!$exists->fetchColumn()) {
+                // try to find subject from loaded orders
+                $betreff = '';
+                foreach ($orders as $o) {
+                    if ($o['belegnummer'] === $order) { $betreff = $o['betreff']; break; }
+                }
+                $pdo->prepare('INSERT INTO bestellungen (belegnummer, betreff) VALUES (:bn, :betreff)')->execute([':bn'=>$order, ':betreff'=>$betreff]);
+            }
             $stmt = $pdo->prepare('UPDATE bestellungen SET steuermarke_id=:sid, steuermarke_qty=:qty WHERE belegnummer=:bn');
             $stmt->execute([':sid'=>$id, ':qty'=>$anzahl, ':bn'=>$order]);
         }

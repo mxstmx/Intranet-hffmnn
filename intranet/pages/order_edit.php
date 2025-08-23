@@ -29,14 +29,18 @@ if (!$warenwert) {
     $warenwert = (float)($meta['BetragNetto'] ?? 0);
 }
 // existing assignment and marks
-$stmt = $pdo->prepare('SELECT steuermarke_id, steuermarke_qty FROM bestellungen WHERE belegnummer = :bn');
+$stmt = $pdo->prepare('SELECT steuermarke_id, steuermarke_qty, zoll_eur, aircargo_usd, wechselkurs FROM bestellungen WHERE belegnummer = :bn');
 $stmt->execute([':bn' => $orderNo]);
-$assign = $stmt->fetch(PDO::FETCH_ASSOC) ?: ['steuermarke_id'=>null,'steuermarke_qty'=>0];
+$assign = $stmt->fetch(PDO::FETCH_ASSOC) ?: ['steuermarke_id'=>null,'steuermarke_qty'=>0,'zoll_eur'=>0,'aircargo_usd'=>0,'wechselkurs'=>1];
 $marks = $pdo->query('SELECT id, name, wert_je_marke FROM steuermarken ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
 $markMap = [];
 foreach ($marks as $m) { $markMap[$m['id']] = $m; }
 $stampsValue = 0;
 $assignedName = '';
+$zoll = (float)$assign['zoll_eur'];
+$airUsd = (float)$assign['aircargo_usd'];
+$rate = (float)$assign['wechselkurs'];
+$airEuro = $airUsd * $rate;
 if ($assign['steuermarke_id']) {
     $m = $markMap[$assign['steuermarke_id']] ?? null;
     if ($m) {
@@ -59,8 +63,11 @@ foreach ($allOrders as $row) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $sid = $_POST['steuermarke_id'] ?? null;
     $qty = (int)($_POST['menge'] ?? 0);
-    $stmt = $pdo->prepare('UPDATE bestellungen SET steuermarke_id = :sid, steuermarke_qty = :qty WHERE belegnummer = :bn');
-    $stmt->execute([':sid'=>$sid, ':qty'=>$qty, ':bn'=>$orderNo]);
+    $zoll = (float)($_POST['zoll_eur'] ?? 0);
+    $airUsd = (float)($_POST['aircargo_usd'] ?? 0);
+    $rate = (float)($_POST['wechselkurs'] ?? 1);
+    $stmt = $pdo->prepare('UPDATE bestellungen SET steuermarke_id = :sid, steuermarke_qty = :qty, zoll_eur = :zoll, aircargo_usd = :air, wechselkurs = :rate WHERE belegnummer = :bn');
+    $stmt->execute([':sid'=>$sid, ':qty'=>$qty, ':zoll'=>$zoll, ':air'=>$airUsd, ':rate'=>$rate, ':bn'=>$orderNo]);
     header('Location: dashboard.php?page=bestellungen');
     exit();
 }
@@ -85,8 +92,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <table class="table">
                     <tr><th>Warenwert</th><td class="text-end">€ <?php echo number_format($warenwert,2,',','.'); ?></td><td class="text-end">$ <?php echo number_format($warenwert,2,',','.'); ?></td></tr>
                     <tr><th>Steuermarkenwert<?php echo $assignedName? ' ('.htmlspecialchars($assignedName).')':''; ?></th><td class="text-end" colspan="2">€ <?php echo number_format($stampsValue,2,',','.'); ?></td></tr>
-                    <tr><th>Zollkosten</th><td class="text-end">€ 0,00</td><td class="text-end">$ 0.00</td></tr>
-                    <tr><th>Aircargo</th><td class="text-end">€ 0,00</td><td class="text-end">$ 0.00</td></tr>
+                    <tr><th>Zollkosten</th><td class="text-end">€ <?php echo number_format($zoll,2,',','.'); ?></td><td class="text-end">&ndash;</td></tr>
+                    <tr><th>Aircargo</th><td class="text-end">€ <?php echo number_format($airEuro,2,',','.'); ?></td><td class="text-end">$ <?php echo number_format($airUsd,2,',','.'); ?></td></tr>
                 </table>
             </div>
         </div>
@@ -130,6 +137,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="mb-3">
                 <label class="form-label">Menge Steuermarken</label>
                 <input type="number" name="menge" class="form-control" value="<?php echo (int)$assign['steuermarke_qty']; ?>">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Zollgebühr (EUR, gesamt)</label>
+                <input type="number" step="0.01" name="zoll_eur" class="form-control" value="<?php echo htmlspecialchars($zoll); ?>">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Aircargo Gebühr (USD, gesamt)</label>
+                <input type="number" step="0.01" name="aircargo_usd" class="form-control" value="<?php echo htmlspecialchars($airUsd); ?>">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Wechselkurs (USD → EUR)</label>
+                <input type="number" step="0.0001" name="wechselkurs" class="form-control" value="<?php echo htmlspecialchars($rate); ?>">
             </div>
             <button class="btn btn-primary" type="submit">Speichern</button>
             <a href="dashboard.php?page=bestellungen" class="btn btn-secondary">Abbrechen</a>
