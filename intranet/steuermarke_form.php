@@ -33,6 +33,9 @@ $json = file_exists($file) ? file_get_contents($file) : '';
 if ($json) {
     $arr = json_decode($json, true) ?: [];
     foreach ($arr as $row) {
+        if (($row['Metadaten']['Belegart'] ?? '') !== '2200') {
+            continue;
+        }
         $orders[] = [
             'belegnummer' => $row['Belegnummer'] ?? '',
             'betreff'     => $row['Metadaten']['Betreff'] ?? ''
