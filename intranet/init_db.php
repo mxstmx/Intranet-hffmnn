@@ -12,6 +12,7 @@ $pdo->exec('CREATE TABLE IF NOT EXISTS steuermarken (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL
 )');
+$pdo->exec("INSERT OR IGNORE INTO steuermarken (id,name) VALUES (1,'19%'), (2,'7%')");
 
 $pdo->exec('DROP TABLE IF EXISTS bestand');
 $pdo->exec('CREATE TABLE bestand (
@@ -43,7 +44,8 @@ $pdo->exec('CREATE TABLE bestellungen (
     belegart TEXT,
     vorbelegnummer TEXT,
     betreff TEXT,
-    betrag REAL
+    betrag REAL,
+    steuermarke_id INTEGER
 )');
 
 $pdo->exec('DROP TABLE IF EXISTS offene_posten');

@@ -7,7 +7,7 @@ if (!isset($_SESSION['username'])) {
 $username = htmlspecialchars($_SESSION['username']);
 
 $page = $_GET['page'] ?? 'home';
-$allowed = ['home', 'tickets', 'bestellungen'];
+$allowed = ['home', 'tickets', 'bestellungen', 'textbestellungen', 'bestand', 'steuermarken'];
 if (!in_array($page, $allowed)) {
     $page = 'home';
 }
