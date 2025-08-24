@@ -1,3 +1,8 @@
+<style>
+	.card {
+		padding: 20px;
+	}
+</style>
 <?php
 require __DIR__ . '/../config.php';
 $orderNo = $_GET['orderNo'] ?? '';
@@ -109,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="body">
                 <table class="table">
 					<tr><th>Warenwert</th><td class="text-end">Stückpreis</td><td class="text-end">€ <?php echo number_format($warenwertEuro,2,',','.'); ?></td><td class="text-end">$ <?php echo number_format($warenwertUsd,2,',','.'); ?></td></tr>
-                    <tr><th>Steuermarkenwert<?php echo $assignedName? ' ('.htmlspecialchars($assignedName).')':''; ?></th><td class="text-end">Stückpreis</td><td class="text-end" colspan="2">€ <?php echo number_format($stampsValue,2,',','.'); ?></td></tr>
+                    <tr><th>Steuermarkenwert<?php echo $assignedName? ' ('.htmlspecialchars($assignedName).')':''; ?></th><td class="text-end">Stückpreis</td><td class="text-end">€ <?php echo number_format($stampsValue,2,',','.'); ?></td><td class="text-end">-</td></tr>
                     <tr><th>Zollkosten</th><td class="text-end">Stückpreis</td><td class="text-end" id="total-zoll">€ <?php echo number_format($zoll,2,',','.'); ?></td><td class="text-end">&ndash;</td></tr>
                     <tr><th>Aircargo</th><td class="text-end">Stückpreis</td><td class="text-end" id="total-air-eur">€ <?php echo number_format($airEuro,2,',','.'); ?></td><td class="text-end" id="total-air-usd">$ <?php echo number_format($airUsd,2,',','.'); ?></td></tr>
                     <?php
