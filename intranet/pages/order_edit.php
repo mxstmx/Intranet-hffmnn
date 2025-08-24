@@ -1,8 +1,3 @@
-<style>
-	.card {
-		padding: 20px;
-	}
-</style>
 <?php
 require __DIR__ . '/../config.php';
 $orderNo = $_GET['orderNo'] ?? '';
@@ -87,6 +82,24 @@ if ($lsNums) {
     }
     unset($ls);
 }
+$deliveredByArticle = [];
+foreach ($lieferscheine as $ls) {
+    foreach ($ls['produkte'] as $p) {
+        $art = $p['Artikelnummer'] ?? '';
+        $qty = (int)($p['Menge'] ?? 0);
+        if ($art && $qty) {
+            $deliveredByArticle[$art] = ($deliveredByArticle[$art] ?? 0) + $qty;
+        }
+    }
+}
+$totalDelivered = 0;
+foreach ($order['Produkte'] as $p) {
+    $art = $p['Artikelnummer'] ?? '';
+    $qty = (int)($p['Menge'] ?? 0);
+    $del = $deliveredByArticle[$art] ?? 0;
+    $totalDelivered += min($qty, $del);
+}
+$openQty = max(0, $totalQty - $totalDelivered);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $rate = (float)($_POST['wechselkurs'] ?? 1);
     $stmt = $pdo->prepare('UPDATE bestellungen SET wechselkurs = :rate WHERE belegnummer = :bn');
@@ -113,28 +126,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <h2>Kostenübersicht</h2>
             <div class="body">
                 <table class="table">
-					<tr><th>Warenwert</th><td class="text-end">Stückpreis</td><td class="text-end">€ <?php echo number_format($warenwertEuro,2,',','.'); ?></td><td class="text-end">$ <?php echo number_format($warenwertUsd,2,',','.'); ?></td></tr>
-                    <tr><th>Steuermarkenwert<?php echo $assignedName? ' ('.htmlspecialchars($assignedName).')':''; ?></th><td class="text-end">Stückpreis</td><td class="text-end">€ <?php echo number_format($stampsValue,2,',','.'); ?></td><td class="text-end">-</td></tr>
-                    <tr><th>Zollkosten</th><td class="text-end">Stückpreis</td><td class="text-end" id="total-zoll">€ <?php echo number_format($zoll,2,',','.'); ?></td><td class="text-end">&ndash;</td></tr>
-                    <tr><th>Aircargo</th><td class="text-end">Stückpreis</td><td class="text-end" id="total-air-eur">€ <?php echo number_format($airEuro,2,',','.'); ?></td><td class="text-end" id="total-air-usd">$ <?php echo number_format($airUsd,2,',','.'); ?></td></tr>
-                    <?php
-                        $warenStk = $totalQty ? $warenwertEuro / $totalQty : 0;
-                        $airStk = $totalQty ? $airEuro / $totalQty : 0;
-                        $zollStk = $totalQty ? $zoll / $totalQty : 0;
-                        $stkPreis = $warenStk + $airStk + $zollStk + $markVal;
-                    ?>
-                    <tr><th>Stückpreis</th><td class="text-end" id="stkpreis">€ <?php echo number_format($stkPreis,2,',','.'); ?></td><td class="text-end">&ndash;</td></tr>
+                    <thead>
+                        <tr><th></th><th class="text-end">€ Gesamt</th><th class="text-end">$ Gesamt</th><th class="text-end">€ Stückpreis</th></tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                            $warenStk = $totalQty ? $warenwertEuro / $totalQty : 0;
+                            $airStk = $totalQty ? $airEuro / $totalQty : 0;
+                            $zollStk = $totalQty ? $zoll / $totalQty : 0;
+                            $stkPreis = $warenStk + $airStk + $zollStk + $markVal;
+                            $totalEur = $warenwertEuro + $stampsValue + $zoll + $airEuro;
+                            $totalUsd = $warenwertUsd + $airUsd;
+                        ?>
+                        <tr><th>Warenwert</th><td class="text-end">€ <?php echo number_format($warenwertEuro,2,',','.'); ?></td><td class="text-end">$ <?php echo number_format($warenwertUsd,2,',','.'); ?></td><td class="text-end" id="waren-stk">€ <?php echo number_format($warenStk,2,',','.'); ?></td></tr>
+                        <tr><th>Steuermarkenwert<?php echo $assignedName? ' ('.htmlspecialchars($assignedName).')':''; ?></th><td class="text-end">€ <?php echo number_format($stampsValue,2,',','.'); ?></td><td class="text-end">&ndash;</td><td class="text-end" id="stamp-stk">€ <?php echo number_format($markVal,2,',','.'); ?></td></tr>
+                        <tr><th>Zollkosten</th><td class="text-end" id="total-zoll">€ <?php echo number_format($zoll,2,',','.'); ?></td><td class="text-end">&ndash;</td><td class="text-end" id="zoll-stk">€ <?php echo number_format($zollStk,2,',','.'); ?></td></tr>
+                        <tr><th>Aircargo</th><td class="text-end" id="total-air-eur">€ <?php echo number_format($airEuro,2,',','.'); ?></td><td class="text-end" id="total-air-usd">$ <?php echo number_format($airUsd,2,',','.'); ?></td><td class="text-end" id="air-stk">€ <?php echo number_format($airStk,2,',','.'); ?></td></tr>
+                        <tr><th>Gesamt</th><td class="text-end" id="total-eur">€ <?php echo number_format($totalEur,2,',','.'); ?></td><td class="text-end" id="total-usd">$ <?php echo number_format($totalUsd,2,',','.'); ?></td><td class="text-end" id="stkpreis">€ <?php echo number_format($stkPreis,2,',','.'); ?></td></tr>
+                    </tbody>
                 </table>
             </div>
         </div>
         <div class="card mb-4">
             <h2>Produkte</h2>
             <div class="body table">
+                <div class="row mb-3"><div class="col-md-4"><canvas id="deliveryChart"></canvas></div></div>
                 <table class="table">
-                    <thead><tr><th>Artikel</th><th class="text-end">Menge</th><th class="text-end">Preis $</th><th class="text-end">Summe $</th></tr></thead>
+                    <thead><tr><th>Artikel</th><th class="text-end">Bestellt</th><th class="text-end">Geliefert</th><th>Status</th><th class="text-end">Preis €</th><th class="text-end">Summe €</th></tr></thead>
                     <tbody>
-                        <?php foreach ($order['Produkte'] as $p): $qty=(int)($p['Menge']??0); $price=(float)($p['Einzelpreis']??0); ?>
-                            <tr><td><?php echo htmlspecialchars($p['Bezeichnung'] ?? ''); ?></td><td class="text-end"><?php echo $qty; ?></td><td class="text-end"><?php echo number_format($price,2,',','.'); ?></td><td class="text-end"><?php echo number_format($qty*$price,2,',','.'); ?></td></tr>
+                        <?php foreach ($order['Produkte'] as $p): $qty=(int)($p['Menge']??0); $price=(float)($p['Einzelpreis']??0); $art=$p['Artikelnummer']??''; $del=$deliveredByArticle[$art]??0; $status=$del>=$qty; ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($p['Bezeichnung'] ?? ''); ?></td>
+                                <td class="text-end"><?php echo $qty; ?></td>
+                                <td class="text-end"><?php echo $del; ?></td>
+                                <td><?php echo $status?'<span class="text-success">&#10003;</span>':'<span class="text-danger">&#10007;</span>'; ?></td>
+                                <td class="text-end"><?php echo number_format($price,2,',','.'); ?></td>
+                                <td class="text-end"><?php echo number_format($qty*$price,2,',','.'); ?></td>
+                            </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
@@ -185,12 +213,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
     </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 const lsModal=document.getElementById('lsModal');
 const rate=<?php echo $rate ?: 1; ?>;
 const totalQty=<?php echo (int)$totalQty; ?>;
 const warenEuro=<?php echo $warenwertEuro; ?>;
 const markVal=<?php echo $markVal; ?>;
+const stampTotal=markVal*<?php echo (int)$assign['steuermarke_qty']; ?>;
+const warenUsd=<?php echo $warenwertUsd; ?>;
+const delivered=<?php echo $totalDelivered; ?>;
+const open=<?php echo $openQty; ?>;
+new Chart(document.getElementById('deliveryChart'),{
+    type:'pie',
+    data:{labels:['Geliefert','Offen'],datasets:[{data:[delivered,open],backgroundColor:['#198754','#dc3545']}]}
+});
 document.querySelectorAll('.edit-ls').forEach(btn=>{
     btn.addEventListener('click',e=>{
         e.preventDefault();
@@ -221,8 +258,16 @@ document.getElementById('lsForm').addEventListener('submit',e=>{
             document.getElementById('total-zoll').textContent='€ '+zollSum.toFixed(2).replace('.',',');
             document.getElementById('total-air-usd').textContent='$ '+airUsd.toFixed(2).replace('.',',');
             document.getElementById('total-air-eur').textContent='€ '+airEur.toFixed(2).replace('.',',');
-            const stk= totalQty ? (warenEuro/totalQty)+(airEur/totalQty)+(zollSum/totalQty)+markVal : 0;
+            const zollStk = totalQty ? zollSum/totalQty : 0;
+            const airStk = totalQty ? airEur/totalQty : 0;
+            document.getElementById('zoll-stk').textContent='€ '+zollStk.toFixed(2).replace('.',',');
+            document.getElementById('air-stk').textContent='€ '+airStk.toFixed(2).replace('.',',');
+            const stk= totalQty ? (warenEuro/totalQty)+airStk+zollStk+markVal : 0;
             document.getElementById('stkpreis').textContent='€ '+stk.toFixed(2).replace('.',',');
+            const totalEur=warenEuro+stampTotal+zollSum+airEur;
+            const totalUsd=warenUsd+airUsd;
+            document.getElementById('total-eur').textContent='€ '+totalEur.toFixed(2).replace('.',',');
+            document.getElementById('total-usd').textContent='$ '+totalUsd.toFixed(2).replace('.',',');
         }
     });
 });
