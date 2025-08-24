@@ -31,9 +31,12 @@ if (!$warenwertUsd) {
     $warenwertUsd = (float)($meta['BetragNetto'] ?? 0);
 }
 // existing assignment and marks
-$stmt = $pdo->prepare('SELECT steuermarke_id, steuermarke_qty, zoll_eur, aircargo_usd, wechselkurs FROM bestellungen WHERE belegnummer = :bn');
+$stmt = $pdo->prepare('SELECT steuermarke_id, steuermarke_qty, zoll_eur, aircargo_usd, wechselkurs, betrag FROM bestellungen WHERE belegnummer = :bn');
 $stmt->execute([':bn' => $orderNo]);
-$assign = $stmt->fetch(PDO::FETCH_ASSOC) ?: ['steuermarke_id'=>null,'steuermarke_qty'=>0,'zoll_eur'=>0,'aircargo_usd'=>0,'wechselkurs'=>1];
+$assign = $stmt->fetch(PDO::FETCH_ASSOC) ?: ['steuermarke_id'=>null,'steuermarke_qty'=>0,'zoll_eur'=>0,'aircargo_usd'=>0,'wechselkurs'=>1,'betrag'=>0];
+if (!empty($assign['betrag'])) {
+    $warenwertUsd = (float)$assign['betrag'];
+}
 $marks = $pdo->query('SELECT id, name, wert_je_marke FROM steuermarken ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
 $markMap = [];
 foreach ($marks as $m) { $markMap[$m['id']] = $m; }
@@ -101,9 +104,10 @@ foreach ($order['Produkte'] as $p) {
 }
 $openQty = max(0, $totalQty - $totalDelivered);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $rate = (float)($_POST['wechselkurs'] ?? 1);
-    $stmt = $pdo->prepare('UPDATE bestellungen SET wechselkurs = :rate WHERE belegnummer = :bn');
-    $stmt->execute([':rate'=>$rate, ':bn'=>$orderNo]);
+    $rate   = (float)($_POST['wechselkurs'] ?? 1);
+    $betrag = (float)($_POST['betrag_usd'] ?? 0);
+    $stmt = $pdo->prepare('UPDATE bestellungen SET wechselkurs = :rate, betrag = :betrag WHERE belegnummer = :bn');
+    $stmt->execute([':rate'=>$rate, ':betrag'=>$betrag, ':bn'=>$orderNo]);
     header('Location: dashboard.php?page=order_edit&orderNo=' . urlencode($orderNo));
     exit();
 }
@@ -152,21 +156,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="body table">
                 <div class="row mb-3"><div class="col-md-4"><canvas id="deliveryChart"></canvas></div></div>
                 <table class="table">
-                    <thead><tr><th>Artikel</th><th class="text-end">Bestellt</th><th class="text-end">Geliefert</th><th>Status</th><th class="text-end">Preis €</th><th class="text-end">Summe €</th></tr></thead>
+                    <thead><tr><th>Artikel</th><th class="text-end">Bestellt</th><th class="text-end">Geliefert</th><th>Fortschritt</th><th class="text-end">Preis €</th><th class="text-end">Summe €</th></tr></thead>
                     <tbody>
-                        <?php foreach ($order['Produkte'] as $p): $qty=(int)($p['Menge']??0); $price=(float)($p['Einzelpreis']??0); $art=$p['Artikelnummer']??''; $del=$deliveredByArticle[$art]??0; $status=$del>=$qty; ?>
+                        <?php foreach ($order['Produkte'] as $p): $qty=(int)($p['Menge']??0); $price=(float)($p['Einzelpreis']??0); $art=$p['Artikelnummer']??''; $del=$deliveredByArticle[$art]??0; $percent=$qty?min($del,$qty)/$qty*100:0; ?>
                             <tr>
                                 <td><?php echo htmlspecialchars($p['Bezeichnung'] ?? ''); ?></td>
                                 <td class="text-end"><?php echo $qty; ?></td>
                                 <td class="text-end"><?php echo $del; ?></td>
-                                <td><?php echo $status?'<span class="text-success">&#10003;</span>':'<span class="text-danger">&#10007;</span>'; ?></td>
+                                <td>
+                                    <div class="progress" style="height:20px">
+                                        <div class="progress-bar" role="progressbar" style="width: <?php echo $percent; ?>%;" aria-valuenow="<?php echo $percent; ?>" aria-valuemin="0" aria-valuemax="100"><?php echo round($percent); ?>%</div>
+                                    </div>
+                                </td>
                                 <td class="text-end"><?php echo number_format($price,2,',','.'); ?></td>
                                 <td class="text-end"><?php echo number_format($qty*$price,2,',','.'); ?></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
-            </div>
+                </div>
         </div>
         <div class="card mb-4">
             <h2>Lieferscheine</h2>
@@ -186,6 +194,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
         <form method="POST" class="mt-3">
+            <div class="mb-3">
+                <label class="form-label">Gesamtpreis netto (USD)</label>
+                <input type="number" step="0.01" name="betrag_usd" class="form-control" value="<?php echo htmlspecialchars($warenwertUsd); ?>">
+            </div>
             <div class="mb-3">
                 <label class="form-label">Wechselkurs (USD → EUR)</label>
                 <input type="number" step="0.0001" name="wechselkurs" class="form-control" value="<?php echo htmlspecialchars($rate); ?>">
